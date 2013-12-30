@@ -1,4 +1,6 @@
-# cwebsocket - Fast, lightweight websocket server/client
+# cwebsocket
+
+# Fast, lightweight websocket server/client.
 
 cwebsocket is written in ANSI C and is RFC 6455 compliant
 
