@@ -36,7 +36,7 @@
 #include <syslog.h>
 #include <errno.h>
 
-#define RECEIVE_BUFFER_MAX 2048
+#define RECEIVE_BUFFER_MAX 65535
 
 typedef enum {
 	TRUE,
@@ -66,7 +66,6 @@ typedef enum {
 	|                     Payload Data continued ...                |
 	+---------------------------------------------------------------+
 */
-
 typedef enum opcode_type {
 	CONTINUATION = 0x00,
 	TEXT_FRAME = 0x01,
@@ -87,7 +86,6 @@ typedef struct {
 	uint32_t masking_key[4];
 } websocket_frame;
 
-int websocket_fd;
 void (*on_connect_callback_ptr)(int fd);
 int (*on_message_callback_ptr)(const char *message);
 
@@ -95,9 +93,9 @@ int websocket_connect(const char *hostname, const char *port, const char *resour
 int websocket_read_handshake(int fd);
 int websocket_handshake_handler(const char *message);
 int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message));
-int websocket_data_print_handler(const char *message);
+int websocket_data_print_message(const char *message);
 int websocket_data_print_size(const char *message);
 void websocket_print_frame(websocket_frame *frame);
-void websocket_close();
+void websocket_close(int fd);
 
 #endif

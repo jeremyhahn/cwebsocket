@@ -19,7 +19,6 @@
  */
 
 #include "client.h"
-#include "bitutil.c"
 
 void websocket_generate_seckey(char *key) {
 
@@ -42,14 +41,15 @@ void websocket_generate_seckey(char *key) {
 }
 
 int websocket_connect(const char *hostname, const char *port, const char *resource, void (*on_connect_callback)(int fd)) {
-
+/*
 	if(websocket_fd > 0) {
 		const char *errmsg = "WebSocket already connected";
 		//fprintf(stderr, errmsg);
 		syslog(LOG_ERR, "%s", errmsg);
 		return -1;
 	}
-
+*/
+	int websocket_fd;
 	char handshake[1024];
     struct addrinfo hints, *res;
 
@@ -133,7 +133,6 @@ int websocket_connect(const char *hostname, const char *port, const char *resour
 int websocket_handshake_handler(const char *message) {
 	if(strstr(message, "HTTP/1.1 101 Switching Protocols") == NULL) {
 		syslog(LOG_CRIT, "%s%s", "Unexpected handshake response: ", message);
-		websocket_close();
 		return -1;
 	}
 	syslog(LOG_DEBUG, "Websocket connected!\n%s", message);
@@ -168,10 +167,10 @@ int websocket_read_handshake(int fd) {
 
 int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message)) {
 
-	websocket_frame frame;
-	uint8_t data[RECEIVE_BUFFER_MAX];
+	websocket_frame frame;                      // WebSocket Data Frame - RFC 6455 Section 5.2
+	uint8_t data[RECEIVE_BUFFER_MAX];           // Data stream buffer
 	int frame_byte_pointer = 2;                 // Used to extract masking-key if present
-	int header_length = 2;                      // The default/smallest possible header size
+	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
 	const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
 	const int extended_payload64_end_byte = 10; // The byte which completes the extended 64-bit payload length bits
@@ -181,18 +180,29 @@ int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *messa
 
 	while(bytes_read < header_length + payload_length) {
 
+		if(bytes_read == RECEIVE_BUFFER_MAX) {
+			syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", RECEIVE_BUFFER_MAX, header_length);
+			return -1;
+		}
+
 		int bytes = read(fd, data+bytes_read, 1);
+		if(bytes == 0) {
+			syslog(LOG_ERR, "The remote host has closed the connection");
+			return -1;
+		}
 		if(bytes == -1) {
 			syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
 			return -1;
 		}
 		bytes_read++;
 
-		if(bytes_read == header_length_offset ||
-				bytes_read == extended_payload16_end_byte || bytes_read == extended_payload64_end_byte) {
+		if(bytes_read < header_length) continue; // Need at least the first two bytes of the header to start parsing
+
+		//if(bytes_read == header_length_offset ||
+		//		bytes_read == extended_payload16_end_byte || bytes_read == extended_payload64_end_byte) {
 
 			if(bytes_read == header_length_offset) {
-syslog(LOG_DEBUG, "inside bytes_read == header_length_offset");
+//syslog(LOG_DEBUG, "bytes_read == header_length_offset");
 				// 0                   1                   2                   3
 				// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 				// +-+-+-+-+-------+-+-------------+-------------------------------+
@@ -202,9 +212,9 @@ syslog(LOG_DEBUG, "inside bytes_read == header_length_offset");
 				// | |1|2|3|       |                                               |
 				// +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
 				frame.fin = (data[0] & 0x80) == 0x80;
-				frame.rsv1 = (data[0] & 0x40) == 0x40;
-				frame.rsv2 = (data[0] & 0x20) == 0x20;
-				frame.rsv3 = (data[0] & 0x10) == 0x10;
+				//frame.rsv1 = (data[0] & 0x40) == 0x40;
+				//frame.rsv2 = (data[0] & 0x20) == 0x20;
+				//frame.rsv3 = (data[0] & 0x10) == 0x10;
 				frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
 
 				// 0                   1                   2                   3
@@ -218,8 +228,9 @@ syslog(LOG_DEBUG, "inside bytes_read == header_length_offset");
 				frame.mask = (data[1] & 0x80) == 0x80;
 				frame.payload_len = (data[1] & 0x7F);
 
-				header_length = 2;
+				header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
 				payload_length = frame.payload_len;
+				extended_payload_length = 0;
 			}
 
 			// 0                   1                   2                   3
@@ -231,13 +242,12 @@ syslog(LOG_DEBUG, "inside bytes_read == header_length_offset");
 			//                                 |                               |
 			//                                 + - - - - - - - - - - - - - - - +
 			if(frame.payload_len == 126 && bytes_read == extended_payload16_end_byte) {
-syslog(LOG_DEBUG, "inside frame.layload_len == 126");
+//syslog(LOG_DEBUG, "frame.payload_len == 126 && bytes_read == extended_payload16_end_byte");
 				extended_payload_length = 0;
 				extended_payload_length |= ((uint64_t) data[2]) << 8;
 				extended_payload_length |= ((uint64_t) data[3]) << 0;
 
 				frame_byte_pointer = 4;
-				header_length += 2;
 				payload_length = extended_payload_length;
 			}
 			// 0                   1                   2                   3
@@ -248,7 +258,7 @@ syslog(LOG_DEBUG, "inside frame.layload_len == 126");
 			// |                               |                               |
 			// +-------------------------------+-------------------------------+
 			else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
-syslog(LOG_DEBUG, "inside frame.layload_len == 127");
+//syslog(LOG_DEBUG, "frame.payload_len == 127 && bytes_read == extended_payload64_end_byte");
 				extended_payload_length = 0;
 				extended_payload_length |= ((uint64_t) data[2]) << 56;
 				extended_payload_length |= ((uint64_t) data[3]) << 48;
@@ -260,7 +270,6 @@ syslog(LOG_DEBUG, "inside frame.layload_len == 127");
 				extended_payload_length |= ((uint64_t) data[9]) << 0;
 
 				frame_byte_pointer = 10;
-				header_length += 6;
 				payload_length = extended_payload_length;
 			}
 
@@ -272,16 +281,13 @@ syslog(LOG_DEBUG, "inside frame.layload_len == 127");
 			// | Masking-key (continued)       |                               |
 			// +-------------------------------- - - - - - - - - - - - - - - - +
 			if(frame.mask) {
-
-				//if(payload_length < 14) continue;
-
+//syslog(LOG_DEBUG, "frame.mask");
 				frame.masking_key[0] = ((uint8_t) data[frame_byte_pointer+0]) << 0;
 				frame.masking_key[1] = ((uint8_t) data[frame_byte_pointer+1]) << 0;
 				frame.masking_key[2] = ((uint8_t) data[frame_byte_pointer+2]) << 0;
 				frame.masking_key[3] = ((uint8_t) data[frame_byte_pointer+3]) << 0;
 
 				frame_byte_pointer = 14;
-				header_length += 4;
 			}
 			else {
 
@@ -290,17 +296,9 @@ syslog(LOG_DEBUG, "inside frame.layload_len == 127");
 				frame.masking_key[2] = 0;
 				frame.masking_key[3] = 0;
 			}
-		}
+		//}
 	}
-	if(bytes_read == -1) {
-		syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
-		return -1;
-	}
-	if(!sizeof(data) == header_length + payload_length) {
-		syslog(LOG_ERR, "Unexpected data frame checksum: sizeof(payload)=%ld, header_length+payload_length=%i", sizeof(data), header_length + payload_length);
-		return -1;
-	}
-
+/*
 websocket_print_frame(&frame);
 syslog(LOG_DEBUG, "header_length: %i", header_length);
 syslog(LOG_DEBUG, "payload_length: %i", payload_length);
@@ -308,26 +306,43 @@ syslog(LOG_DEBUG, "extended_payload_length: %ld", extended_payload_length);
 syslog(LOG_DEBUG, "frame_byte_pointer: %i", frame_byte_pointer);
 syslog(LOG_DEBUG, "bytes_read=%i", bytes_read);
 syslog(LOG_DEBUG, "data=%s", data);
-
+*/
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
-		char payload[payload_length+1];
+		char payload[payload_length];
+		//memset(payload, 0, payload_length);
 		memcpy(payload, &data[header_length], payload_length);
-		payload[payload_length+1] = '\0';
+		payload[payload_length] = '\0';
+
+//syslog(LOG_DEBUG, "sizeof(payload)=%i", sizeof(payload));
+//syslog(LOG_DEBUG, "payload=%s", payload);
 
 		if((*on_message_callback_ptr) != NULL)
 		    return (*on_message_callback_ptr)(payload);
 
-		syslog(LOG_DEBUG, "No callback defined for data: %s", payload);
-		return 0; // no callback defined
+		syslog(LOG_WARNING, "No callback defined for data: %s", payload);
+		return 0;
+	}
+	else if (frame.opcode == BINARY_FRAME) {
+		syslog(LOG_DEBUG, "Received unsupported BINARY_FRAME opcode");
+	}
+	else if (frame.opcode == CONTINUATION) {
+		syslog(LOG_DEBUG, "Received unsupported CONTINUATION opcode");
+	}
+	else if (frame.opcode == PING) {
+		syslog(LOG_DEBUG, "Received PING control frame");
+	}
+	else if (frame.opcode == PONG) {
+		syslog(LOG_DEBUG, "Received PONG control frame");
+	}
+	else if(frame.opcode == CLOSE) {
+		syslog(LOG_DEBUG, "Received CLOSE control frame");
+		websocket_close(fd);
 	}
 	else {
-
-		syslog(LOG_DEBUG, "->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>found frame.fin = false!");
-
-		if(!frame.fin && frame.opcode == CONTINUATION) {
-			syslog(LOG_DEBUG, "->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>found continuation frame!");
-		}
+		syslog(LOG_ERR, "Unsupported data frame opcode: %x", frame.opcode);
+		websocket_print_frame(&frame);
+		websocket_close(fd);
 	}
 
 	return -1;
@@ -338,8 +353,8 @@ void websocket_print_frame(websocket_frame *frame) {
 			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
-int websocket_data_print_handler(const char *message) {
-	syslog(LOG_DEBUG, "websocket_data_print_handler: %s", message);
+int websocket_data_print_message(const char *message) {
+	syslog(LOG_DEBUG, "websocket_data_print_message: %s", message);
 	return 0;
 }
 
@@ -348,10 +363,9 @@ int websocket_data_print_size(const char *message) {
 	return 0;
 }
 
-void websocket_close() {
-	if(websocket_fd > 0) {
-	    syslog(LOG_DEBUG, "Closing WebSocket");
-		close(websocket_fd);
-		websocket_fd = 0;
+void websocket_close(int fd) {
+	syslog(LOG_DEBUG, "Closing WebSocket");
+	if(close(fd) == -1) {
+		syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
 	}
 }

@@ -1,4 +1,4 @@
-CFLAGS = -O2 -g -Wall -fmessage-length=0 -I ../jlibc/src
+CFLAGS = -O2 -g -Wall -fmessage-length=0
 
 OBJS =	 src/client.o src/main.o
 

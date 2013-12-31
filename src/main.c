@@ -4,6 +4,8 @@
 
 #define APPNAME "cwebsocket"
 
+int WEBSOCKET_FD;
+
 void main_exit(int exit_status);
 
 void signal_handler(int sig) {
@@ -16,7 +18,7 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			syslog(LOG_INFO, "Caught SIGINT/SIGTERM - terminating");
-			websocket_close();
+			websocket_close(WEBSOCKET_FD);
 			main_exit(EXIT_SUCCESS);
 			break;
 		default:
@@ -42,9 +44,10 @@ void on_connect(int fd) {
 	syslog(LOG_DEBUG, "on_connect_callback: bytes=%zu", strlen(str_fd));
 }
 
-void on_message(const char *message) {
+int on_message(const char *message) {
 	syslog(LOG_DEBUG, "on_message_callback: data=%s", message);
 	syslog(LOG_DEBUG, "on_message_callback: bytes=%zu", strlen(message));
+	return 0;
 }
 
 void on_close_callback() {
@@ -96,10 +99,9 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	int websocket = websocket_connect(argv[1], argv[2], argv[3], &on_connect);
-	//int websocket = websocket_connect(argv[1], argv[2], argv[3], NULL);
-	if(websocket == -1) {
-		syslog(LOG_ERR, "Unable to connect to the remote server");
+	WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3], &on_connect);
+	//WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3], NULL);
+	if(WEBSOCKET_FD == -1) {
     	main_exit(EXIT_FAILURE);
     }
 
@@ -107,17 +109,17 @@ int main(int argc, char **argv) {
 
 		syslog(LOG_DEBUG, "main: calling websocket_read");
 
-		int callback_return_value = websocket_read_data(websocket, &on_message);
+		int callback_return_value = websocket_read_data(WEBSOCKET_FD, &on_message);
 		//int callback_return_value = websocket_read_data(websocket, NULL);
 		if(callback_return_value == -1) {
 			syslog(LOG_ERR, "The connection to the server was broken or the handler was unable to process the incoming data.");
-			websocket_close();
+			websocket_close(WEBSOCKET_FD);
 			main_exit(EXIT_FAILURE);
 			break;
 		}
 	}
 
-	websocket_close();
+	websocket_close(WEBSOCKET_FD);
     main_exit(EXIT_SUCCESS);
     return EXIT_SUCCESS;
 }
