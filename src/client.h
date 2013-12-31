@@ -1,6 +1,5 @@
 /**
- *  cwebsocket - A fast, lightweight ANSI C WebSocket
- *  RFC6455 - The WebSocket Protocol - http://tools.ietf.org/html/rfc6455
+ *  cwebsocket: A fast, lightweight websocket client/server
  *
  *  This file is part of cwebsocket.
  *
@@ -16,8 +15,6 @@
  *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with cwebsocket.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  RFC6455 - The WebSocket Protocol - http://tools.ietf.org/html/rfc6455
  */
 
 #ifndef WEBSOCKET_H
@@ -36,7 +33,8 @@
 #include <syslog.h>
 #include <errno.h>
 
-#define RECEIVE_BUFFER_MAX 65535
+#define HANDSHAKE_BUFFER_MAX 1024
+#define DATA_BUFFER_MAX 65536
 
 typedef enum {
 	TRUE,
@@ -87,15 +85,16 @@ typedef struct {
 } websocket_frame;
 
 void (*on_connect_callback_ptr)(int fd);
-int (*on_message_callback_ptr)(const char *message);
+int (*on_message_callback_ptr)(int fd, const char *message);
+void (*on_close_callback_ptr)(int fd, const char *message);
 
-int websocket_connect(const char *hostname, const char *port, const char *resource, void (*on_connect_callback_ptr)(int fd));
+int websocket_connect(const char *hostname, const char *port, const char *path);
 int websocket_read_handshake(int fd);
 int websocket_handshake_handler(const char *message);
-int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message));
+int websocket_read_data(int fd);
 int websocket_data_print_message(const char *message);
 int websocket_data_print_size(const char *message);
 void websocket_print_frame(websocket_frame *frame);
-void websocket_close(int fd);
+void websocket_close(int fd, const char *message);
 
 #endif

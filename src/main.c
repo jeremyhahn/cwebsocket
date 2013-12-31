@@ -13,18 +13,37 @@ void signal_handler(int sig) {
 	switch(sig) {
 		case SIGHUP:
 			syslog(LOG_DEBUG, "Received SIGHUP signal");
-			// TODO Reload config and reopen files
+			// Reload config and reopen files
 			break;
 		case SIGINT:
 		case SIGTERM:
-			syslog(LOG_INFO, "Caught SIGINT/SIGTERM - terminating");
-			websocket_close(WEBSOCKET_FD);
+			websocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM caught");
 			main_exit(EXIT_SUCCESS);
 			break;
 		default:
 			syslog(LOG_WARNING, "Unhandled signal %s", strsignal(sig));
 			break;
 	}
+}
+
+void on_connect(int fd) {
+	char str_fd[10];
+	sprintf(str_fd, "%d", fd);
+	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", fd);
+	syslog(LOG_DEBUG, "on_connect: bytes=%zu", strlen(str_fd));
+}
+
+int on_message(int fd, const char *message) {
+	syslog(LOG_DEBUG, "on_message: data=%s", message);
+	syslog(LOG_DEBUG, "on_message: bytes=%zu", strlen(message));
+	return 0;
+}
+
+void on_close(int fd, const char *message) {
+	if(message != NULL) {
+		syslog(LOG_DEBUG, "on_close: %s", message);
+	}
+	syslog(LOG_DEBUG, "on_close: websocket file descriptor: %i", fd);
 }
 
 int is_valid_arg(const char *string) {
@@ -37,24 +56,37 @@ int is_valid_arg(const char *string) {
 	return 1;
 }
 
-void on_connect(int fd) {
-	char str_fd[2];
-	sprintf(str_fd, "%d", fd);
-	syslog(LOG_DEBUG, "on_connect_callback: websocket file descriptor: %s", str_fd);
-	syslog(LOG_DEBUG, "on_connect_callback: bytes=%zu", strlen(str_fd));
+void print_program_header() {
+
+	fprintf(stderr, "****************************************************************************\n");
+	fprintf(stderr, "* cwebsocket: A fast, lightweight websocket client/server                  *\n");
+	fprintf(stderr, "*                                                                          *\n");
+	fprintf(stderr, "* cwebsocket is free software: you can redistribute it and/or modify       *\n");
+	fprintf(stderr, "* it under the terms of the GNU Lesser General Public License as published *\n");
+	fprintf(stderr, "* by the Free Software Foundation, either version 3 of the License, or     *\n");
+	fprintf(stderr, "* (at your option) any later version.                                      *\n");
+	fprintf(stderr, "*                                                                          *\n");
+	fprintf(stderr, "* cwebsocket is distributed in the hope that it will be useful,            *\n");
+	fprintf(stderr, "* but WITHOUT ANY WARRANTY; without even the implied warranty of           *\n");
+	fprintf(stderr, "* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *\n");
+	fprintf(stderr, "* GNU Lesser General Public License for more details.                      *\n");
+	fprintf(stderr, "*                                                                          *\n");
+	fprintf(stderr, "* You should have received a copy of the GNU Lesser General Public License *\n");
+	fprintf(stderr, "* along with cwebsocket.  If not, see <http://www.gnu.org/licenses/>.      *\n");
+	fprintf(stderr, "****************************************************************************\n");
+	fprintf(stderr, "\n");
 }
 
-int on_message(const char *message) {
-	syslog(LOG_DEBUG, "on_message_callback: data=%s", message);
-	syslog(LOG_DEBUG, "on_message_callback: bytes=%zu", strlen(message));
-	return 0;
-}
+void print_program_usage() {
 
-void on_close_callback() {
-	syslog(LOG_DEBUG, "on_close_callback");
+	print_program_header();
+	fprintf(stderr, "usage: [hostname] [port] [path]\n");
+	exit(0);
 }
 
 int main(int argc, char **argv) {
+
+	print_program_header();
 
 	struct sigaction newSigAction;
 	sigset_t newSigSet;
@@ -80,10 +112,7 @@ int main(int argc, char **argv) {
 	openlog(APPNAME, LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "Starting cwebsocket");
 
-	if(argc != 4) {
-		fprintf(stderr, "usage: [hostname] [port] [resource]\n");
-		exit(0);
-	}
+	if(argc != 4) print_program_usage();
 
     int port = atoi(argv[2]);
 	if(port > 65536 || port < 0 ) {
@@ -99,8 +128,11 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3], &on_connect);
-	//WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3], NULL);
+	on_connect_callback_ptr = &on_connect;
+	on_message_callback_ptr = &on_message;
+	on_close_callback_ptr = &on_close;
+
+	WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3]);
 	if(WEBSOCKET_FD == -1) {
     	main_exit(EXIT_FAILURE);
     }
@@ -109,17 +141,16 @@ int main(int argc, char **argv) {
 
 		syslog(LOG_DEBUG, "main: calling websocket_read");
 
-		int callback_return_value = websocket_read_data(WEBSOCKET_FD, &on_message);
-		//int callback_return_value = websocket_read_data(websocket, NULL);
+		int callback_return_value = websocket_read_data(WEBSOCKET_FD);
 		if(callback_return_value == -1) {
-			syslog(LOG_ERR, "The connection to the server was broken or the handler was unable to process the incoming data.");
-			websocket_close(WEBSOCKET_FD);
+			syslog(LOG_ERR, "Connection broken or unable to process ingress data");
+			websocket_close(WEBSOCKET_FD, NULL);
 			main_exit(EXIT_FAILURE);
 			break;
 		}
 	}
 
-	websocket_close(WEBSOCKET_FD);
+	websocket_close(WEBSOCKET_FD, NULL);
     main_exit(EXIT_SUCCESS);
     return EXIT_SUCCESS;
 }

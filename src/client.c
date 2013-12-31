@@ -1,6 +1,5 @@
 /**
- *  cwebsocket - A fast, lightweight ANSI C WebSocket
- *  RFC6455 - The WebSocket Protocol - http://tools.ietf.org/html/rfc6455
+ *  cwebsocket: A fast, lightweight websocket client/server
  *
  *  This file is part of cwebsocket.
  *
@@ -40,15 +39,10 @@ void websocket_generate_seckey(char *key) {
 	key = "dGhlIHNhbXBsZSBub25jZQ==";
 }
 
-int websocket_connect(const char *hostname, const char *port, const char *resource, void (*on_connect_callback)(int fd)) {
-/*
-	if(websocket_fd > 0) {
-		const char *errmsg = "WebSocket already connected";
-		//fprintf(stderr, errmsg);
-		syslog(LOG_ERR, "%s", errmsg);
-		return -1;
-	}
-*/
+int websocket_connect(const char *hostname, const char *port, const char *path) {
+
+	syslog(LOG_DEBUG, "Connecting to ws://%s:%s%s", hostname, port, path);
+
 	int websocket_fd;
 	char handshake[1024];
     struct addrinfo hints, *res;
@@ -63,7 +57,7 @@ int websocket_connect(const char *hostname, const char *port, const char *resour
 	websocket_generate_seckey(seckey);
 	const char *line_break = "\r\n";
 
-	strcpy(handshake, "GET ");strcat(handshake, resource);strcat(handshake, " HTTP/1.1\r\n");
+	strcpy(handshake, "GET ");strcat(handshake, path);strcat(handshake, " HTTP/1.1\r\n");
 	strcat(handshake, "Host: ");strcat(handshake, hostname);strcat(handshake, line_break);
 	strcat(handshake, "Upgrade: websocket\r\n");
 	strcat(handshake, "Connection: Upgrade\r\n");
@@ -123,8 +117,8 @@ int websocket_connect(const char *hostname, const char *port, const char *resour
 		return -1;
 	}
 
-	if((*on_connect_callback) != NULL) {
-		(*on_connect_callback)(websocket_fd);
+	if(on_connect_callback_ptr != NULL) {
+	   (*on_connect_callback_ptr)(websocket_fd);
 	}
 
 	return websocket_fd;
@@ -135,24 +129,23 @@ int websocket_handshake_handler(const char *message) {
 		syslog(LOG_CRIT, "%s%s", "Unexpected handshake response: ", message);
 		return -1;
 	}
-	syslog(LOG_DEBUG, "Websocket connected!\n%s", message);
+	syslog(LOG_DEBUG, "Handshake successful\n%s", message);
 	return 0;
 }
 
 int websocket_read_handshake(int fd) {
 
 	uint32_t byte = 0;
-	char data[RECEIVE_BUFFER_MAX];
-	uint8_t buffer_full = 0;
+	char data[HANDSHAKE_BUFFER_MAX];
 
-	while(read(fd, data+byte, 1) > 0 && !buffer_full) {
+	while(read(fd, data+byte, 1) > 0) {
 
-		if(byte == RECEIVE_BUFFER_MAX) {
-			syslog(LOG_ERR, "Receive buffer full. Data will be truncated to %i bytes", RECEIVE_BUFFER_MAX);
-			buffer_full = 1;
+		if(byte == HANDSHAKE_BUFFER_MAX) {
+			syslog(LOG_ERR, "Handshake response too large. HANDSHAKE_BUFFER_MAX = %i bytes.", HANDSHAKE_BUFFER_MAX);
+			return -1;
 		}
 
-		if((data[byte] == '\n' && data[byte-1] == '\r' && data[byte-2] == '\n' && data[byte-3] == '\r') || buffer_full) {
+		if((data[byte] == '\n' && data[byte-1] == '\r' && data[byte-2] == '\n' && data[byte-3] == '\r')) {
 
 			int len = byte-3;
 			char buf[len+1];
@@ -165,10 +158,10 @@ int websocket_read_handshake(int fd) {
 	return -1;
 }
 
-int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message)) {
+int websocket_read_data(int fd) {
 
 	websocket_frame frame;                      // WebSocket Data Frame - RFC 6455 Section 5.2
-	uint8_t data[RECEIVE_BUFFER_MAX];           // Data stream buffer
+	uint8_t data[DATA_BUFFER_MAX];              // Data stream buffer
 	int frame_byte_pointer = 2;                 // Used to extract masking-key if present
 	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
@@ -180,8 +173,9 @@ int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *messa
 
 	while(bytes_read < header_length + payload_length) {
 
-		if(bytes_read == RECEIVE_BUFFER_MAX) {
-			syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", RECEIVE_BUFFER_MAX, header_length);
+		if(bytes_read == DATA_BUFFER_MAX) {
+			syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", DATA_BUFFER_MAX, header_length);
+			// Consider adding support for large frames by keeping them on the heap...
 			return -1;
 		}
 
@@ -310,15 +304,15 @@ syslog(LOG_DEBUG, "data=%s", data);
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
 		char payload[payload_length];
-		//memset(payload, 0, payload_length);
 		memcpy(payload, &data[header_length], payload_length);
 		payload[payload_length] = '\0';
 
 //syslog(LOG_DEBUG, "sizeof(payload)=%i", sizeof(payload));
 //syslog(LOG_DEBUG, "payload=%s", payload);
 
-		if((*on_message_callback_ptr) != NULL)
-		    return (*on_message_callback_ptr)(payload);
+		if(on_message_callback_ptr != NULL) {
+		   return (*on_message_callback_ptr)(fd, payload);
+		}
 
 		syslog(LOG_WARNING, "No callback defined for data: %s", payload);
 		return 0;
@@ -337,12 +331,12 @@ syslog(LOG_DEBUG, "data=%s", data);
 	}
 	else if(frame.opcode == CLOSE) {
 		syslog(LOG_DEBUG, "Received CLOSE control frame");
-		websocket_close(fd);
+		websocket_close(fd, "hard_coded_close_message_for_now");
 	}
 	else {
 		syslog(LOG_ERR, "Unsupported data frame opcode: %x", frame.opcode);
 		websocket_print_frame(&frame);
-		websocket_close(fd);
+		websocket_close(fd, NULL);
 	}
 
 	return -1;
@@ -363,9 +357,12 @@ int websocket_data_print_size(const char *message) {
 	return 0;
 }
 
-void websocket_close(int fd) {
-	syslog(LOG_DEBUG, "Closing WebSocket");
+void websocket_close(int fd, const char *message) {
+	syslog(LOG_DEBUG, "Closing WebSocket: %s", message);
 	if(close(fd) == -1) {
-		syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
+	   syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
+	}
+	if(on_close_callback_ptr != NULL) {
+	   (*on_close_callback_ptr)(fd, message);
 	}
 }

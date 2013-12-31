@@ -16,5 +16,5 @@ cwebsocket is compliant with the following standards:
 
 The websocket client allows you to exchange data with any RFC 6455 compliant server.
 
-	./websocket-client [host] [port] [resource]
+	./websocket-client [host] [port] [path]
 
