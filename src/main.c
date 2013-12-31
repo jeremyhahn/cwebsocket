@@ -10,7 +10,7 @@ void signal_handler(int sig) {
 
 	switch(sig) {
 		case SIGHUP:
-			syslog(LOG_WARNING, "Received SIGHUP signal.");
+			syslog(LOG_DEBUG, "Received SIGHUP signal");
 			// TODO Reload config and reopen files
 			break;
 		case SIGINT:
@@ -25,15 +25,30 @@ void signal_handler(int sig) {
 	}
 }
 
-int custom_message_handler(const char *message) {
-	const char *custom_message_header = "Custom message handler: \n";
-	int custom_message_len = strlen(custom_message_header)+strlen(message);
-	char *custom_message[custom_message_len];
-	strcpy(custom_message, custom_message_header);
-	strcat(custom_message, message);
-	write(1, custom_message, custom_message_len);
-	free(message);
-	return custom_message_len;
+int is_valid_arg(const char *string) {
+	int i=0;
+	for(i=0; i < strlen(string); i++) {
+		if(!isalnum(string[i]) && string[i] != '/') {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+void on_connect(int fd) {
+	char str_fd[2];
+	sprintf(str_fd, "%d", fd);
+	syslog(LOG_DEBUG, "on_connect_callback: websocket file descriptor: %s", str_fd);
+	syslog(LOG_DEBUG, "on_connect_callback: bytes=%zu", strlen(str_fd));
+}
+
+void on_message(const char *message) {
+	syslog(LOG_DEBUG, "on_message_callback: data=%s", message);
+	syslog(LOG_DEBUG, "on_message_callback: bytes=%zu", strlen(message));
+}
+
+void on_close_callback() {
+	syslog(LOG_DEBUG, "on_close_callback");
 }
 
 int main(int argc, char **argv) {
@@ -41,51 +56,48 @@ int main(int argc, char **argv) {
 	struct sigaction newSigAction;
 	sigset_t newSigSet;
 
-	/* Set signal mask - signals we want to block */
+	// Set signal mask - signals to block
 	sigemptyset(&newSigSet);
-	sigaddset(&newSigSet, SIGCHLD);  /* ignore child - i.e. we don't need to wait for it */
-	sigaddset(&newSigSet, SIGTSTP);  /* ignore Tty stop signals */
-	sigaddset(&newSigSet, SIGTTOU);  /* ignore Tty background writes */
-	sigaddset(&newSigSet, SIGTTIN);  /* ignore Tty background reads */
+	sigaddset(&newSigSet, SIGCHLD);  			/* ignore child - i.e. we don't need to wait for it */
+	sigaddset(&newSigSet, SIGTSTP);  			/* ignore Tty stop signals */
+	sigaddset(&newSigSet, SIGTTOU);  			/* ignore Tty background writes */
+	sigaddset(&newSigSet, SIGTTIN);  			/* ignore Tty background reads */
 	sigprocmask(SIG_BLOCK, &newSigSet, NULL);   /* Block the above specified signals */
 
-	/* Set up a signal handler */
+	// Set up a signal handler
 	newSigAction.sa_handler = signal_handler;
 	sigemptyset(&newSigAction.sa_mask);
 	newSigAction.sa_flags = 0;
 
-	/* Signals to handle */
 	sigaction(SIGHUP, &newSigAction, NULL);     /* catch hangup signal */
 	sigaction(SIGTERM, &newSigAction, NULL);    /* catch term signal */
 	sigaction(SIGINT, &newSigAction, NULL);     /* catch interrupt signal */
 
-	/* Debug logging
-	setlogmask(LOG_UPTO(LOG_DEBUG));
-	openlog(DAEMON_NAME, LOG_CONS, LOG_USER);
-	*/
-
-	/* Logging */
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
 	openlog(APPNAME, LOG_CONS | LOG_PERROR, LOG_USER);
-	syslog(LOG_DEBUG, "Starting application");
+	syslog(LOG_DEBUG, "Starting cwebsocket");
 
-	int port;
-	char *host;
-
-	if(argc != 3) {
-		fprintf(stderr, "usage: hostname port\n");
+	if(argc != 4) {
+		fprintf(stderr, "usage: [hostname] [port] [resource]\n");
 		exit(0);
 	}
 
-    port = atoi(argv[2]);
-	host = argv[1];
-
+    int port = atoi(argv[2]);
 	if(port > 65536 || port < 0 ) {
-		fprintf(stderr, "Invalid port number\n");
+		syslog(LOG_ERR, "Invalid port number\n");
+		exit(0);
+	}
+	if(!is_valid_arg(argv[1])) {
+		syslog(LOG_ERR, "Invalid hostname");
+		exit(0);
+	}
+	if(!is_valid_arg(argv[3])) {
+		syslog(LOG_ERR, "Invalid resource");
 		exit(0);
 	}
 
-	int websocket = websocket_connect(host, argv[2]);
+	int websocket = websocket_connect(argv[1], argv[2], argv[3], &on_connect);
+	//int websocket = websocket_connect(argv[1], argv[2], argv[3], NULL);
 	if(websocket == -1) {
 		syslog(LOG_ERR, "Unable to connect to the remote server");
     	main_exit(EXIT_FAILURE);
@@ -95,24 +107,23 @@ int main(int argc, char **argv) {
 
 		syslog(LOG_DEBUG, "main: calling websocket_read");
 
-		int handler_return_value = websocket_read(websocket, &websocket_message_print_handler);
-
-		if(handler_return_value == -1) {
+		int callback_return_value = websocket_read_data(websocket, &on_message);
+		//int callback_return_value = websocket_read_data(websocket, NULL);
+		if(callback_return_value == -1) {
 			syslog(LOG_ERR, "The connection to the server was broken or the handler was unable to process the incoming data.");
 			websocket_close();
 			main_exit(EXIT_FAILURE);
 			break;
 		}
-		// keep running
 	}
 
 	websocket_close();
-
     main_exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
 
 void main_exit(int exit_status) {
-	syslog(LOG_DEBUG, "Exiting application");
+	syslog(LOG_DEBUG, "Exiting cwebsocket");
 	closelog();
 	exit(exit_status);
 }

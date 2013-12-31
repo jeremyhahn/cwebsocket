@@ -19,6 +19,7 @@
  */
 
 #include "client.h"
+#include "bitutil.c"
 
 void websocket_generate_seckey(char *key) {
 
@@ -40,7 +41,7 @@ void websocket_generate_seckey(char *key) {
 	key = "dGhlIHNhbXBsZSBub25jZQ==";
 }
 
-int websocket_connect(char *hostname, char *port) {
+int websocket_connect(const char *hostname, const char *port, const char *resource, void (*on_connect_callback)(int fd)) {
 
 	if(websocket_fd > 0) {
 		const char *errmsg = "WebSocket already connected";
@@ -62,7 +63,7 @@ int websocket_connect(char *hostname, char *port) {
 	websocket_generate_seckey(seckey);
 	const char *line_break = "\r\n";
 
-	strcpy(handshake, "GET /udsflash/tune/dashboard HTTP/1.1\r\n");
+	strcpy(handshake, "GET ");strcat(handshake, resource);strcat(handshake, " HTTP/1.1\r\n");
 	strcat(handshake, "Host: ");strcat(handshake, hostname);strcat(handshake, line_break);
 	strcat(handshake, "Upgrade: websocket\r\n");
 	strcat(handshake, "Connection: Upgrade\r\n");
@@ -81,16 +82,26 @@ int websocket_connect(char *hostname, char *port) {
 
 	websocket_fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if(websocket_fd < 0) {
-		syslog(LOG_ERR, "%s", "Unable to create local socket");
+		const char *errmsg_piece1 = "Unable to create socket: ";
+		const char *errmsg_piece2 = strerror(errno);
+		char errmsg[strlen(errmsg_piece1) + strlen(errmsg_piece2)];
+		strcpy(errmsg, errmsg_piece1);
+		strcat(errmsg, errmsg_piece2);
+		syslog(LOG_ERR, "%s", errmsg);
 		return -1;
 	}
 
 	if(connect(websocket_fd, res->ai_addr, res->ai_addrlen) != 0 ) {
-		syslog(LOG_ERR, "%s", "Unable to connect to remote server");
+		const char *errmsg_piece1 = "Unable to connect: ";
+		const char *errmsg_piece2 = strerror(errno);
+		char errmsg[strlen(errmsg_piece1) + strlen(errmsg_piece2)];
+		strcpy(errmsg, errmsg_piece1);
+		strcat(errmsg, errmsg_piece2);
+		syslog(LOG_ERR, "%s", errmsg);
 		return -1;
 	}
 
-    int optval = 1; //is
+    int optval = 1;
     setsockopt(websocket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
 	if(write(websocket_fd, handshake, strlen(handshake)) == -1) {
 		const char *errmsg_piece1 = "Unable to send handshake: ";
@@ -103,8 +114,17 @@ int websocket_connect(char *hostname, char *port) {
 	}
 
 	if(websocket_read_handshake(websocket_fd) == -1) {
-		syslog(LOG_ERR, "Handshake read error");
+		const char *errmsg_piece1 = "Handshake read error: ";
+		const char *errmsg_piece2 = strerror(errno);
+		char errmsg[strlen(errmsg_piece1) + strlen(errmsg_piece2)];
+		strcpy(errmsg, errmsg_piece1);
+		strcat(errmsg, errmsg_piece2);
+		syslog(LOG_ERR, "%s", errmsg);
 		return -1;
+	}
+
+	if((*on_connect_callback) != NULL) {
+		(*on_connect_callback)(websocket_fd);
 	}
 
 	return websocket_fd;
@@ -112,7 +132,7 @@ int websocket_connect(char *hostname, char *port) {
 
 int websocket_handshake_handler(const char *message) {
 	if(strstr(message, "HTTP/1.1 101 Switching Protocols") == NULL) {
-		syslog(LOG_CRIT, "%s", "Unable to establish websocket connection");
+		syslog(LOG_CRIT, "%s%s", "Unexpected handshake response: ", message);
 		websocket_close();
 		return -1;
 	}
@@ -122,118 +142,215 @@ int websocket_handshake_handler(const char *message) {
 
 int websocket_read_handshake(int fd) {
 
-	int i = 0;
-	unsigned int buffer_size = 1024;
-	char data[buffer_size];
+	uint32_t byte = 0;
+	char data[RECEIVE_BUFFER_MAX];
+	uint8_t buffer_full = 0;
 
-	while(read(fd, data+i, 1) > 0) {
+	while(read(fd, data+byte, 1) > 0 && !buffer_full) {
 
-		if(i == buffer_size) {
-			// TODO http://stackoverflow.com/questions/2937409/resizing-an-array-with-c
-			syslog(LOG_ERR, "Max message size reached. Remaining data will be truncated.");
+		if(byte == RECEIVE_BUFFER_MAX) {
+			syslog(LOG_ERR, "Receive buffer full. Data will be truncated to %i bytes", RECEIVE_BUFFER_MAX);
+			buffer_full = 1;
 		}
-		if(i > buffer_size) continue; // Ignore overflow data for now
 
-		if((data[i] == '\n' && data[i-1] == '\r' && data[i-2] == '\n' && data[i-3] == '\r')) {
+		if((data[byte] == '\n' && data[byte-1] == '\r' && data[byte-2] == '\n' && data[byte-3] == '\r') || buffer_full) {
 
-			int len = i-3;
+			int len = byte-3;
 			char buf[len+1];
 			strncpy(buf, data, len);
 			buf[len+1] = '\0';
 			return websocket_handshake_handler(buf);
 		}
-		i++;
+		byte++;
 	}
 	return -1;
 }
 
-int websocket_read(int fd, int (*websocket_message_handler_ptr)(const char *message)) {
+int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message)) {
 
-	//syslog(LOG_DEBUG, "websocket_read fired");
-
-	int i = 0;
-	unsigned int header_size = 0;
-	int buffer_size = 1024;
-	char data[buffer_size];
-	opcode_t TEXT_FRAME = 0x01;
 	websocket_frame frame;
+	uint8_t data[RECEIVE_BUFFER_MAX];
+	int frame_byte_pointer = 2;                 // Used to extract masking-key if present
+	int header_length = 2;                      // The default/smallest possible header size
+	const int header_length_offset = 2;         // The byte which starts the 2 byte header
+	const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
+	const int extended_payload64_end_byte = 10; // The byte which completes the extended 64-bit payload length bits
+	int bytes_read = 0;                         // Current byte counter
+	int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
+	uint64_t extended_payload_length;           // Stores the extended payload length bits, if present
 
-	while(read(fd, data+i, 1) > 0) {
+	while(bytes_read < header_length + payload_length) {
 
-		if(i == buffer_size) {
-			syslog(LOG_ERR, "Max message size reached. Remaining data will be truncated."); // sizeof(int)*buffer_size);
+		int bytes = read(fd, data+bytes_read, 1);
+		if(bytes == -1) {
+			syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
+			return -1;
 		}
-		if(i > buffer_size) continue; // Ignore overflow data for now
+		bytes_read++;
 
-		if(i == 0) {
+		if(bytes_read == header_length_offset ||
+				bytes_read == extended_payload16_end_byte || bytes_read == extended_payload64_end_byte) {
 
-			// First byte
-			//  0 1 2 3 4 5 6 7
-			// +-+-+-+-+-------+
-			// |F|R|R|R| opcode|
-			// |I|S|S|S|  (4)  |
-			// |N|V|V|V|       |
-			// | |1|2|3|       |
-			// +-+-+-+-+--------
-			frame.fin = (data[0] & 0x80) == 0x80;
-			frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
-	 }
-	 else if(i == 1) { // Second byte
+			if(bytes_read == header_length_offset) {
+syslog(LOG_DEBUG, "inside bytes_read == header_length_offset");
+				// 0                   1                   2                   3
+				// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+				// +-+-+-+-+-------+-+-------------+-------------------------------+
+				// |F|R|R|R| opcode|                                               |
+				// |I|S|S|S|  (4)  |                                               |
+				// |N|V|V|V|       |                                               |
+				// | |1|2|3|       |                                               |
+				// +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+				frame.fin = (data[0] & 0x80) == 0x80;
+				frame.rsv1 = (data[0] & 0x40) == 0x40;
+				frame.rsv2 = (data[0] & 0x20) == 0x20;
+				frame.rsv3 = (data[0] & 0x10) == 0x10;
+				frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
 
-		 // Second byte
-		 //  0 1 2 3 4 5 6 7
-		 // +-+-------------+
-		 // |M| Payload len |
-		 // |A|     (7)     |
-		 // |S|             |
-		 // |K|             |
-		 // +-+-+-+-+-------+
-		 frame.mask = (data[1] & 0x80) == 0x80;
-		 frame.payload_len = (data[1] & 0x7f);
+				// 0                   1                   2                   3
+				// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+				// +-+-+-+-+-------+-+-------------+-------------------------------+
+				// |               |M| Payload len |                               |
+				// |               |A|     (7)     |                               |
+				// |               |S|             |                               |
+				// |               |K|             |                               |
+				// +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+				frame.mask = (data[1] & 0x80) == 0x80;
+				frame.payload_len = (data[1] & 0x7F);
 
-		 header_size = 2 + (frame.payload_len == 126 ? 2 : 0)
-						 + (frame.payload_len == 127 ? 6 : 0)
-						 + (frame.mask ? 4 : 0);
-	 }
+				header_length = 2;
+				payload_length = frame.payload_len;
+			}
 
-	 unsigned int data_length = frame.payload_len + header_size - 1;
-	 if(frame.opcode == TEXT_FRAME && frame.fin && (i == data_length || i == buffer_size)) {
+			// 0                   1                   2                   3
+			// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+			//                                 +-------------------------------+
+			//                                 |    Extended payload length    |
+			//                                 |             (16/64)           |
+			//                                 |   (if payload len==126/127)   |
+			//                                 |                               |
+			//                                 + - - - - - - - - - - - - - - - +
+			if(frame.payload_len == 126 && bytes_read == extended_payload16_end_byte) {
+syslog(LOG_DEBUG, "inside frame.layload_len == 126");
+				extended_payload_length = 0;
+				extended_payload_length |= ((uint64_t) data[2]) << 8;
+				extended_payload_length |= ((uint64_t) data[3]) << 0;
 
-		 char *payload[frame.payload_len];
-		 memcpy(payload, &data[header_size], data_length);
+				frame_byte_pointer = 4;
+				header_length += 2;
+				payload_length = extended_payload_length;
+			}
+			// 0                   1                   2                   3
+			// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+			// +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+			// |     Extended payload length continued, if payload len == 127  |
+			// + - - - - - - - - - - - - - - - +-------------------------------+
+			// |                               |                               |
+			// +-------------------------------+-------------------------------+
+			else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
+syslog(LOG_DEBUG, "inside frame.layload_len == 127");
+				extended_payload_length = 0;
+				extended_payload_length |= ((uint64_t) data[2]) << 56;
+				extended_payload_length |= ((uint64_t) data[3]) << 48;
+				extended_payload_length |= ((uint64_t) data[4]) << 40;
+				extended_payload_length |= ((uint64_t) data[5]) << 32;
+				extended_payload_length |= ((uint64_t) data[6]) << 24;
+				extended_payload_length |= ((uint64_t) data[7]) << 16;
+				extended_payload_length |= ((uint64_t) data[8]) << 8;
+				extended_payload_length |= ((uint64_t) data[9]) << 0;
 
-		 // websocket_print_frame(&frame);
+				frame_byte_pointer = 10;
+				header_length += 6;
+				payload_length = extended_payload_length;
+			}
 
-		 //i=0;
-		 //frame.fin = 0;
-		 //frame.opcode = 0;
-		 //frame.mask = 0;
-		 //frame.payload_len = 0;
-		 //memset(data, 0, buffer_size);
-		 return (*websocket_message_handler_ptr)(payload);
-	  }
+			// 0                   1                   2                   3
+			// 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+			// + - - - - - - - - - - - - - - - +-------------------------------+
+			// |                               |Masking-key, if MASK set to 1  |
+			// +-------------------------------+-------------------------------+
+			// | Masking-key (continued)       |                               |
+			// +-------------------------------- - - - - - - - - - - - - - - - +
+			if(frame.mask) {
 
-	  //websocket_print_frame(&frame);
+				//if(payload_length < 14) continue;
 
-	  i++;
+				frame.masking_key[0] = ((uint8_t) data[frame_byte_pointer+0]) << 0;
+				frame.masking_key[1] = ((uint8_t) data[frame_byte_pointer+1]) << 0;
+				frame.masking_key[2] = ((uint8_t) data[frame_byte_pointer+2]) << 0;
+				frame.masking_key[3] = ((uint8_t) data[frame_byte_pointer+3]) << 0;
+
+				frame_byte_pointer = 14;
+				header_length += 4;
+			}
+			else {
+
+				frame.masking_key[0] = 0;
+				frame.masking_key[1] = 0;
+				frame.masking_key[2] = 0;
+				frame.masking_key[3] = 0;
+			}
+		}
+	}
+	if(bytes_read == -1) {
+		syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
+		return -1;
+	}
+	if(!sizeof(data) == header_length + payload_length) {
+		syslog(LOG_ERR, "Unexpected data frame checksum: sizeof(payload)=%ld, header_length+payload_length=%i", sizeof(data), header_length + payload_length);
+		return -1;
 	}
 
-	syslog(LOG_ERR, "Unhandled websocket_read. Closing connection.");
+websocket_print_frame(&frame);
+syslog(LOG_DEBUG, "header_length: %i", header_length);
+syslog(LOG_DEBUG, "payload_length: %i", payload_length);
+syslog(LOG_DEBUG, "extended_payload_length: %ld", extended_payload_length);
+syslog(LOG_DEBUG, "frame_byte_pointer: %i", frame_byte_pointer);
+syslog(LOG_DEBUG, "bytes_read=%i", bytes_read);
+syslog(LOG_DEBUG, "data=%s", data);
+
+	if(frame.fin && frame.opcode == TEXT_FRAME) {
+
+		char payload[payload_length+1];
+		memcpy(payload, &data[header_length], payload_length);
+		payload[payload_length+1] = '\0';
+
+		if((*on_message_callback_ptr) != NULL)
+		    return (*on_message_callback_ptr)(payload);
+
+		syslog(LOG_DEBUG, "No callback defined for data: %s", payload);
+		return 0; // no callback defined
+	}
+	else {
+
+		syslog(LOG_DEBUG, "->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>found frame.fin = false!");
+
+		if(!frame.fin && frame.opcode == CONTINUATION) {
+			syslog(LOG_DEBUG, "->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>found continuation frame!");
+		}
+	}
+
 	return -1;
 }
 
 void websocket_print_frame(websocket_frame *frame) {
-	printf("websocket_frame: fin=%x, opcode=%x, mask=%x, payload_len=%i\n", frame->fin, frame->opcode, frame->mask, frame->payload_len);
+	syslog(LOG_DEBUG, "websocket_frame: fin=%x, rsv1=%x, rsv2=%x, rsv3=%x, opcode=%x, mask=%x, payload_len=%i\n",
+			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
-int websocket_message_print_handler(const char *message) {
-	syslog(LOG_DEBUG, "websocket_message_print_handler: %s", message);
+int websocket_data_print_handler(const char *message) {
+	syslog(LOG_DEBUG, "websocket_data_print_handler: %s", message);
+	return 0;
+}
+
+int websocket_data_print_size(const char *message) {
+	syslog(LOG_DEBUG, "websocket_data_print_size: data= %s", message);
 	return 0;
 }
 
 void websocket_close() {
-	syslog(LOG_DEBUG, "Closing WebSocket");
 	if(websocket_fd > 0) {
+	    syslog(LOG_DEBUG, "Closing WebSocket");
 		close(websocket_fd);
 		websocket_fd = 0;
 	}

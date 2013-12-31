@@ -36,6 +36,8 @@
 #include <syslog.h>
 #include <errno.h>
 
+#define RECEIVE_BUFFER_MAX 2048
+
 typedef enum {
 	TRUE,
 	FALSE
@@ -83,17 +85,18 @@ typedef struct {
 	bool mask;
 	int payload_len;
 	uint32_t masking_key[4];
-	uint64_t payload_data;
 } websocket_frame;
 
 int websocket_fd;
-int (*websocket_message_handler_ptr)(const char *message);
+void (*on_connect_callback_ptr)(int fd);
+int (*on_message_callback_ptr)(const char *message);
 
-int websocket_connect(char *hostname, char *port);
+int websocket_connect(const char *hostname, const char *port, const char *resource, void (*on_connect_callback_ptr)(int fd));
 int websocket_read_handshake(int fd);
 int websocket_handshake_handler(const char *message);
-int websocket_read(int fd, int (*websocket_message_handler_ptr)(const char *message));
-int websocket_message_print_handler(const char *message);
+int websocket_read_data(int fd, int (*on_message_callback_ptr)(const char *message));
+int websocket_data_print_handler(const char *message);
+int websocket_data_print_size(const char *message);
 void websocket_print_frame(websocket_frame *frame);
 void websocket_close();
 
