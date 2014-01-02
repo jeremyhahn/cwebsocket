@@ -1,6 +1,8 @@
 /**
  *  cwebsocket: A fast, lightweight websocket client/server
  *
+ *  Copyright (c) 2014 Jeremy Hahn
+ *
  *  This file is part of cwebsocket.
  *
  *  cwebsocket is free software: you can redistribute it and/or modify
@@ -17,8 +19,8 @@
  *  along with cwebsocket.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEBSOCKET_H
-#define WEBSOCKET_H
+#ifndef WEBSOCKET_CLIENT_H
+#define WEBSOCKET_CLIENT_H
 
 #include <stdio.h>
 #include <unistd.h>
@@ -32,6 +34,8 @@
 #include <netinet/in.h>
 #include <syslog.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdint.h>
 
 #define HANDSHAKE_BUFFER_MAX 1024
 #define DATA_BUFFER_MAX 65536
@@ -84,6 +88,21 @@ typedef struct {
 	uint32_t masking_key[4];
 } websocket_frame;
 
+typedef struct {
+  union {
+    struct {
+      unsigned int OP_CODE : 4;
+      unsigned int RSV1 : 1;
+      unsigned int RSV2 : 1;
+      unsigned int RSV3 : 1;
+      unsigned int FIN : 1;
+      unsigned int PAYLOAD : 7;
+      unsigned int MASK : 1;
+    } bits;
+    uint16_t first_two_bytes;
+  };
+} websocket_header;
+
 void (*on_connect_callback_ptr)(int fd);
 int (*on_message_callback_ptr)(int fd, const char *message);
 void (*on_close_callback_ptr)(int fd, const char *message);
@@ -92,6 +111,7 @@ int websocket_connect(const char *hostname, const char *port, const char *path);
 int websocket_read_handshake(int fd);
 int websocket_handshake_handler(const char *message);
 int websocket_read_data(int fd);
+ssize_t websocket_write_data(int fd, char *data, int len);
 int websocket_data_print_message(const char *message);
 int websocket_data_print_size(const char *message);
 void websocket_print_frame(websocket_frame *frame);

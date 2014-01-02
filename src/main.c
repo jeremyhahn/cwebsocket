@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
-#include "client.h"
+#include "cwebsocket.h"
 
 #define APPNAME "cwebsocket"
 
@@ -17,7 +17,7 @@ void signal_handler(int sig) {
 			break;
 		case SIGINT:
 		case SIGTERM:
-			websocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM caught");
+			websocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
 			break;
 		default:
@@ -60,6 +60,8 @@ void print_program_header() {
 
 	fprintf(stderr, "****************************************************************************\n");
 	fprintf(stderr, "* cwebsocket: A fast, lightweight websocket client/server                  *\n");
+	fprintf(stderr, "*                                                                          *\n");
+	fprintf(stderr, "* Copyright (c) 2014 Jeremy Hahn                                           *\n");
 	fprintf(stderr, "*                                                                          *\n");
 	fprintf(stderr, "* cwebsocket is free software: you can redistribute it and/or modify       *\n");
 	fprintf(stderr, "* it under the terms of the GNU Lesser General Public License as published *\n");
@@ -137,6 +139,13 @@ int main(int argc, char **argv) {
     	main_exit(EXIT_FAILURE);
     }
 
+	char *data_to_write = "testme";
+	ssize_t bytes_written = websocket_write_data(WEBSOCKET_FD, data_to_write, 6);
+	syslog(LOG_DEBUG, "Wrote %zd bytes to the socket", bytes_written);
+
+	sleep(2);
+
+	/*
 	while(1) {
 
 		syslog(LOG_DEBUG, "main: calling websocket_read");
@@ -148,9 +157,9 @@ int main(int argc, char **argv) {
 			main_exit(EXIT_FAILURE);
 			break;
 		}
-	}
+	}*/
 
-	websocket_close(WEBSOCKET_FD, NULL);
+	websocket_close(WEBSOCKET_FD, "Main event loop complete");
     main_exit(EXIT_SUCCESS);
     return EXIT_SUCCESS;
 }

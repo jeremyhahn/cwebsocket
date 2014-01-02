@@ -30,10 +30,8 @@
 								<option id="gnu.c.compiler.option.misc.other.835723838" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0" valueType="string"/>
 								<option id="gnu.c.compiler.option.misc.verbose.1371801120" name="Verbose (-v)" superClass="gnu.c.compiler.option.misc.verbose" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.misc.ansi.183199256" name="Support ANSI programs (-ansi)" superClass="gnu.c.compiler.option.misc.ansi" value="false" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.include.paths.224587811" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/storage/workspaces/cpp/jlibc/src"/>
-								</option>
-								<option id="gnu.c.compiler.option.include.files.1297155078" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles"/>
+								<option id="gnu.c.compiler.option.include.paths.224587811" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
+								<option id="gnu.c.compiler.option.include.files.1297155078" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.671860280" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.928242729" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
