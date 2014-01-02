@@ -17,7 +17,7 @@ void signal_handler(int sig) {
 			break;
 		case SIGINT:
 		case SIGTERM:
-			websocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM");
+			cwebsocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
 			break;
 		default:
@@ -134,13 +134,13 @@ int main(int argc, char **argv) {
 	on_message_callback_ptr = &on_message;
 	on_close_callback_ptr = &on_close;
 
-	WEBSOCKET_FD = websocket_connect(argv[1], argv[2], argv[3]);
+	WEBSOCKET_FD = cwebsocket_connect(argv[1], argv[2], argv[3]);
 	if(WEBSOCKET_FD == -1) {
     	main_exit(EXIT_FAILURE);
     }
 
 	char *data_to_write = "testme";
-	ssize_t bytes_written = websocket_write_data(WEBSOCKET_FD, data_to_write, 6);
+	ssize_t bytes_written = cwebsocket_write_data(WEBSOCKET_FD, data_to_write, 6);
 	syslog(LOG_DEBUG, "Wrote %zd bytes to the socket", bytes_written);
 
 	sleep(2);
@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
 		}
 	}*/
 
-	websocket_close(WEBSOCKET_FD, "Main event loop complete");
+	cwebsocket_close(WEBSOCKET_FD, "Main event loop complete");
     main_exit(EXIT_SUCCESS);
     return EXIT_SUCCESS;
 }

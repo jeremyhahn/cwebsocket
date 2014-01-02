@@ -88,33 +88,16 @@ typedef struct {
 	uint32_t masking_key[4];
 } websocket_frame;
 
-typedef struct {
-  union {
-    struct {
-      unsigned int OP_CODE : 4;
-      unsigned int RSV1 : 1;
-      unsigned int RSV2 : 1;
-      unsigned int RSV3 : 1;
-      unsigned int FIN : 1;
-      unsigned int PAYLOAD : 7;
-      unsigned int MASK : 1;
-    } bits;
-    uint16_t first_two_bytes;
-  };
-} websocket_header;
-
 void (*on_connect_callback_ptr)(int fd);
 int (*on_message_callback_ptr)(int fd, const char *message);
 void (*on_close_callback_ptr)(int fd, const char *message);
 
-int websocket_connect(const char *hostname, const char *port, const char *path);
-int websocket_read_handshake(int fd);
-int websocket_handshake_handler(const char *message);
-int websocket_read_data(int fd);
-ssize_t websocket_write_data(int fd, char *data, int len);
-int websocket_data_print_message(const char *message);
-int websocket_data_print_size(const char *message);
-void websocket_print_frame(websocket_frame *frame);
-void websocket_close(int fd, const char *message);
+int cwebsocket_connect(const char *hostname, const char *port, const char *path);
+int cwebsocket_read_handshake(int fd);
+int cwebsocket_handshake_handler(const char *message);
+int cwebsocket_read_data(int fd);
+ssize_t cwebsocket_write_data(int fd, char *data, int len);
+void cwebsocket_print_frame(websocket_frame *frame);
+void cwebsocket_close(int fd, const char *message);
 
 #endif

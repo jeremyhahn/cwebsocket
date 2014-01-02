@@ -41,7 +41,7 @@ void websocket_generate_seckey(char *key) {
 	key = "dGhlIHNhbXBsZSBub25jZQ==";
 }
 
-int websocket_connect(const char *hostname, const char *port, const char *path) {
+int cwebsocket_connect(const char *hostname, const char *port, const char *path) {
 
 	syslog(LOG_DEBUG, "Connecting to ws://%s:%s%s", hostname, port, path);
 
@@ -96,7 +96,7 @@ int websocket_connect(const char *hostname, const char *port, const char *path) 
 	//	syslog(LOG_ERR, "%s", strerror(errno));
 	//}
 
-	if(websocket_read_handshake(websocket_fd) == -1) {
+	if(cwebsocket_read_handshake(websocket_fd) == -1) {
 		syslog(LOG_ERR, "%s", strerror(errno));
 		return -1;
 	}
@@ -108,7 +108,7 @@ int websocket_connect(const char *hostname, const char *port, const char *path) 
 	return websocket_fd;
 }
 
-int websocket_handshake_handler(const char *message) {
+int cwebsocket_handshake_handler(const char *message) {
 	if(strstr(message, "HTTP/1.1 101 Switching Protocols") == NULL) {
 		syslog(LOG_CRIT, "%s%s", "Unexpected handshake response: ", message);
 		return -1;
@@ -117,7 +117,7 @@ int websocket_handshake_handler(const char *message) {
 	return 0;
 }
 
-int websocket_read_handshake(int fd) {
+int cwebsocket_read_handshake(int fd) {
 
 	uint32_t byte = 0;
 	char data[HANDSHAKE_BUFFER_MAX];
@@ -135,14 +135,14 @@ int websocket_read_handshake(int fd) {
 			char buf[len+1];
 			strncpy(buf, data, len);
 			buf[len+1] = '\0';
-			return websocket_handshake_handler(buf);
+			return cwebsocket_handshake_handler(buf);
 		}
 		byte++;
 	}
 	return -1;
 }
 
-int websocket_read_data(int fd) {
+int cwebsocket_read_data(int fd) {
 
 	websocket_frame frame;                      // WebSocket Data Frame - RFC 6455 Section 5.2
 	uint8_t data[DATA_BUFFER_MAX];              // Data stream buffer
@@ -259,18 +259,18 @@ int websocket_read_data(int fd) {
 	}
 	else if(frame.opcode == CLOSE) {
 		syslog(LOG_DEBUG, "Received CLOSE control frame");
-		websocket_close(fd, "hard_coded_close_message_for_now");
+		cwebsocket_close(fd, "hard_coded_close_message_for_now");
 	}
 	else {
 		syslog(LOG_ERR, "Unsupported data frame opcode: %x", frame.opcode);
-		websocket_print_frame(&frame);
-		websocket_close(fd, NULL);
+		cwebsocket_print_frame(&frame);
+		cwebsocket_close(fd, NULL);
 	}
 
 	return -1;
 }
 
-ssize_t websocket_write_data(int fd, char *data, int len) {
+ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 
 	websocket_frame frame;
 	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
@@ -341,7 +341,6 @@ ssize_t websocket_write_data(int fd, char *data, int len) {
 	memcpy(framebuf, header, header_length);
 	memcpy(&framebuf[header_length], data, payload_len);
 
-
 	int i;
 	for(i=0; i<payload_len; i++) {
 		framebuf[header_length+i] ^= masking_key[i % 4] & 0xff;
@@ -356,22 +355,12 @@ ssize_t websocket_write_data(int fd, char *data, int len) {
 	return bytes_written;
 }
 
-void websocket_print_frame(websocket_frame *frame) {
+void cwebsocket_print_frame(websocket_frame *frame) {
 	syslog(LOG_DEBUG, "websocket_frame: fin=%x, rsv1=%x, rsv2=%x, rsv3=%x, opcode=%x, mask=%x, payload_len=%i\n",
 			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
-int websocket_data_print_message(const char *message) {
-	syslog(LOG_DEBUG, "websocket_data_print_message: %s", message);
-	return 0;
-}
-
-int websocket_data_print_size(const char *message) {
-	syslog(LOG_DEBUG, "websocket_data_print_size: data= %s", message);
-	return 0;
-}
-
-void websocket_close(int fd, const char *message) {
+void cwebsocket_close(int fd, const char *message) {
 	syslog(LOG_DEBUG, "Closing WebSocket: %s", message);
 	if(close(fd) == -1) {
 	   syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
