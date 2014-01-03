@@ -22,23 +22,30 @@
 #ifndef WEBSOCKET_CLIENT_H
 #define WEBSOCKET_CLIENT_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <netdb.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <time.h>
 #include <string.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <syslog.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdint.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/time.h>
+#include <openssl/sha.h>
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+#include "base64.h"
 
-#define HANDSHAKE_BUFFER_MAX 1024
+#define HANDSHAKE_BUFFER_MAX 255
 #define DATA_BUFFER_MAX 65536
 
 typedef enum {
@@ -76,26 +83,36 @@ typedef enum opcode_type {
 	CLOSE = 0x08,
 	PING = 0x09,
 	PONG = 0x0A,
-} opcode_t;
+} opcode;
 
 typedef struct {
 	bool fin;
 	bool rsv1;
 	bool rsv2;
 	bool rsv3;
-	opcode_t opcode;
+	opcode opcode;
 	bool mask;
 	int payload_len;
 	uint32_t masking_key[4];
 } websocket_frame;
 
+/*
+typedef struct {
+	int code;
+	char *message;
+	int line;
+	char *filename;
+} websocket_error;*/
+
 void (*on_connect_callback_ptr)(int fd);
 int (*on_message_callback_ptr)(int fd, const char *message);
 void (*on_close_callback_ptr)(int fd, const char *message);
+//void (*on_error_callback_ptr)(websocket_error *error);
+int (*on_error_callback_ptr)(const char *message);
 
 int cwebsocket_connect(const char *hostname, const char *port, const char *path);
-int cwebsocket_read_handshake(int fd);
-int cwebsocket_handshake_handler(const char *message);
+int cwebsocket_read_handshake(int fd, char *seckey);
+int cwebsocket_handshake_handler(const char *message, char *seckey);
 int cwebsocket_read_data(int fd);
 ssize_t cwebsocket_write_data(int fd, char *data, int len);
 void cwebsocket_print_frame(websocket_frame *frame);

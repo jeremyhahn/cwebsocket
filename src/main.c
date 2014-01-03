@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <signal.h>
-#include <time.h>
 #include "cwebsocket.h"
 
 #define APPNAME "cwebsocket"
@@ -19,7 +18,7 @@ void signal_handler(int sig) {
 			break;
 		case SIGINT:
 		case SIGTERM:
-			cwebsocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM");
+			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
 			WEBSOCKET_RUNNING = 0;
 			break;
 		default:
@@ -45,7 +44,14 @@ void on_close(int fd, const char *message) {
 	if(message != NULL) {
 		syslog(LOG_DEBUG, "on_close: %s", message);
 	}
-	syslog(LOG_DEBUG, "on_close: websocket file descriptor: %i", fd);
+	syslog(LOG_DEBUG, "on_close: closing websocket file descriptor: %i", fd);
+}
+
+int on_error(const char *message) {
+	syslog(LOG_DEBUG, "on_error: message=%s", message);
+	//syslog(LOG_DEBUG, "on_error: code: %i, message: %s, line: %i, filename: %s",
+	//		err->code, err->message, err->line, err->filename);
+	return -1;
 }
 
 int is_valid_arg(const char *string) {
@@ -151,6 +157,7 @@ int main(int argc, char **argv) {
 	on_connect_callback_ptr = &on_connect;
 	on_message_callback_ptr = &on_message;
 	on_close_callback_ptr = &on_close;
+	on_error_callback_ptr = &on_error;
 
 	WEBSOCKET_FD = cwebsocket_connect(argv[1], argv[2], argv[3]);
 	if(WEBSOCKET_FD == -1) {
@@ -171,10 +178,11 @@ int main(int argc, char **argv) {
 		}
 	}*/
 
-	char metrics[255];
 	uint64_t messages_sent = 0;
-	clock_t t;
-	t = clock();
+	char metrics[255];
+
+	time_t start_time, finish_time;
+	start_time = time(0);
 
 	WEBSOCKET_RUNNING = 1;
 	while(WEBSOCKET_RUNNING == 1) {
@@ -185,9 +193,8 @@ int main(int argc, char **argv) {
 		messages_sent++;
 	}
 
-	t = clock() - t;
-    double secs = ((double)t) / CLOCKS_PER_SEC;
-	printf("Sent %ld messages in %f seconds\n\n", messages_sent, secs);
+	finish_time = time(0);
+	printf("Sent %ld messages in %i seconds\n", messages_sent, (int) (finish_time-start_time));
 
 	cwebsocket_close(WEBSOCKET_FD, "Main event loop complete");
     main_exit(EXIT_SUCCESS);

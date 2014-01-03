@@ -1,4 +1,4 @@
-CFLAGS = -O3 -g -Wall -fmessage-length=0
+CFLAGS = -O3 -g -Wall -fmessage-length=0 -I src/
 
 OBJS =	 src/cwebsocket.o src/main.o
 
