@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <signal.h>
+#include <time.h>
 #include "cwebsocket.h"
 
 #define APPNAME "cwebsocket"
 
 int WEBSOCKET_FD;
+int WEBSOCKET_RUNNING;
 
 void main_exit(int exit_status);
 
@@ -18,7 +20,7 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			cwebsocket_close(WEBSOCKET_FD, "SIGINT/SIGTERM");
-			main_exit(EXIT_SUCCESS);
+			WEBSOCKET_RUNNING = 0;
 			break;
 		default:
 			syslog(LOG_WARNING, "Unhandled signal %s", strsignal(sig));
@@ -86,6 +88,22 @@ void print_program_usage() {
 	exit(0);
 }
 
+void create_mock_metrics(char *metrics) {
+
+	int min = 1;
+	int max = 100;
+	int max2 = 8000;
+	char metricbuf[255];
+
+	sprintf(metricbuf, "rpm %i,itt %i,mrp %i,be %i,pwd %i,toa %i,cf %i,afc1 %i,afl1 %i,ma %i,eld %i,fkc %i,flkc %i,iam %i",
+			rand()%(max2-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min,
+			rand()%(max-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min,
+			rand()%(max-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min, rand()%(max-min + 1) + min,
+			rand()%(max-min + 1) + min, rand()%(max-min + 1) + min);
+
+	memcpy(metrics, metricbuf, 255);
+}
+
 int main(int argc, char **argv) {
 
 	print_program_header();
@@ -139,12 +157,6 @@ int main(int argc, char **argv) {
     	main_exit(EXIT_FAILURE);
     }
 
-	char *data_to_write = "testme";
-	ssize_t bytes_written = cwebsocket_write_data(WEBSOCKET_FD, data_to_write, 6);
-	syslog(LOG_DEBUG, "Wrote %zd bytes to the socket", bytes_written);
-
-	sleep(2);
-
 	/*
 	while(1) {
 
@@ -158,6 +170,24 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}*/
+
+	char metrics[255];
+	uint64_t messages_sent = 0;
+	clock_t t;
+	t = clock();
+
+	WEBSOCKET_RUNNING = 1;
+	while(WEBSOCKET_RUNNING == 1) {
+		create_mock_metrics(metrics);
+		//printf("Metrics: %s\n", metrics);
+		cwebsocket_write_data(WEBSOCKET_FD, metrics, strlen(metrics));
+		sleep(1);
+		messages_sent++;
+	}
+
+	t = clock() - t;
+    double secs = ((double)t) / CLOCKS_PER_SEC;
+	printf("Sent %ld messages in %f seconds\n\n", messages_sent, secs);
 
 	cwebsocket_close(WEBSOCKET_FD, "Main event loop complete");
     main_exit(EXIT_SUCCESS);

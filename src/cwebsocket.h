@@ -36,6 +36,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <sys/time.h>
 
 #define HANDSHAKE_BUFFER_MAX 1024
 #define DATA_BUFFER_MAX 65536

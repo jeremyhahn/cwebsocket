@@ -272,9 +272,9 @@ int cwebsocket_read_data(int fd) {
 
 ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 
-	websocket_frame frame;
+	//websocket_frame frame;
 	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
-	uint8_t payload_len = len;
+	uint64_t payload_len = len;
 	uint8_t header[header_length];
 
 	// create random 4 byte masking key
@@ -288,6 +288,7 @@ ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 
     // Assemble first two bytes - 1000001 10000001
 	header[0] = 0x81;
+	/*
 	frame.fin = ((uint8_t) 1) << 0;
 	frame.mask = ((uint8_t) 1) << 0;
 	frame.rsv1 = 0;
@@ -296,6 +297,7 @@ ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 	frame.opcode = TEXT_FRAME;
 	frame.mask = 1 << 0;
 	frame.payload_len = payload_len;
+	*/
 
 	if(payload_len < 126) {
 		header[1] = payload_len | 0x80;
@@ -305,7 +307,7 @@ ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 		header[5] = masking_key[3];
 	}
 	else if(payload_len == 126) {
-		frame.payload_len = 126;
+		//frame.payload_len = 126;
 		header[1] = 126 | 0x80;
 		header[2] = (payload_len >> 8) & 0xff;
 		header[3] = (payload_len >> 0) & 0xff;
@@ -317,7 +319,7 @@ ssize_t cwebsocket_write_data(int fd, char *data, int len) {
 		header_length += 2;
 	}
 	else {
-		frame.payload_len = 127;
+		//frame.payload_len = 127;
 		header[1] = 127;
 		header[2] = (payload_len >> 56) & 0xff;
 		header[3] = (payload_len >> 48) & 0xff;
@@ -362,8 +364,10 @@ void cwebsocket_print_frame(websocket_frame *frame) {
 
 void cwebsocket_close(int fd, const char *message) {
 	syslog(LOG_DEBUG, "Closing WebSocket: %s", message);
-	if(close(fd) == -1) {
-	   syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
+	if(fd > 0) {
+		if(close(fd) == -1) {
+			syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
+		}
 	}
 	if(on_close_callback_ptr != NULL) {
 	   (*on_close_callback_ptr)(fd, message);
