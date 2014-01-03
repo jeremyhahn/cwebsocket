@@ -62,14 +62,8 @@ int cwebsocket_connect(const char *hostname, const char *port, const char *path)
 	for(i = 0; i < 16; i++) {
 		nonce[i] = alphanum[rand() % 50];
 	}
-	nonce[16] = '\0';
 	char* seckey = (char*)malloc(100);
 	seckey = cwebsocket_base64_encode((const unsigned char *)nonce, sizeof(nonce));
-	//char *seckey = base64_encode(nonce, strlen(nonce));
-
-	//char *seckey = "dGhlIHNhbXBsZSBub25jZQ==";
-	syslog(LOG_DEBUG, "nonce: %s", nonce);
-	syslog(LOG_DEBUG, "seckey: %s", seckey);
 
 	snprintf(handshake, 1024,
 		      "GET %s HTTP/1.1\r\n"
@@ -283,7 +277,7 @@ int cwebsocket_read_data(int fd) {
 			extended_payload_length = 0;
 		}
 
-		if(frame.payload_len == 126 && bytes_read == extended_payload16_end_byte) {
+		if(payload_length == 126 && bytes_read == extended_payload16_end_byte) {
 
 			extended_payload_length = 0;
 			extended_payload_length |= ((uint64_t) data[2]) << 8;
@@ -292,7 +286,7 @@ int cwebsocket_read_data(int fd) {
 			frame_byte_pointer = 4;
 			payload_length = extended_payload_length;
 		}
-		else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
+		else if(payload_length == 127 && bytes_read == extended_payload64_end_byte) {
 
 			extended_payload_length = 0;
 			extended_payload_length |= ((uint64_t) data[2]) << 56;

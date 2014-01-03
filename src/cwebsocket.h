@@ -53,29 +53,6 @@ typedef enum {
 	FALSE
 } bool;
 
-/*
-	WebSocket Framing Protocol:
-	http://tools.ietf.org/html/rfc6455#section-5.2
-
-	0                   1                   2                   3
-	0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-	+-+-+-+-+-------+-+-------------+-------------------------------+
-	|F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-	|I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
-	|N|V|V|V|       |S|             |   (if payload len==126/127)   |
-	| |1|2|3|       |K|             |                               |
-	+-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-	|     Extended payload length continued, if payload len == 127  |
-	+ - - - - - - - - - - - - - - - +-------------------------------+
-	|                               |Masking-key, if MASK set to 1  |
-	+-------------------------------+-------------------------------+
-	| Masking-key (continued)       |          Payload Data         |
-	+-------------------------------- - - - - - - - - - - - - - - - +
-	:                     Payload Data continued ...                :
-	+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-	|                     Payload Data continued ...                |
-	+---------------------------------------------------------------+
-*/
 typedef enum opcode_type {
 	CONTINUATION = 0x00,
 	TEXT_FRAME = 0x01,
@@ -104,18 +81,22 @@ typedef struct {
 	char *filename;
 } websocket_error;*/
 
+// Global callbacks - TODO: Make re-entrant/thread-safe
 void (*on_connect_callback_ptr)(int fd);
 int (*on_message_callback_ptr)(int fd, const char *message);
 void (*on_close_callback_ptr)(int fd, const char *message);
 //void (*on_error_callback_ptr)(websocket_error *error);
 int (*on_error_callback_ptr)(const char *message);
 
+// Provided for client/server implementations
 int cwebsocket_connect(const char *hostname, const char *port, const char *path);
-int cwebsocket_read_handshake(int fd, char *seckey);
-int cwebsocket_handshake_handler(const char *message, char *seckey);
 int cwebsocket_read_data(int fd);
 ssize_t cwebsocket_write_data(int fd, char *data, int len);
-void cwebsocket_print_frame(websocket_frame *frame);
 void cwebsocket_close(int fd, const char *message);
+
+// Used internally by cwebsocket
+int cwebsocket_read_handshake(int fd, char *seckey);
+int cwebsocket_handshake_handler(const char *message, char *seckey);
+void cwebsocket_print_frame(websocket_frame *frame);
 
 #endif

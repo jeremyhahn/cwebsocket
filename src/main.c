@@ -28,10 +28,7 @@ void signal_handler(int sig) {
 }
 
 void on_connect(int fd) {
-	char str_fd[10];
-	sprintf(str_fd, "%d", fd);
 	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", fd);
-	syslog(LOG_DEBUG, "on_connect: bytes=%zu", strlen(str_fd));
 }
 
 int on_message(int fd, const char *message) {

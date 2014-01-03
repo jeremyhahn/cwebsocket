@@ -37,7 +37,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.928242729" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.libs.454784674" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="crypto"/>
-									<listOptionValue builtIn="false" value="gcrypt"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1191767560" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

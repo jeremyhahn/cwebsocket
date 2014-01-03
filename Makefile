@@ -1,8 +1,8 @@
-CFLAGS = -O3 -g -Wall -fmessage-length=0 -I src/
+CFLAGS = -O3 -g3 -Wall -fmessage-length=0 -I/usr/include
 
-OBJS =	 src/cwebsocket.o src/main.o
+OBJS =	 src/base64.o src/cwebsocket.o src/main.o
 
-LIBS =
+LIBS = -lcrypto
 
 TARGET = websocket-client
 
