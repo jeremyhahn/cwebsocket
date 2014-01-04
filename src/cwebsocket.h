@@ -43,7 +43,6 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
-#include "base64.h"
 
 #define HANDSHAKE_BUFFER_MAX 255
 #define DATA_BUFFER_MAX 65536
