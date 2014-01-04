@@ -87,13 +87,13 @@ void (*on_close_callback_ptr)(int fd, const char *message);
 //void (*on_error_callback_ptr)(websocket_error *error);
 int (*on_error_callback_ptr)(const char *message);
 
-// Provided for client/server implementations
+// Client API
 int cwebsocket_connect(const char *hostname, const char *port, const char *path);
 int cwebsocket_read_data(int fd);
 ssize_t cwebsocket_write_data(int fd, char *data, int len);
 void cwebsocket_close(int fd, const char *message);
 
-// Used internally by cwebsocket
+// Internal
 int cwebsocket_read_handshake(int fd, char *seckey);
 int cwebsocket_handshake_handler(const char *message, char *seckey);
 void cwebsocket_print_frame(websocket_frame *frame);

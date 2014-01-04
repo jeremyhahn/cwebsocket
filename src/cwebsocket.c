@@ -60,7 +60,7 @@ int cwebsocket_connect(const char *hostname, const char *port, const char *path)
 	static const char alphanum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz";
 	int i;
 	for(i = 0; i < 16; i++) {
-		nonce[i] = alphanum[rand() % 50];
+		nonce[i] = alphanum[rand() % 61];
 	}
 	char* seckey = (char*)malloc(100);
 	seckey = cwebsocket_base64_encode((const unsigned char *)nonce, sizeof(nonce));
@@ -119,33 +119,12 @@ int cwebsocket_handshake_handler(const char *handshake_response, char *seckey) {
 
 	syslog(LOG_DEBUG, "%s\n", handshake_response);
 
-	if(strstr(handshake_response, "HTTP/1.1 101 Switching Protocols") == NULL) {
-		syslog(LOG_CRIT, "%s%s", "Unexpected handshake response: ", handshake_response);
-		return -1;
-	}
-
-	if(strstr(handshake_response, "Upgrade: websocket") == NULL) {
-		const char *errmsg = "Invalid Upgrade header. Expected 'websocket'.";
-		syslog(LOG_CRIT, "%s", errmsg);
-		return on_error_callback_ptr(errmsg);
-	}
-
-	if(strstr(handshake_response, "Connection: Upgrade") == NULL) {
-		const char *errmsg = "Invalid Connection header. Expected 'Upgrade'.";
-		syslog(LOG_CRIT, "%s", errmsg);
-		return on_error_callback_ptr(errmsg);
-	}
-
-	char *sec_accept_header_value[255];
-	char *sec_accept_header_pos = strstr(handshake_response, "Sec-WebSocket-Accept:");
-	memcpy(sec_accept_header_value, sec_accept_header_pos, 255);
-
-	char *p = NULL, *token = NULL;
+	char *ptr = NULL, *token = NULL;
 	for(token = strtok((char *)handshake_response, "\r\n"); token != NULL; token = strtok(NULL, "\r\n")) {
 		if(*token == 'H' && *(token+1) == 'T' && *(token+2) == 'T' && *(token+3) == 'P') {
-			p = strchr(token, ' ');
-			p = strchr(p+1, ' ');
-			*p = '\0';
+			ptr = strchr(token, ' ');
+			ptr = strchr(ptr+1, ' ');
+			*ptr = '\0';
 			if(strcmp(token, "HTTP/1.1 101") != 0 && strcmp(token, "HTTP/1.0 101") != 0) {
 				if(on_error_callback_ptr != NULL) {
 				   return on_error_callback_ptr("Invalid HTTP status response");
@@ -153,10 +132,10 @@ int cwebsocket_handshake_handler(const char *handshake_response, char *seckey) {
 				return -1;
 			}
 		} else {
-			p = strchr(token, ' ');
-			*p = '\0';
+			ptr = strchr(token, ' ');
+			*ptr = '\0';
 			if(strcmp(token, "Upgrade:") == 0) {
-				if(strcmp(p+1, "websocket") != 0 && strcmp(p+1, "Websocket") != 0) {
+				if(strcmp(ptr+1, "websocket") != 0 && strcmp(ptr+1, "Websocket") != 0) {
 					if(on_error_callback_ptr != NULL) {
 					   return on_error_callback_ptr("Invalid Upgrade header. Expected 'websocket'.");
 					}
@@ -164,7 +143,7 @@ int cwebsocket_handshake_handler(const char *handshake_response, char *seckey) {
 				}
 			}
 			if(strcmp(token, "Connection:") == 0) {
-				if(strcmp(p+1, "upgrade") != 0 && strcmp(p+1, "Upgrade") != 0) {
+				if(strcmp(ptr+1, "upgrade") != 0 && strcmp(ptr+1, "Upgrade") != 0) {
 					if(on_error_callback_ptr != NULL) {
 					   return on_error_callback_ptr("Invalid Connection header. Expected 'upgrade'.");
 					}
@@ -174,8 +153,8 @@ int cwebsocket_handshake_handler(const char *handshake_response, char *seckey) {
 			if(strcmp(token, "Sec-WebSocket-Accept:") == 0) {
 
 				const char *GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-				int seckey_len = strlen(seckey);
-				int total_len = seckey_len + 36;
+				const int seckey_len = strlen(seckey);
+				const int total_len = seckey_len + 36;
 
 				char sha1buf[total_len];
 				memcpy(sha1buf, seckey, seckey_len);
@@ -187,7 +166,7 @@ int cwebsocket_handshake_handler(const char *handshake_response, char *seckey) {
 			    char* base64_encoded = (char*)malloc(512);
 			    base64_encoded = cwebsocket_base64_encode((const unsigned char *)sha1_bytes, sizeof(sha1_bytes));
 
-				if(strcmp(p+1, base64_encoded) != 0) {
+				if(strcmp(ptr+1, base64_encoded) != 0) {
 					free(base64_encoded);
 					free(seckey);
 					if(on_error_callback_ptr != NULL) {

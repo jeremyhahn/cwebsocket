@@ -1,6 +1,6 @@
 CFLAGS = -O3 -g3 -Wall -fmessage-length=0
 
-OBJS =	 src/base64.o src/cwebsocket.o src/main.o
+OBJS =	 src/cwebsocket.o src/main.o
 
 LIBS = -lcrypto
 
