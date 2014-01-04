@@ -222,6 +222,14 @@ int cwebsocket_read_data(int fd) {
 	int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
 	uint64_t extended_payload_length;           // Stores the extended payload length bits, if present
 
+	frame.fin = 0;
+	frame.rsv1 = 0;
+	frame.rsv2 = 0;
+	frame.rsv3 = 0;
+	frame.opcode = 0;
+	frame.mask = 0;
+	frame.payload_len = 0;
+
 	while(bytes_read < header_length + payload_length) {
 
 		if(bytes_read == DATA_BUFFER_MAX) {
@@ -309,7 +317,7 @@ int cwebsocket_read_data(int fd) {
 		   return (*on_message_callback_ptr)(fd, payload);
 		}
 
-		syslog(LOG_WARNING, "No callback defined for data: %s", payload);
+		syslog(LOG_WARNING, "No on_message callback defined to handle data: %s", payload);
 		return 0;
 	}
 	else if(frame.opcode == BINARY_FRAME) {

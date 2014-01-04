@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
 	}
 
 	finish_time = time(0);
-	printf("Sent %ld messages in %i seconds\n", messages_sent, (int) (finish_time-start_time));
+	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
 
 	cwebsocket_close(WEBSOCKET_FD, "Main event loop complete");
     main_exit(EXIT_SUCCESS);
