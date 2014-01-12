@@ -44,22 +44,49 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-#define HANDSHAKE_BUFFER_MAX 255
-#define DATA_BUFFER_MAX 65536
+#ifdef THREADED
+	#include <pthread.h>
+#endif
+
+#ifndef HANDSHAKE_BUFFER_MAX
+	#define HANDSHAKE_BUFFER_MAX 255
+#endif
+
+#ifndef DATA_BUFFER_MAX
+	#define DATA_BUFFER_MAX 65536
+#endif
+
+#define WEBSOCKET_STATE_CONNECTING (1 << 0)
+#define WEBSOCKET_STATE_CONNECTED  (1 << 1)
+#define WEBSOCKET_STATE_HANDSHAKE  (1 << 2)
+#define WEBSOCKET_STATE_RECEIVING  (1 << 3)
+#define WEBSOCKET_STATE_SENDING    (1 << 4)
+#define WEBSOCKET_STATE_CLOSING    (1 << 5)
+#define WEBSOCKET_STATE_CLOSED     (1 << 6)
 
 typedef enum {
 	TRUE,
 	FALSE
 } bool;
 
-typedef enum opcode_type {
-	CONTINUATION = 0x00,
-	TEXT_FRAME = 0x01,
+typedef enum {
+	CONTINUATION = (uint32_t)0x00,
+	TEXT_FRAME = (uint32_t)0x01,
 	BINARY_FRAME = 0x02,
 	CLOSE = 0x08,
 	PING = 0x09,
 	PONG = 0x0A,
 } opcode;
+
+typedef struct {
+	uint32_t opcode;
+	#if defined(__arm__ ) || defined(__i386__)
+	uint32_t payload_len;
+	#else
+	uint64_t payload_len;
+	#endif
+	char *payload;
+} cwebsocket_message;
 
 typedef struct {
 	bool fin;
@@ -70,32 +97,42 @@ typedef struct {
 	bool mask;
 	int payload_len;
 	uint32_t masking_key[4];
-} websocket_frame;
+} cwebsocket_frame;
+
+typedef struct _cwebsocket {
+	int sock_fd;
+	#ifdef THREADED
+	pthread_t thread;
+	pthread_mutex_t lock;
+	#endif
+	uint8_t state;
+	void (*on_connect)(struct _cwebsocket *);
+	void (*on_message)(struct _cwebsocket *, cwebsocket_message *message);
+	void (*on_close)(struct _cwebsocket *, cwebsocket_message *message);
+	void (*on_error)(struct _cwebsocket *, const char *error);
+} cwebsocket;
+
+typedef struct {
+	cwebsocket *socket;
+	cwebsocket_message *message;
+} cwebsocket_thread_args;
+
+// "public"
+int cwebsocket_connect(cwebsocket *websocket, const char *hostname, const char *port, const char *path);
+int cwebsocket_read_data(cwebsocket *websocket);
+ssize_t cwebsocket_write_data(cwebsocket *websocket, char *data, int len);
+void cwebsocket_close(cwebsocket *websocket, cwebsocket_message *message);
 
 /*
-typedef struct {
-	int code;
-	char *message;
-	int line;
-	char *filename;
-} websocket_error;*/
+void cwebsocket_onconnect(cwebsocket *websocket);
+void cwebsocket_onmessage(cwebsocket *websocket, void(*onmessage)(cwebsocket *websocket, cwebsocket_message *message));
+void cwebsocket_close(cwebsocket *websocket, void(*onmessage)(cwebsocket *websocket, cwebsocket_message *message));
+void cwebsocket_onerror(cwebsocket *websocket, void(*onmessage)(cwebsocket *websock, cwebsocket_message *message));
+*/
 
-// Global callbacks - TODO: Make re-entrant/thread-safe
-void (*on_connect_callback_ptr)(int fd);
-int (*on_message_callback_ptr)(int fd, const char *message);
-void (*on_close_callback_ptr)(int fd, const char *message);
-//void (*on_error_callback_ptr)(websocket_error *error);
-int (*on_error_callback_ptr)(const char *message);
-
-// Client API
-int cwebsocket_connect(const char *hostname, const char *port, const char *path);
-int cwebsocket_read_data(int fd);
-ssize_t cwebsocket_write_data(int fd, char *data, int len);
-void cwebsocket_close(int fd, const char *message);
-
-// Internal
-int cwebsocket_read_handshake(int fd, char *seckey);
-int cwebsocket_handshake_handler(const char *message, char *seckey);
-void cwebsocket_print_frame(websocket_frame *frame);
+// "private"
+int cwebsocket_read_handshake(cwebsocket *websocket, char *seckey);
+int cwebsocket_handshake_handler(cwebsocket *websocket, const char *message, char *seckey);
+void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 #endif

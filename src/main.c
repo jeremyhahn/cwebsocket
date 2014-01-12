@@ -2,15 +2,17 @@
 #include <signal.h>
 #include "cwebsocket.h"
 
-#define APPNAME "cwebsocket"
-
 int WEBSOCKET_FD;
 int WEBSOCKET_RUNNING;
+cwebsocket websocket;
 
-void main_exit(int exit_status);
+int main_exit(int exit_status) {
+	syslog(LOG_DEBUG, "Exiting cwebsocket");
+	closelog();
+	return exit_status;
+}
 
 void signal_handler(int sig) {
-
 	switch(sig) {
 		case SIGHUP:
 			syslog(LOG_DEBUG, "Received SIGHUP signal");
@@ -20,6 +22,14 @@ void signal_handler(int sig) {
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
 			WEBSOCKET_RUNNING = 0;
+			#ifdef THREADED
+			cwebsocket_message message;
+			message.opcode = TEXT_FRAME;
+			message.payload = "SIGINT/SIGTERM";
+			message.payload_len = strlen(message.payload);
+			cwebsocket_close(&websocket, &message);
+			main_exit(EXIT_SUCCESS);
+			#endif
 			break;
 		default:
 			syslog(LOG_WARNING, "Unhandled signal %s", strsignal(sig));
@@ -27,34 +37,10 @@ void signal_handler(int sig) {
 	}
 }
 
-void on_connect(int fd) {
-	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", fd);
-}
-
-int on_message(int fd, const char *message) {
-	syslog(LOG_DEBUG, "on_message: data=%s", message);
-	syslog(LOG_DEBUG, "on_message: bytes=%zu", strlen(message));
-	return 0;
-}
-
-void on_close(int fd, const char *message) {
-	if(message != NULL) {
-		syslog(LOG_DEBUG, "on_close: %s", message);
-	}
-	syslog(LOG_DEBUG, "on_close: closing websocket file descriptor: %i", fd);
-}
-
-int on_error(const char *message) {
-	syslog(LOG_DEBUG, "on_error: message=%s", message);
-	//syslog(LOG_DEBUG, "on_error: code: %i, message: %s, line: %i, filename: %s",
-	//		err->code, err->message, err->line, err->filename);
-	return -1;
-}
-
 int is_valid_arg(const char *string) {
 	int i=0;
 	for(i=0; i < strlen(string); i++) {
-		if(!isalnum(string[i]) && string[i] != '/') {
+		if(!isalnum(string[i]) && string[i] != '/' && string[i] != '.' && string[i] != '_' && string[i] != '-') {
 			return 0;
 		}
 	}
@@ -107,6 +93,30 @@ void create_mock_metrics(char *metrics) {
 	memcpy(metrics, metricbuf, 255);
 }
 
+void on_connect(cwebsocket *websocket) {
+	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", websocket->sock_fd);
+}
+
+void on_message(cwebsocket *websocket, cwebsocket_message *message) {
+	#ifdef __arm__
+	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#x, payload_len=%i, payload=%s",
+			message->opcode, message->payload_len, message->payload);
+	#else
+	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#x, payload_len=%zu, payload=%s",
+			message->opcode, message->payload_len, message->payload);
+	#endif
+}
+
+void on_close(cwebsocket *websocket, cwebsocket_message *message) {
+	if(message != NULL) {
+		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->sock_fd, message->payload);
+	}
+}
+
+void on_error(cwebsocket *websocket, const char *message) {
+	syslog(LOG_DEBUG, "on_error: message=%s", message);
+}
+
 int main(int argc, char **argv) {
 
 	print_program_header();
@@ -132,7 +142,7 @@ int main(int argc, char **argv) {
 	sigaction(SIGINT, &newSigAction, NULL);     /* catch interrupt signal */
 
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
-	openlog(APPNAME, LOG_CONS | LOG_PERROR, LOG_USER);
+	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "Starting cwebsocket");
 
 	if(argc != 4) print_program_usage();
@@ -151,30 +161,25 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	on_connect_callback_ptr = &on_connect;
-	on_message_callback_ptr = &on_message;
-	on_close_callback_ptr = &on_close;
-	on_error_callback_ptr = &on_error;
+	websocket.on_connect = &on_connect;
+	websocket.on_message = &on_message;
+	websocket.on_close = &on_close;
+	websocket.on_error = &on_error;
 
-	WEBSOCKET_FD = cwebsocket_connect(argv[1], argv[2], argv[3]);
-	if(WEBSOCKET_FD == -1) {
-    	main_exit(EXIT_FAILURE);
+	cwebsocket_connect(&websocket, argv[1], argv[2], argv[3]);
+
+	if(websocket.sock_fd == -1) {
+		printf("websocket: sock_fd=%i\n", websocket.sock_fd);
+		main_exit(EXIT_FAILURE);
     }
 
-	/*
-	while(1) {
-
+	WEBSOCKET_RUNNING = 1;
+	while(WEBSOCKET_RUNNING == 1) {
 		syslog(LOG_DEBUG, "main: calling websocket_read");
+		cwebsocket_read_data(&websocket);
+	}
 
-		int callback_return_value = websocket_read_data(WEBSOCKET_FD);
-		if(callback_return_value == -1) {
-			syslog(LOG_ERR, "Connection broken or unable to process ingress data");
-			websocket_close(WEBSOCKET_FD, NULL);
-			main_exit(EXIT_FAILURE);
-			break;
-		}
-	}*/
-
+	/*
 	uint64_t messages_sent = 0;
 	char metrics[255];
 
@@ -192,14 +197,13 @@ int main(int argc, char **argv) {
 
 	finish_time = time(0);
 	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
+	*/
 
-	cwebsocket_close(WEBSOCKET_FD, "Main event loop complete");
-    main_exit(EXIT_SUCCESS);
-    return EXIT_SUCCESS;
-}
+	cwebsocket_message message;
+	message.opcode = TEXT_FRAME;
+	message.payload = "Main event loop complete";
+	message.payload_len = strlen(message.payload);
 
-void main_exit(int exit_status) {
-	syslog(LOG_DEBUG, "Exiting cwebsocket");
-	closelog();
-	exit(exit_status);
+	cwebsocket_close(&websocket, &message);
+    return main_exit(EXIT_SUCCESS);
 }

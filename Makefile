@@ -1,13 +1,29 @@
-CFLAGS = -O3 -g3 -Wall -fmessage-length=0
+CFLAGS      = -O3 -g3 -Wall -fmessage-length=0
+OBJS        = src/cwebsocket.o src/main.o
+LIBS        = -lcrypto
+TARGET      = websocket-client
+PLATFORM    = x86_64
 
-OBJS =	 src/cwebsocket.o src/main.o
+ifdef NOTHREADS
+else
+  CFLAGS += -pthread -DTHREADED
+  LIBS += -lpthread
+endif
 
-LIBS = -lcrypto
+ifeq ($(PLATFORM), x86)
+	CFLAGS += -m32
+endif
 
-TARGET = websocket-client
+ifeq ($(PLATFORM), x86_64)
+	CFLAGS += -m64
+endif
+
+ifeq ($(PLATFORM), arm)
+	CFLAGS += -pipe -mfpu=vfp -mfloat-abi=hard
+endif
 
 $(TARGET):	$(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
 
 all:	$(TARGET)
 
