@@ -98,7 +98,7 @@ void on_connect(cwebsocket *websocket) {
 }
 
 void on_message(cwebsocket *websocket, cwebsocket_message *message) {
-	#ifdef __arm__
+	#if defined(__arm__ ) || defined(__i386__)
 	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#x, payload_len=%i, payload=%s",
 			message->opcode, message->payload_len, message->payload);
 	#else
