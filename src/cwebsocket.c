@@ -47,16 +47,13 @@ void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *res
 	}
 	else if(sscanf(uri, "ws://%[^:]:%[^/]%s", hostname, port, resource) == 2) {
 		strcpy(resource, "/");
-		printf("second\n");
 	}
 	else if(sscanf(uri, "ws://%[^/]%s", hostname, resource) == 2) {
 		strcpy(port, "80");
-		printf("third\n");
 	}
 	else if(sscanf(uri, "ws://%[^/]", hostname) == 1) {
 		strcpy(port, "80");
 		strcpy(resource, "/");
-		printf("fourth\n");
 	}
 	else if(sscanf(uri, "http://%[^/]", hostname) == 0) {
 		printf("Invalid URL\n");
