@@ -146,18 +146,20 @@ int main(int argc, char **argv) {
 	websocket_client.onclose = &onclose;
 	websocket_client.onerror = &onerror;
 
-	cwebsocket_connect(&websocket_client, argv[1]);
+	if(cwebsocket_connect(&websocket_client, argv[1]) == -1) {
+		return main_exit(EXIT_FAILURE);
+	}
 
 	if(websocket_client.sock_fd == -1) {
 		printf("websocket: sock_fd=%i\n", websocket_client.sock_fd);
 		main_exit(EXIT_FAILURE);
     }
 
-	WEBSOCKET_RUNNING = 1;
-	while(WEBSOCKET_RUNNING == 1) {
+	do {
 		syslog(LOG_DEBUG, "main: calling websocket_read");
 		cwebsocket_read_data(&websocket_client);
 	}
+	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
 
 	/*
 	uint64_t messages_sent = 0;

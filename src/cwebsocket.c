@@ -43,6 +43,7 @@ char *cwebsocket_base64_encode(const unsigned char *input, int length) {
 }
 
 void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource) {
+
 	if(sscanf(uri, "ws://%[^:]:%[^/]%s", hostname, port, resource) == 3) {
 	}
 	else if(sscanf(uri, "ws://%[^:]:%[^/]%s", hostname, port, resource) == 2) {
@@ -302,10 +303,6 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	frame.mask = 0;
 	frame.payload_len = 0;
 
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
-#endif
-
 	while(bytes_read < header_length + payload_length) {
 
 		if(bytes_read == DATA_BUFFER_MAX) {
@@ -314,9 +311,22 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			return -1;
 		}
 
+#ifdef THREADED
+		pthread_mutex_lock(&websocket->lock);
 		int bytes = read(websocket->sock_fd, data+bytes_read, 1);
+		pthread_mutex_unlock(&websocket->lock);
+#else
+		int bytes = read(websocket->sock_fd, data+bytes_read, 1);
+#endif
 		if(bytes == 0) {
 			syslog(LOG_ERR, "The remote host has closed the connection");
+#ifdef THREADED
+			pthread_mutex_lock(&websocket->lock);
+			websocket->state = WEBSOCKET_STATE_CLOSED;
+			pthread_mutex_unlock(&websocket->lock);
+#else
+			websocket->state = WEBSOCKET_STATE_CLOSED;
+#endif
 			return -1;
 		}
 		if(bytes == -1) {
@@ -387,10 +397,6 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			frame.masking_key[3] = 0;
 		}
 	}
-
-#ifdef THREADED
-	pthread_mutex_unlock(&websocket->lock);
-#endif
 
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
