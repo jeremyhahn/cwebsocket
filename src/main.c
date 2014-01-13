@@ -2,11 +2,10 @@
 #include <signal.h>
 #include "cwebsocket.h"
 
-int WEBSOCKET_RUNNING;
 cwebsocket_client websocket_client;
 
 int main_exit(int exit_status) {
-	syslog(LOG_DEBUG, "Exiting cwebsocket");
+	syslog(LOG_DEBUG, "exiting cwebsocket");
 	closelog();
 	return exit_status;
 }
@@ -20,11 +19,9 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
-			WEBSOCKET_RUNNING = 0;
-#ifdef THREADED
 			cwebsocket_close(&websocket_client, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
-#endif
+			exit(0);
 			break;
 		default:
 			syslog(LOG_WARNING, "Unhandled signal %s", strsignal(sig));
@@ -102,9 +99,9 @@ void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 #endif
 }
 
-void onclose(cwebsocket_client *websocket, cwebsocket_message *message) {
+void onclose(cwebsocket_client *websocket, const char *message) {
 	if(message != NULL) {
-		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->sock_fd, message->payload);
+		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->sock_fd, message);
 	}
 }
 
@@ -139,7 +136,7 @@ int main(int argc, char **argv) {
 
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
-	syslog(LOG_DEBUG, "Starting cwebsocket");
+	syslog(LOG_DEBUG, "starting cwebsocket");
 
 	websocket_client.onopen = &onopen;
 	websocket_client.onmessage = &onmessage;
@@ -149,11 +146,6 @@ int main(int argc, char **argv) {
 	if(cwebsocket_connect(&websocket_client, argv[1]) == -1) {
 		return main_exit(EXIT_FAILURE);
 	}
-
-	if(websocket_client.sock_fd == -1) {
-		printf("websocket: sock_fd=%i\n", websocket_client.sock_fd);
-		main_exit(EXIT_FAILURE);
-    }
 
 	do {
 		syslog(LOG_DEBUG, "main: calling websocket_read");
@@ -168,19 +160,19 @@ int main(int argc, char **argv) {
 	time_t start_time, finish_time;
 	start_time = time(0);
 
-	WEBSOCKET_RUNNING = 1;
-	while(WEBSOCKET_RUNNING == 1) {
+	do {
 		create_mock_metrics(metrics);
 		//printf("Metrics: %s\n", metrics);
 		cwebsocket_write_data(&websocket, metrics, strlen(metrics));
 		sleep(1);
 		messages_sent++;
 	}
+	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
 
 	finish_time = time(0);
 	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
 	*/
 
-	cwebsocket_close(&websocket_client, "Main event loop complete");
+	cwebsocket_close(&websocket_client, "main run loop complete");
     return main_exit(EXIT_SUCCESS);
 }

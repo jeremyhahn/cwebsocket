@@ -106,7 +106,7 @@ typedef struct _cwebsocket {
 	uint8_t state;
 	void (*onopen)(struct _cwebsocket *);
 	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);
-	void (*onclose)(struct _cwebsocket *, cwebsocket_message *message);
+	void (*onclose)(struct _cwebsocket *, const char *message);
 	void (*onerror)(struct _cwebsocket *, const char *error);
 } cwebsocket_client;
 
@@ -118,12 +118,12 @@ typedef struct {
 // "public"
 int cwebsocket_connect(cwebsocket_client *websocket, const char *uri);
 int cwebsocket_read_data(cwebsocket_client *websocket);
-ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len);
+ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len);
 void cwebsocket_close(cwebsocket_client *websocket, const char *message);
 
 // "private"
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
-int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, char *seckey);
+int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, const char *seckey);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 #endif

@@ -65,7 +65,7 @@ void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *res
 int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 	if(websocket->sock_fd > 0) {
-		syslog(LOG_ERR, "Socket already connected");
+		syslog(LOG_ERR, "socket already connected");
 		return -1;
 	}
 
@@ -76,7 +76,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 #ifdef THREADED
 	if(pthread_mutex_init(&websocket->lock, NULL) != 0) {
-		syslog(LOG_ERR, "Unable to initialize mutex: %s\n", strerror(errno));
+		syslog(LOG_ERR, "unable to initialize mutex: %s\n", strerror(errno));
 		return -1;
 	}
 	pthread_mutex_lock(&websocket->lock);
@@ -86,7 +86,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
 #endif
 
-	syslog(LOG_DEBUG, "Connecting to %s", uri);
+	syslog(LOG_DEBUG, "connecting to %s", uri);
 
 	char handshake[1024];
     struct addrinfo hints, *res;
@@ -113,7 +113,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 		      "Sec-WebSocket-Key: %s\r\n"
 		      "Sec-WebSocket-Version: 13\r\n"
 			  //"Sec-WebSocket-Protocol: chat, superchat\r\n"
-			  "\r\n", resource, hostname, seckey);
+			  "\r\n", resource, hostname, (const char *)seckey);
 
 	if(getaddrinfo(hostname, port, &hints, &res) != 0 ) {
 		syslog(LOG_ERR, "%s", "Host or IP not valid");
@@ -166,7 +166,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	return 0;
 }
 
-int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey) {
+int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, const char *seckey) {
 
 	syslog(LOG_DEBUG, "%s\n", handshake_response);
 
@@ -178,7 +178,7 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 			*ptr = '\0';
 			if(strcmp(token, "HTTP/1.1 101") != 0 && strcmp(token, "HTTP/1.0 101") != 0) {
 				if(websocket->onerror != NULL) {
-				   websocket->onerror(websocket, "Invalid HTTP status response");
+				   websocket->onerror(websocket, "invalid HTTP status response");
 				   return -1;
 				}
 				return -1;
@@ -222,7 +222,7 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 
 				if(strcmp(ptr+1, base64_encoded) != 0) {
 					free(base64_encoded);
-					free(seckey);
+					free((char *)seckey);
 					if(websocket->onerror != NULL) {
 				       websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
 					   return -1;
@@ -231,12 +231,12 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 				}
 
 				free(base64_encoded);
-				free(seckey);
+				free((char *)seckey);
 			}
 		}
 	}
 
-	syslog(LOG_DEBUG, "Handshake successful");
+	syslog(LOG_DEBUG, "handshake successful");
 	return 0;
 }
 
@@ -251,7 +251,7 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
 	while(read(websocket->sock_fd, data+bytes_read, 1) > 0) {
 		if(bytes_read == HANDSHAKE_BUFFER_MAX) {
-			syslog(LOG_ERR, "Handshake response too large. HANDSHAKE_BUFFER_MAX = %i bytes.", HANDSHAKE_BUFFER_MAX);
+			syslog(LOG_ERR, "handshake response too large. HANDSHAKE_BUFFER_MAX = %i bytes.", HANDSHAKE_BUFFER_MAX);
 			return -1;
 		}
 		if((data[bytes_read] == '\n' && data[bytes_read-1] == '\r' && data[bytes_read-2] == '\n' && data[bytes_read-3] == '\r')) {
@@ -306,7 +306,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	while(bytes_read < header_length + payload_length) {
 
 		if(bytes_read == DATA_BUFFER_MAX) {
-			syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", DATA_BUFFER_MAX, header_length);
+			syslog(LOG_ERR, "data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", DATA_BUFFER_MAX, header_length);
 			// TODO Buffer large frames to the heap/filesystem...
 			return -1;
 		}
@@ -319,7 +319,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		int bytes = read(websocket->sock_fd, data+bytes_read, 1);
 #endif
 		if(bytes == 0) {
-			syslog(LOG_ERR, "The remote host has closed the connection");
+			syslog(LOG_ERR, "remote host closed the connection");
 #ifdef THREADED
 			pthread_mutex_lock(&websocket->lock);
 			websocket->state = WEBSOCKET_STATE_CLOSED;
@@ -330,7 +330,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			return -1;
 		}
 		if(bytes == -1) {
-			syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
+			syslog(LOG_ERR, "error reading data frame: %s", strerror(errno));
 			return -1;
 		}
 		bytes_read++;
@@ -344,6 +344,11 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
 			frame.mask = (data[1] & 0x80) == 0x80;
 			frame.payload_len = (data[1] & 0x7F);
+
+			if((frame.mask & 0x80) != 0) {
+				syslog(LOG_CRIT, "client detected frame masked by server"); // http://tools.ietf.org/html/rfc6455#section-5.1
+				return -1;
+			}
 
 			header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
 			payload_length = frame.payload_len;
@@ -362,7 +367,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		else if(payload_length == 127 && bytes_read == extended_payload64_end_byte) {
 
 #if defined(__arm__ ) || defined(__i386__)
-			syslog(LOG_CRIT, "Received payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
+			syslog(LOG_CRIT, "payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
 			return -1;
 #endif
 
@@ -412,7 +417,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		   message->payload = payload;
 
 #ifdef THREADED
-		   syslog(LOG_DEBUG, "creating thread for onmessage callback\n");
+		   syslog(LOG_DEBUG, "creating onmessage callback thread\n");
 
 		   cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
 		   args->socket = websocket;
@@ -431,20 +436,19 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		return 0;
 	}
 	else if(frame.opcode == BINARY_FRAME) {
-		syslog(LOG_DEBUG, "Received unsupported BINARY_FRAME opcode");
+		syslog(LOG_DEBUG, "received unsupported BINARY_FRAME opcode");
 	}
 	else if(frame.opcode == CONTINUATION) {
-		syslog(LOG_DEBUG, "Received unsupported CONTINUATION opcode");
+		syslog(LOG_DEBUG, "received unsupported CONTINUATION opcode");
 	}
 	else if(frame.opcode == PING) {
-		syslog(LOG_DEBUG, "Received PING control frame");
+		syslog(LOG_DEBUG, "received PING control frame");
 	}
 	else if(frame.opcode == PONG) {
-		syslog(LOG_DEBUG, "Received PONG control frame");
+		syslog(LOG_DEBUG, "received PONG control frame");
 	}
 	else if(frame.opcode == CLOSE) {
-		syslog(LOG_DEBUG, "Received CLOSE control frame");
-		cwebsocket_close(websocket, NULL);
+		cwebsocket_close(websocket, "received CLOSE control frame");
 	}
 	else {
 		syslog(LOG_ERR, "Unsupported data frame opcode: %x", frame.opcode);
@@ -455,7 +459,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	return -1;
 }
 
-ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len) {
+ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len) {
 
 	//websocket_frame frame;
 	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
@@ -471,7 +475,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len)
     mask_bit = rand();
     memcpy(masking_key, &mask_bit, 4);
 
-    // Assemble first two bytes - 1000001 10000001
+    // Assemble first two bytes - 10000001 10000001
 	header[0] = 0x81;
 	/*
 	frame.fin = ((uint8_t) 1) << 0;
@@ -574,18 +578,36 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 #else
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 #endif
-	cwebsocket_message sock_message;
-	sock_message.opcode = TEXT_FRAME;
-	sock_message.payload_len = strlen(message);
-	sock_message.payload = (char *)message;
-	syslog(LOG_DEBUG, "Closing WebSocket: %s", sock_message.payload);
+	syslog(LOG_DEBUG, "closing websocket: %s", message);
+	// close the socket
 	if(websocket->sock_fd > 0) {
+		// Send close frame
+		char close_frame[6];
+		int mask_int;
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		srand(tv.tv_sec * tv.tv_usec);
+		mask_int = rand();
+		memcpy(close_frame+2, &mask_int, 4);
+		close_frame[0] = 0x88;
+		close_frame[1] = 0x80;
+#ifdef THREADED
+		pthread_mutex_lock(&websocket->lock);
+		if(write(websocket->sock_fd, close_frame, 6)) {
+			syslog(LOG_DEBUG, "sent CLOSE control frame");
+		}
+		pthread_mutex_unlock(&websocket->lock);
+#else
+		if(write(websocket->sock_fd, close_frame, 6)) {
+			syslog(LOG_DEBUG, "sent CLOSE control frame");
+		}
+#endif
 		if(close(websocket->sock_fd) == -1) {
-			syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
+			syslog(LOG_ERR, "error closing websocket: %s", strerror(errno));
 		}
 	}
 	if(websocket->onclose != NULL) {
-	   websocket->onclose(websocket, &sock_message);
+	   websocket->onclose(websocket, message);
 	}
 #ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
