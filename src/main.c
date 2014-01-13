@@ -65,9 +65,10 @@ void print_program_header() {
 	fprintf(stderr, "\n");
 }
 
-void print_program_usage() {
+void print_program_usage(const char *progname) {
 
-	fprintf(stderr, "usage: [hostname] [port] [path]\n");
+	fprintf(stderr, "usage: [uri]\n");
+	fprintf(stderr, "example: %s ws://echo.websocket.org/resource\n\n", progname);
 	exit(0);
 }
 
@@ -93,8 +94,8 @@ void onopen(cwebsocket_client *websocket) {
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 #if defined(__arm__ ) || defined(__i386__)
-	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%i, payload=%s",
-			message->opcode, message->payload_len, message->payload);
+	syslog(LOG_DEBUG, "on_message: sock_fd:%i, opcode=%#04x, payload_len=%i, payload=%s",
+			websocket->sock_fd, message->opcode, message->payload_len, message->payload);
 #else
 	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%zu, payload=%s",
 			message->opcode, message->payload_len, message->payload);
@@ -114,6 +115,7 @@ void onerror(cwebsocket_client *websocket, const char *message) {
 int main(int argc, char **argv) {
 
 	print_program_header();
+	if(argc != 2) print_program_usage(argv[0]);
 
 	struct sigaction newSigAction;
 	sigset_t newSigSet;
@@ -139,28 +141,12 @@ int main(int argc, char **argv) {
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "Starting cwebsocket");
 
-	if(argc != 4) print_program_usage();
-
-    int port = atoi(argv[2]);
-	if(port > 65536 || port < 0 ) {
-		syslog(LOG_ERR, "Invalid port number\n");
-		exit(0);
-	}
-	if(!is_valid_arg(argv[1])) {
-		syslog(LOG_ERR, "Invalid hostname");
-		exit(0);
-	}
-	if(!is_valid_arg(argv[3])) {
-		syslog(LOG_ERR, "Invalid resource");
-		exit(0);
-	}
-
 	websocket_client.onopen = &onopen;
 	websocket_client.onmessage = &onmessage;
 	websocket_client.onclose = &onclose;
 	websocket_client.onerror = &onerror;
 
-	cwebsocket_connect(&websocket_client, argv[1], argv[2], argv[3]);
+	cwebsocket_connect(&websocket_client, argv[1]);
 
 	if(websocket_client.sock_fd == -1) {
 		printf("websocket: sock_fd=%i\n", websocket_client.sock_fd);

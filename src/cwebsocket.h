@@ -116,7 +116,7 @@ typedef struct {
 } cwebsocket_thread_args;
 
 // "public"
-int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const char *port, const char *path);
+int cwebsocket_connect(cwebsocket_client *websocket, const char *uri);
 int cwebsocket_read_data(cwebsocket_client *websocket);
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len);
 void cwebsocket_close(cwebsocket_client *websocket, const char *message);

@@ -42,12 +42,39 @@ char *cwebsocket_base64_encode(const unsigned char *input, int length) {
 	return buff;
 }
 
-int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const char *port, const char *path) {
+void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource) {
+	if(sscanf(uri, "ws://%[^:]:%[^/]%s", hostname, port, resource) == 3) {
+	}
+	else if(sscanf(uri, "ws://%[^:]:%[^/]%s", hostname, port, resource) == 2) {
+		strcpy(resource, "/");
+		printf("second\n");
+	}
+	else if(sscanf(uri, "ws://%[^/]%s", hostname, resource) == 2) {
+		strcpy(port, "80");
+		printf("third\n");
+	}
+	else if(sscanf(uri, "ws://%[^/]", hostname) == 1) {
+		strcpy(port, "80");
+		strcpy(resource, "/");
+		printf("fourth\n");
+	}
+	else if(sscanf(uri, "http://%[^/]", hostname) == 0) {
+		printf("Invalid URL\n");
+		exit(1);
+	}
+}
+
+int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 	if(websocket->sock_fd > 0) {
 		syslog(LOG_ERR, "Socket already connected");
 		return -1;
 	}
+
+	char hostname[100];
+	char port[5];
+	char resource[256];
+	cwebsocket_parse_uri(uri, hostname, port, resource);
 
 #ifdef THREADED
 	if(pthread_mutex_init(&websocket->lock, NULL) != 0) {
@@ -61,7 +88,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
 #endif
 
-	syslog(LOG_DEBUG, "Connecting to ws://%s:%s%s", hostname, port, path);
+	syslog(LOG_DEBUG, "Connecting to %s", uri);
 
 	char handshake[1024];
     struct addrinfo hints, *res;
@@ -88,7 +115,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 		      "Sec-WebSocket-Key: %s\r\n"
 		      "Sec-WebSocket-Version: 13\r\n"
 			  //"Sec-WebSocket-Protocol: chat, superchat\r\n"
-			  "\r\n", path, hostname, seckey);
+			  "\r\n", resource, hostname, seckey);
 
 	if(getaddrinfo(hostname, port, &hints, &res) != 0 ) {
 		syslog(LOG_ERR, "%s", "Host or IP not valid");
@@ -126,18 +153,16 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 		return -1;
 	}
 
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
 	if(websocket->onopen != NULL) {
 	   websocket->onopen(websocket);
 	}
+
+#ifdef THREADED
+	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_OPEN;
 	pthread_mutex_unlock(&websocket->lock);
 #else
 	websocket->state = WEBSOCKET_STATE_OPEN;
-	if(websocket->onopen != NULL) {
-	   websocket->onopen(websocket);
-	}
 #endif
 
 	return 0;
@@ -166,13 +191,7 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 			if(strcasecmp(token, "Upgrade:") == 0) {
 				if(strcasecmp(ptr+1, "websocket") != 0) {
 					if(websocket->onerror != NULL) {
-#ifdef THREADED
-					   pthread_mutex_lock(&websocket->lock);
 					   websocket->onerror(websocket, "Invalid Upgrade header. Expected 'websocket'.");
-					   pthread_mutex_unlock(&websocket->lock);
-#else
-					   websocket->onerror(websocket, "Invalid Upgrade header. Expected 'websocket'.");
-#endif
 					   return -1;
 					}
 					return -1;
@@ -181,13 +200,7 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 			if(strcasecmp(token, "Connection:") == 0) {
 				if(strcasecmp(ptr+1, "upgrade") != 0) {
 					if(websocket->onerror != NULL) {
-#ifdef THREADED
-					   pthread_mutex_lock(&websocket->lock);
 					   websocket->onerror(websocket, "Invalid Connection header. Expected 'upgrade'.");
-					   pthread_mutex_unlock(&websocket->lock);
-#else
-					   websocket->onerror(websocket, "Invalid Connection header. Expected 'upgrade'.");
-#endif
 					   return -1;
 					}
 					return -1;
@@ -213,13 +226,7 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 					free(base64_encoded);
 					free(seckey);
 					if(websocket->onerror != NULL) {
-#ifdef THREADED
-					   pthread_mutex_lock(&websocket->lock);
-					   websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
-					   pthread_mutex_unlock(&websocket->lock);
-#else
-					   websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
-#endif
+				       websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
 					   return -1;
 					}
 					return -1;
@@ -270,9 +277,7 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 #ifdef THREADED
 void *cwebsocket_onmessage_thread(void *ptr) {
 	cwebsocket_thread_args *args = (cwebsocket_thread_args *)ptr;
-	pthread_mutex_lock(&args->socket->lock);
 	args->socket->onmessage(args->socket, args->message);
-	pthread_mutex_unlock(&args->socket->lock);
 	free(args->message);
 	free(ptr);
 	return NULL;
@@ -555,11 +560,11 @@ void cwebsocket_print_frame(cwebsocket_frame *frame) {
 void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 #ifdef THREADED
 	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting
-	// in a lock wait if the socket "read" is blocking as it awaits incoming data
-	// rather than closing the socket.
+	// in a lock wait if the socket "read" is blocking as it awaits incoming data.
 	if((websocket->state & WEBSOCKET_STATE_OPEN) != 0) {
 		pthread_mutex_unlock(&websocket->lock);
 	}
+
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 	pthread_mutex_unlock(&websocket->lock);
@@ -576,17 +581,14 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 			syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
 		}
 	}
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
 	if(websocket->onclose != NULL) {
 	   websocket->onclose(websocket, &sock_message);
 	}
+#ifdef THREADED
+	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 	pthread_mutex_unlock(&websocket->lock);
 #else
-	if(websocket->onclose != NULL) {
-	   websocket->onclose(websocket, &sock_message);
-	}
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 #endif
 }
