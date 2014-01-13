@@ -21,10 +21,10 @@ void signal_handler(int sig) {
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
 			WEBSOCKET_RUNNING = 0;
-			#ifdef THREADED
+#ifdef THREADED
 			cwebsocket_close(&websocket_client, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
-			#endif
+#endif
 			break;
 		default:
 			syslog(LOG_WARNING, "Unhandled signal %s", strsignal(sig));
@@ -92,13 +92,13 @@ void onopen(cwebsocket_client *websocket) {
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
-	#if defined(__arm__ ) || defined(__i386__)
+#if defined(__arm__ ) || defined(__i386__)
 	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%i, payload=%s",
 			message->opcode, message->payload_len, message->payload);
-	#else
+#else
 	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%zu, payload=%s",
 			message->opcode, message->payload_len, message->payload);
-	#endif
+#endif
 }
 
 void onclose(cwebsocket_client *websocket, cwebsocket_message *message) {

@@ -78,11 +78,11 @@ typedef enum {
 
 typedef struct {
 	uint32_t opcode;
-	#if defined(__arm__ ) || defined(__i386__)
+#if defined(__arm__ ) || defined(__i386__)
 	uint32_t payload_len;
-	#else
+#else
 	uint64_t payload_len;
-	#endif
+#endif
 	char *payload;
 } cwebsocket_message;
 
@@ -99,10 +99,10 @@ typedef struct {
 
 typedef struct _cwebsocket {
 	int sock_fd;
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_t thread;
 	pthread_mutex_t lock;
-	#endif
+#endif
 	uint8_t state;
 	void (*onopen)(struct _cwebsocket *);
 	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);

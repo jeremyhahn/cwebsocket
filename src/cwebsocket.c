@@ -49,9 +49,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 		return -1;
 	}
 
-
-
-	#ifdef THREADED
+#ifdef THREADED
 	if(pthread_mutex_init(&websocket->lock, NULL) != 0) {
 		syslog(LOG_ERR, "Unable to initialize mutex: %s\n", strerror(errno));
 		return -1;
@@ -59,9 +57,9 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
-	#endif
+#endif
 
 	syslog(LOG_DEBUG, "Connecting to ws://%s:%s%s", hostname, port, path);
 
@@ -115,32 +113,32 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const
 		return -1;
 	}
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CONNECTED;
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	websocket->state = WEBSOCKET_STATE_CONNECTED;
-	#endif
+#endif
 
 	if(cwebsocket_read_handshake(websocket, seckey) == -1) {
 		syslog(LOG_ERR, "%s", strerror(errno));
 		return -1;
 	}
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
 	if(websocket->onopen != NULL) {
 	   websocket->onopen(websocket);
 	}
 	websocket->state = WEBSOCKET_STATE_OPEN;
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	websocket->state = WEBSOCKET_STATE_OPEN;
 	if(websocket->onopen != NULL) {
 	   websocket->onopen(websocket);
 	}
-	#endif
+#endif
 
 	return 0;
 }
@@ -168,13 +166,13 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 			if(strcasecmp(token, "Upgrade:") == 0) {
 				if(strcasecmp(ptr+1, "websocket") != 0) {
 					if(websocket->onerror != NULL) {
-					   #ifdef THREADED
+#ifdef THREADED
 					   pthread_mutex_lock(&websocket->lock);
 					   websocket->onerror(websocket, "Invalid Upgrade header. Expected 'websocket'.");
 					   pthread_mutex_unlock(&websocket->lock);
-					   #else
+#else
 					   websocket->onerror(websocket, "Invalid Upgrade header. Expected 'websocket'.");
-					   #endif
+#endif
 					   return -1;
 					}
 					return -1;
@@ -183,13 +181,13 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 			if(strcasecmp(token, "Connection:") == 0) {
 				if(strcasecmp(ptr+1, "upgrade") != 0) {
 					if(websocket->onerror != NULL) {
-				       #ifdef THREADED
+#ifdef THREADED
 					   pthread_mutex_lock(&websocket->lock);
 					   websocket->onerror(websocket, "Invalid Connection header. Expected 'upgrade'.");
 					   pthread_mutex_unlock(&websocket->lock);
-					   #else
+#else
 					   websocket->onerror(websocket, "Invalid Connection header. Expected 'upgrade'.");
-					   #endif
+#endif
 					   return -1;
 					}
 					return -1;
@@ -215,13 +213,13 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 					free(base64_encoded);
 					free(seckey);
 					if(websocket->onerror != NULL) {
-					   #ifdef THREADED
+#ifdef THREADED
 					   pthread_mutex_lock(&websocket->lock);
 					   websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
 					   pthread_mutex_unlock(&websocket->lock);
-					   #else
+#else
 					   websocket->onerror(websocket, "Invalid Sec-WebSocket-Accept header. Does not match computed sha1/base64 checksum.");
-					   #endif
+#endif
 					   return -1;
 					}
 					return -1;
@@ -239,9 +237,9 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
-	#endif
+#endif
 
 	uint32_t bytes_read = 0;
 	char data[HANDSHAKE_BUFFER_MAX];
@@ -257,9 +255,9 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 		bytes_read++;
 	}
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_unlock(&websocket->lock);
-	#endif
+#endif
 
 	int len = bytes_read-3;
 	char buf[len+1];
@@ -302,9 +300,9 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	frame.mask = 0;
 	frame.payload_len = 0;
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
-	#endif
+#endif
 
 	while(bytes_read < header_length + payload_length) {
 
@@ -351,10 +349,10 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		}
 		else if(payload_length == 127 && bytes_read == extended_payload64_end_byte) {
 
-			#if defined(__arm__ ) || defined(__i386__)
+#if defined(__arm__ ) || defined(__i386__)
 			syslog(LOG_CRIT, "Received payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
 			return -1;
-			#endif
+#endif
 
 			extended_payload_length = 0;
 			extended_payload_length |= ((uint64_t) data[2]) << 56;
@@ -388,9 +386,9 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		}
 	}
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_unlock(&websocket->lock);
-	#endif
+#endif
 
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
@@ -405,7 +403,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		   message->payload_len = frame.payload_len;
 		   message->payload = payload;
 
-		   #ifdef THREADED
+#ifdef THREADED
 		   syslog(LOG_DEBUG, "creating thread for onmessage callback\n");
 
 		   cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
@@ -414,11 +412,11 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 		   pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
 		   return 0;
-		   #else
+#else
 		   websocket->onmessage(websocket, message);
 		   free(message);
 		   return 0;
-		   #endif
+#endif
 		}
 
 		syslog(LOG_WARNING, "No on_message callback defined to handle data: %s", payload);
@@ -499,10 +497,10 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len)
 	}
 	else {
 
-		#if defined(__arm__ ) || defined(__i386__)
+#if defined(__arm__ ) || defined(__i386__)
 		syslog(LOG_CRIT, "Received payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
 		return -1;
-		#endif
+#endif
 
 		//frame.payload_len = 127;
 		header[1] = 127;
@@ -533,13 +531,13 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len)
 		framebuf[header_length+i] ^= masking_key[i % 4] & 0xff;
 	}
 
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
 	ssize_t bytes_written = write(websocket->sock_fd, framebuf, frame_length);
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	ssize_t bytes_written = write(websocket->sock_fd, framebuf, frame_length);
-	#endif
+#endif
 
 	if(bytes_written == -1) {
 		syslog(LOG_ERR, "Error writing data: %s", strerror(errno));
@@ -555,7 +553,7 @@ void cwebsocket_print_frame(cwebsocket_frame *frame) {
 }
 
 void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
-	#ifdef THREADED
+#ifdef THREADED
 	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting
 	// in a lock wait if the socket "read" is blocking as it awaits incoming data
 	// rather than closing the socket.
@@ -565,9 +563,9 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	websocket->state = WEBSOCKET_STATE_CLOSING;
-	#endif
+#endif
 	cwebsocket_message sock_message;
 	sock_message.opcode = TEXT_FRAME;
 	sock_message.payload_len = strlen(message);
@@ -578,17 +576,17 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 			syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
 		}
 	}
-	#ifdef THREADED
+#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
 	if(websocket->onclose != NULL) {
 	   websocket->onclose(websocket, &sock_message);
 	}
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 	pthread_mutex_unlock(&websocket->lock);
-	#else
+#else
 	if(websocket->onclose != NULL) {
 	   websocket->onclose(websocket, &sock_message);
 	}
 	websocket->state = WEBSOCKET_STATE_CLOSED;
-	#endif
+#endif
 }
