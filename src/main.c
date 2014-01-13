@@ -2,7 +2,6 @@
 #include <signal.h>
 #include "cwebsocket.h"
 
-int WEBSOCKET_FD;
 int WEBSOCKET_RUNNING;
 cwebsocket_client websocket_client;
 
@@ -88,11 +87,11 @@ void create_mock_metrics(char *metrics) {
 	memcpy(metrics, metricbuf, 255);
 }
 
-void on_connect(cwebsocket_client *websocket) {
+void onopen(cwebsocket_client *websocket) {
 	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", websocket->sock_fd);
 }
 
-void on_message(cwebsocket_client *websocket, cwebsocket_message *message) {
+void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 	#if defined(__arm__ ) || defined(__i386__)
 	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%i, payload=%s",
 			message->opcode, message->payload_len, message->payload);
@@ -102,13 +101,13 @@ void on_message(cwebsocket_client *websocket, cwebsocket_message *message) {
 	#endif
 }
 
-void on_close(cwebsocket_client *websocket, cwebsocket_message *message) {
+void onclose(cwebsocket_client *websocket, cwebsocket_message *message) {
 	if(message != NULL) {
 		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->sock_fd, message->payload);
 	}
 }
 
-void on_error(cwebsocket_client *websocket, const char *message) {
+void onerror(cwebsocket_client *websocket, const char *message) {
 	syslog(LOG_DEBUG, "on_error: message=%s", message);
 }
 
@@ -156,10 +155,10 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	websocket_client.on_connect = &on_connect;
-	websocket_client.on_message = &on_message;
-	websocket_client.on_close = &on_close;
-	websocket_client.on_error = &on_error;
+	websocket_client.onopen = &onopen;
+	websocket_client.onmessage = &onmessage;
+	websocket_client.onclose = &onclose;
+	websocket_client.onerror = &onerror;
 
 	cwebsocket_connect(&websocket_client, argv[1], argv[2], argv[3]);
 

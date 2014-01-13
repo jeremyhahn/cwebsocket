@@ -58,11 +58,9 @@
 
 #define WEBSOCKET_STATE_CONNECTING (1 << 0)
 #define WEBSOCKET_STATE_CONNECTED  (1 << 1)
-#define WEBSOCKET_STATE_HANDSHAKE  (1 << 2)
-#define WEBSOCKET_STATE_RECEIVING  (1 << 3)
-#define WEBSOCKET_STATE_SENDING    (1 << 4)
-#define WEBSOCKET_STATE_CLOSING    (1 << 5)
-#define WEBSOCKET_STATE_CLOSED     (1 << 6)
+#define WEBSOCKET_STATE_OPEN       (1 << 2)
+#define WEBSOCKET_STATE_CLOSING    (1 << 3)
+#define WEBSOCKET_STATE_CLOSED     (1 << 4)
 
 typedef enum {
 	TRUE,
@@ -106,10 +104,10 @@ typedef struct _cwebsocket {
 	pthread_mutex_t lock;
 	#endif
 	uint8_t state;
-	void (*on_connect)(struct _cwebsocket *);
-	void (*on_message)(struct _cwebsocket *, cwebsocket_message *message);
-	void (*on_close)(struct _cwebsocket *, cwebsocket_message *message);
-	void (*on_error)(struct _cwebsocket *, const char *error);
+	void (*onopen)(struct _cwebsocket *);
+	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);
+	void (*onclose)(struct _cwebsocket *, cwebsocket_message *message);
+	void (*onerror)(struct _cwebsocket *, const char *error);
 } cwebsocket_client;
 
 typedef struct {
