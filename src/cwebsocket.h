@@ -49,7 +49,7 @@
 #endif
 
 #ifndef HANDSHAKE_BUFFER_MAX
-	#define HANDSHAKE_BUFFER_MAX 255
+	#define HANDSHAKE_BUFFER_MAX 256
 #endif
 
 #ifndef DATA_BUFFER_MAX
@@ -70,8 +70,8 @@ typedef enum {
 } bool;
 
 typedef enum {
-	CONTINUATION = (uint32_t)0x00,
-	TEXT_FRAME = (uint32_t)0x01,
+	CONTINUATION = 0x00,
+	TEXT_FRAME = 0x01,
 	BINARY_FRAME = 0x02,
 	CLOSE = 0x08,
 	PING = 0x09,
@@ -110,29 +110,22 @@ typedef struct _cwebsocket {
 	void (*on_message)(struct _cwebsocket *, cwebsocket_message *message);
 	void (*on_close)(struct _cwebsocket *, cwebsocket_message *message);
 	void (*on_error)(struct _cwebsocket *, const char *error);
-} cwebsocket;
+} cwebsocket_client;
 
 typedef struct {
-	cwebsocket *socket;
+	cwebsocket_client *socket;
 	cwebsocket_message *message;
 } cwebsocket_thread_args;
 
 // "public"
-int cwebsocket_connect(cwebsocket *websocket, const char *hostname, const char *port, const char *path);
-int cwebsocket_read_data(cwebsocket *websocket);
-ssize_t cwebsocket_write_data(cwebsocket *websocket, char *data, int len);
-void cwebsocket_close(cwebsocket *websocket, cwebsocket_message *message);
-
-/*
-void cwebsocket_onconnect(cwebsocket *websocket);
-void cwebsocket_onmessage(cwebsocket *websocket, void(*onmessage)(cwebsocket *websocket, cwebsocket_message *message));
-void cwebsocket_close(cwebsocket *websocket, void(*onmessage)(cwebsocket *websocket, cwebsocket_message *message));
-void cwebsocket_onerror(cwebsocket *websocket, void(*onmessage)(cwebsocket *websock, cwebsocket_message *message));
-*/
+int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const char *port, const char *path);
+int cwebsocket_read_data(cwebsocket_client *websocket);
+ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len);
+void cwebsocket_close(cwebsocket_client *websocket, const char *message);
 
 // "private"
-int cwebsocket_read_handshake(cwebsocket *websocket, char *seckey);
-int cwebsocket_handshake_handler(cwebsocket *websocket, const char *message, char *seckey);
+int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
+int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, char *seckey);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 #endif

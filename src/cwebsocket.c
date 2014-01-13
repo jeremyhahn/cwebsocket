@@ -42,7 +42,7 @@ char *cwebsocket_base64_encode(const unsigned char *input, int length) {
 	return buff;
 }
 
-int cwebsocket_connect(cwebsocket *websocket, const char *hostname, const char *port, const char *path) {
+int cwebsocket_connect(cwebsocket_client *websocket, const char *hostname, const char *port, const char *path) {
 
 	if(websocket->sock_fd > 0) {
 		syslog(LOG_ERR, "Socket already connected");
@@ -70,7 +70,6 @@ int cwebsocket_connect(cwebsocket *websocket, const char *hostname, const char *
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
-	// Generate Sec-WebSocket-Key
 	srand(time(NULL));
 	char nonce[16];
 	static const char alphanum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz";
@@ -134,7 +133,7 @@ int cwebsocket_connect(cwebsocket *websocket, const char *hostname, const char *
 	return 0;
 }
 
-int cwebsocket_handshake_handler(cwebsocket *websocket, const char *handshake_response, char *seckey) {
+int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey) {
 
 	syslog(LOG_DEBUG, "%s\n", handshake_response);
 
@@ -208,7 +207,7 @@ int cwebsocket_handshake_handler(cwebsocket *websocket, const char *handshake_re
 	return 0;
 }
 
-int cwebsocket_read_handshake(cwebsocket *websocket, char *seckey) {
+int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
 	#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
@@ -256,7 +255,7 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 }
 #endif
 
-int cwebsocket_read_data(cwebsocket *websocket) {
+int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 	#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
@@ -381,12 +380,12 @@ int cwebsocket_read_data(cwebsocket *websocket) {
 
 		if(websocket->on_message != NULL) {
 
-			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
-			message->opcode = frame.opcode;
-			message->payload_len = frame.payload_len;
-			message->payload = payload;
+		   cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+		   message->opcode = frame.opcode;
+		   message->payload_len = frame.payload_len;
+		   message->payload = payload;
 
-#ifdef THREADED
+		   #ifdef THREADED
 		   syslog(LOG_DEBUG, "creating thread for on_message callback");
 
 		   cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
@@ -395,11 +394,11 @@ int cwebsocket_read_data(cwebsocket *websocket) {
 
 		   pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
 		   return 0;
-#else
+		   #else
 		   websocket->on_message(websocket, message);
 		   free(message);
 		   return 0;
-#endif
+		   #endif
 		}
 
 		syslog(LOG_WARNING, "No on_message callback defined to handle data: %s", payload);
@@ -430,7 +429,7 @@ int cwebsocket_read_data(cwebsocket *websocket) {
 	return -1;
 }
 
-ssize_t cwebsocket_write_data(cwebsocket *websocket, char *data, int len) {
+ssize_t cwebsocket_write_data(cwebsocket_client *websocket, char *data, int len) {
 
 	//websocket_frame frame;
 	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
@@ -535,9 +534,10 @@ void cwebsocket_print_frame(cwebsocket_frame *frame) {
 			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
-void cwebsocket_close(cwebsocket *websocket, cwebsocket_message *message) {
+void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	#ifdef THREADED
-	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting in a deadlock if the socket is waiting for incoming data
+	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting
+	// in a lock wait if the socket "read" is blocking as it awaits incoming data
 	if((websocket->state & WEBSOCKET_STATE_RECEIVING) != 0) {
 		pthread_mutex_unlock(&websocket->lock);
 	}
@@ -547,14 +547,18 @@ void cwebsocket_close(cwebsocket *websocket, cwebsocket_message *message) {
 	#else
 	websocket->state |= WEBSOCKET_STATE_CLOSING;
 	#endif
-	syslog(LOG_DEBUG, "Closing WebSocket: %s", message->payload);
+	cwebsocket_message sock_message;
+	sock_message.opcode = TEXT_FRAME;
+	sock_message.payload_len = strlen(message);
+	sock_message.payload = (char *)message;
+	syslog(LOG_DEBUG, "Closing WebSocket: %s", sock_message.payload);
 	if(websocket->sock_fd > 0) {
 		if(close(websocket->sock_fd) == -1) {
 			syslog(LOG_ERR, "Error closing websocket: %s", strerror(errno));
 		}
 	}
 	if(websocket->on_close != NULL) {
-	   websocket->on_close(websocket, message);
+	   websocket->on_close(websocket, &sock_message);
 	}
 	#ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);

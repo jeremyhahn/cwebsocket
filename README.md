@@ -2,17 +2,17 @@
 
 ###### Fast, lightweight websocket server/client.
 
+cwebsocket is currently in an ALPHA state. You may encounter bugs. Successful tests have been conducted on the following architectures:
+
+1. [x86](http://en.wikipedia.org/wiki/X86)
+2. [x86_64](http://en.wikipedia.org/wiki/X86-64)
+3. [ARM](http://en.wikipedia.org/wiki/ARM_architecture)
+
 cwebsocket is compliant with the following standards:
 
 1. [ANSI C](http://en.wikipedia.org/wiki/ANSI_C)
 2. [POSIX](http://en.wikipedia.org/wiki/C_POSIX_library)
 3. [RFC 6455](http://tools.ietf.org/html/rfc6455)
-
-cwebsocket is still in development. Successful tests have been conducted on the following architectures:
-
-1. [x86](http://en.wikipedia.org/wiki/X86)
-2. [x86_64](http://en.wikipedia.org/wiki/X86-64)
-3. [ARM](http://en.wikipedia.org/wiki/ARM_architecture)
 
 ### Build
 
