@@ -86,7 +86,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
 #endif
 
-	syslog(LOG_DEBUG, "connecting to %s", uri);
+	syslog(LOG_DEBUG, "connecting to ws://%s:%s%s", hostname, port, resource);
 
 	char handshake[1024];
     struct addrinfo hints, *res;
@@ -272,6 +272,14 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 	return cwebsocket_handshake_handler(websocket, buf, seckey);
 }
 
+void cwebsocket_run(cwebsocket_client *websocket) {
+	do {
+		syslog(LOG_DEBUG, "cwebsocket_run: calling websocket_read");
+		cwebsocket_read_data(websocket);
+	}
+	while(websocket->state & WEBSOCKET_STATE_OPEN);
+}
+
 #ifdef THREADED
 void *cwebsocket_onmessage_thread(void *ptr) {
 	cwebsocket_thread_args *args = (cwebsocket_thread_args *)ptr;
@@ -282,181 +290,193 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 }
 #endif
 
+void print_8bits(uint8_t x) {
+	int i;
+	for(i=(sizeof(uint8_t)*8)-1; i>=0; i--)
+		(x&(1<<i))?putchar('1'):putchar('0');
+
+	printf("\n");
+}
+
 int cwebsocket_read_data(cwebsocket_client *websocket) {
 
-	cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
-	uint8_t data[DATA_BUFFER_MAX];              // Data stream buffer
-	int frame_byte_pointer = 2;                 // Used to extract masking-key if present
-	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
-	const int header_length_offset = 2;         // The byte which starts the 2 byte header
-	const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
-	const int extended_payload64_end_byte = 10; // The byte which completes the extended 64-bit payload length bits
-	int bytes_read = 0;                         // Current byte counter
-	int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
-	uint64_t extended_payload_length;           // Stores the extended payload length bits, if present
+        cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
+        int frame_byte_pointer = 2;                 // Used to extract masking-key if present
+        int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
+        const int header_length_offset = 2;         // The byte which starts the 2 byte header
+        const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
+        const int extended_payload64_end_byte = 10; // The byte which completes the extended 64-bit payload length bits
+        int bytes_read = 0;                         // Current byte counter
+        int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
+        uint64_t extended_payload_length;           // Stores the extended payload length bits, if present
+        uint8_t *data = malloc(sizeof(uint8_t) * DATA_BUFFER_MAX);              // Data stream buffer
 
-	frame.fin = 0;
-	frame.rsv1 = 0;
-	frame.rsv2 = 0;
-	frame.rsv3 = 0;
-	frame.opcode = 0;
-	frame.mask = 0;
-	frame.payload_len = 0;
+        frame.fin = 0;
+        frame.rsv1 = 0;
+        frame.rsv2 = 0;
+        frame.rsv3 = 0;
+        frame.opcode = 0;
+        frame.mask = 0;
+        frame.payload_len = 0;
 
-	while(bytes_read < header_length + payload_length) {
+        while(bytes_read < header_length + payload_length) {
 
-		if(bytes_read == DATA_BUFFER_MAX) {
-			syslog(LOG_ERR, "data frame too large. RECEIVE_BUFFER_MAX = %i bytes. header_length=%i", DATA_BUFFER_MAX, header_length);
-			// TODO Buffer large frames to the heap/filesystem...
-			return -1;
-		}
+                if(bytes_read == DATA_BUFFER_MAX) {
+                        syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i", DATA_BUFFER_MAX, bytes_read, header_length);
+                        // TODO Buffer large frames to the heap/filesystem...
+                        free(data);
+                        return -1;
+                }
 
 #ifdef THREADED
-		pthread_mutex_lock(&websocket->lock);
-		int bytes = read(websocket->sock_fd, data+bytes_read, 1);
-		pthread_mutex_unlock(&websocket->lock);
+                pthread_mutex_lock(&websocket->lock);
+                int bytes = read(websocket->sock_fd, data+bytes_read, 1);
+                pthread_mutex_unlock(&websocket->lock);
 #else
-		int bytes = read(websocket->sock_fd, data+bytes_read, 1);
+                int bytes = read(websocket->sock_fd, data+bytes_read, 1);
 #endif
-		if(bytes == 0) {
-			syslog(LOG_ERR, "remote host closed the connection");
+                if(bytes == 0) {
+                        syslog(LOG_ERR, "The remote host has closed the connection");
 #ifdef THREADED
-			pthread_mutex_lock(&websocket->lock);
-			websocket->state = WEBSOCKET_STATE_CLOSED;
-			pthread_mutex_unlock(&websocket->lock);
+                        pthread_mutex_lock(&websocket->lock);
+                        websocket->state = WEBSOCKET_STATE_CLOSED;
+                        pthread_mutex_unlock(&websocket->lock);
 #else
-			websocket->state = WEBSOCKET_STATE_CLOSED;
+                        websocket->state = WEBSOCKET_STATE_CLOSED;
 #endif
-			return -1;
-		}
-		if(bytes == -1) {
-			syslog(LOG_ERR, "error reading data frame: %s", strerror(errno));
-			return -1;
-		}
-		bytes_read++;
+                        return -1;
+                }
+                if(bytes == -1) {
+                        syslog(LOG_ERR, "Error reading data frame: %s", strerror(errno));
+                        return -1;
+                }
+                bytes_read++;
 
-		if(bytes_read == header_length_offset) {
+                if(bytes_read == header_length_offset) {
 
-			frame.fin = (data[0] & 0x80) == 0x80;
-			frame.rsv1 = (data[0] & 0x40) == 0x40;
-			frame.rsv2 = (data[0] & 0x20) == 0x20;
-			frame.rsv3 = (data[0] & 0x10) == 0x10;
-			frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
-			frame.mask = (data[1] & 0x80) == 0x80;
-			frame.payload_len = (data[1] & 0x7F);
+                        frame.fin = (data[0] & 0x80) == 0x80;
+                        frame.rsv1 = (data[0] & 0x40) == 0x40;
+                        frame.rsv2 = (data[0] & 0x20) == 0x20;
+                        frame.rsv3 = (data[0] & 0x10) == 0x10;
+                        frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
+                        frame.mask = (data[1] & 0x80) == 0x80;
+                        frame.payload_len = (data[1] & 0x7F);
 
-			if((frame.mask & 0x80) != 0) {
-				syslog(LOG_CRIT, "client detected frame masked by server"); // http://tools.ietf.org/html/rfc6455#section-5.1
-				return -1;
-			}
+                        header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
+                        payload_length = frame.payload_len;
+                        extended_payload_length = 0;
+                }
 
-			header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
-			payload_length = frame.payload_len;
-			extended_payload_length = 0;
-		}
+                if(payload_length == 126 && bytes_read == extended_payload16_end_byte) {
 
-		if(payload_length == 126 && bytes_read == extended_payload16_end_byte) {
+                        extended_payload_length = 0;
+                        extended_payload_length |= ((uint16_t) data[2]) << 8;
+                        extended_payload_length |= ((uint16_t) data[3]) << 0;
 
-			extended_payload_length = 0;
-			extended_payload_length |= ((uint16_t) data[2]) << 8;
-			extended_payload_length |= ((uint16_t) data[3]) << 0;
-
-			frame_byte_pointer = 4;
-			payload_length = extended_payload_length;
-		}
-		else if(payload_length == 127 && bytes_read == extended_payload64_end_byte) {
+                        frame_byte_pointer = 4;
+                        payload_length = extended_payload_length;
+                }
+                else if(payload_length == 127 && bytes_read == extended_payload64_end_byte) {
 
 #if defined(__arm__ ) || defined(__i386__)
-			syslog(LOG_CRIT, "payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
-			return -1;
+                        syslog(LOG_CRIT, "Received payload larger than a 32-bit system is able to handle (65536 bytes). Aborting.");
+                        return -1;
 #endif
 
-			extended_payload_length = 0;
-			extended_payload_length |= ((uint64_t) data[2]) << 56;
-			extended_payload_length |= ((uint64_t) data[3]) << 48;
-			extended_payload_length |= ((uint64_t) data[4]) << 40;
-			extended_payload_length |= ((uint64_t) data[5]) << 32;
-			extended_payload_length |= ((uint64_t) data[6]) << 24;
-			extended_payload_length |= ((uint64_t) data[7]) << 16;
-			extended_payload_length |= ((uint64_t) data[8]) << 8;
-			extended_payload_length |= ((uint64_t) data[9]) << 0;
+                        extended_payload_length = 0;
+                        extended_payload_length |= ((uint64_t) data[2]) << 56;
+                        extended_payload_length |= ((uint64_t) data[3]) << 48;
+                        extended_payload_length |= ((uint64_t) data[4]) << 40;
+                        extended_payload_length |= ((uint64_t) data[5]) << 32;
+                        extended_payload_length |= ((uint64_t) data[6]) << 24;
+                        extended_payload_length |= ((uint64_t) data[7]) << 16;
+                        extended_payload_length |= ((uint64_t) data[8]) << 8;
+                        extended_payload_length |= ((uint64_t) data[9]) << 0;
 
-			frame_byte_pointer = 10;
-			payload_length = extended_payload_length;
-		}
+                        frame_byte_pointer = 10;
+                        payload_length = extended_payload_length;
+                }
 
-		if(frame.mask) {
+                if(frame.mask) {
 
-			frame.masking_key[0] = ((uint32_t) data[frame_byte_pointer+0]) << 0;
-			frame.masking_key[1] = ((uint32_t) data[frame_byte_pointer+1]) << 0;
-			frame.masking_key[2] = ((uint32_t) data[frame_byte_pointer+2]) << 0;
-			frame.masking_key[3] = ((uint32_t) data[frame_byte_pointer+3]) << 0;
+                        frame.masking_key[0] = ((uint32_t) data[frame_byte_pointer+0]) << 0;
+                        frame.masking_key[1] = ((uint32_t) data[frame_byte_pointer+1]) << 0;
+                        frame.masking_key[2] = ((uint32_t) data[frame_byte_pointer+2]) << 0;
+                        frame.masking_key[3] = ((uint32_t) data[frame_byte_pointer+3]) << 0;
 
-			frame_byte_pointer = 14;
-		}
-		else {
+                        frame_byte_pointer = 14;
+                }
+                else {
 
-			frame.masking_key[0] = 0;
-			frame.masking_key[1] = 0;
-			frame.masking_key[2] = 0;
-			frame.masking_key[3] = 0;
-		}
-	}
+                        frame.masking_key[0] = 0;
+                        frame.masking_key[1] = 0;
+                        frame.masking_key[2] = 0;
+                        frame.masking_key[3] = 0;
+                }
+        }
 
-	if(frame.fin && frame.opcode == TEXT_FRAME) {
+        if(frame.fin && frame.opcode == TEXT_FRAME) {
 
-		char payload[payload_length];
-		memcpy(payload, &data[header_length], payload_length);
-		payload[payload_length] = '\0';
+                char payload[payload_length];
+                memcpy(payload, &data[header_length], payload_length);
+                payload[payload_length] = '\0';
+                free(data);
 
-		if(websocket->onmessage != NULL) {
+                if(websocket->onmessage != NULL) {
 
-		   cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
-		   message->opcode = frame.opcode;
-		   message->payload_len = frame.payload_len;
-		   message->payload = payload;
+                   cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+                   message->opcode = frame.opcode;
+                   message->payload_len = frame.payload_len;
+                   message->payload = payload;
 
 #ifdef THREADED
-		   syslog(LOG_DEBUG, "creating onmessage callback thread\n");
+                   syslog(LOG_DEBUG, "creating thread for onmessage callback\n");
 
-		   cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
-		   args->socket = websocket;
-		   args->message = message;
+                   cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
+                   args->socket = websocket;
+                   args->message = message;
 
-		   pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
-		   return 0;
+                   pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
+                   return 0;
 #else
-		   websocket->onmessage(websocket, message);
-		   free(message);
-		   return 0;
+                   websocket->onmessage(websocket, message);
+                   free(message);
+                   return 0;
 #endif
-		}
+                }
 
-		syslog(LOG_WARNING, "No on_message callback defined to handle data: %s", payload);
-		return 0;
-	}
-	else if(frame.opcode == BINARY_FRAME) {
-		syslog(LOG_DEBUG, "received unsupported BINARY_FRAME opcode");
-	}
-	else if(frame.opcode == CONTINUATION) {
-		syslog(LOG_DEBUG, "received unsupported CONTINUATION opcode");
-	}
-	else if(frame.opcode == PING) {
-		syslog(LOG_DEBUG, "received PING control frame");
-	}
-	else if(frame.opcode == PONG) {
-		syslog(LOG_DEBUG, "received PONG control frame");
-	}
-	else if(frame.opcode == CLOSE) {
-		cwebsocket_close(websocket, "received CLOSE control frame");
-	}
-	else {
-		syslog(LOG_ERR, "Unsupported data frame opcode: %x", frame.opcode);
-		cwebsocket_print_frame(&frame);
-		cwebsocket_close(websocket, NULL);
-	}
+                syslog(LOG_WARNING, "No on_message callback defined to handle data: %s", payload);
+                return 0;
+        }
+        else if(frame.opcode == BINARY_FRAME) {
+        	free(data);
+                syslog(LOG_DEBUG, "Received unsupported BINARY_FRAME opcode");
+        }
+        else if(frame.opcode == CONTINUATION) {
+        	free(data);
+                syslog(LOG_DEBUG, "Received unsupported CONTINUATION opcode");
+        }
+        else if(frame.opcode == PING) {
+        	free(data);
+                syslog(LOG_DEBUG, "Received PING control frame");
+        }
+        else if(frame.opcode == PONG) {
+        	free(data);
+                syslog(LOG_DEBUG, "Received PONG control frame");
+        }
+        else if(frame.opcode == CLOSE) {
+        	free(data);
+                syslog(LOG_DEBUG, "Received CLOSE control frame");
+                cwebsocket_close(websocket, NULL);
+        }
+        else {
+        	free(data);
+                syslog(LOG_ERR, "Unsupported data frame opcode: %#04x", frame.opcode);
+                cwebsocket_print_frame(&frame);
+                cwebsocket_close(websocket, NULL);
+        }
 
-	return -1;
+        return -1;
 }
 
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len) {
@@ -533,8 +553,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 	}
 
 	int frame_length = header_length + payload_len;
-
-	char framebuf[frame_length];
+	char *framebuf = malloc(sizeof(char) * frame_length);
 	memcpy(framebuf, header, header_length);
 	memcpy(&framebuf[header_length], data, payload_len);
 
@@ -556,11 +575,13 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 		return -1;
 	}
 
+	syslog(LOG_DEBUG, "successfully sent: %s\n", data);
+
 	return bytes_written;
 }
 
 void cwebsocket_print_frame(cwebsocket_frame *frame) {
-	syslog(LOG_DEBUG, "websocket_frame: fin=%x, rsv1=%x, rsv2=%x, rsv3=%x, opcode=%x, mask=%x, payload_len=%i\n",
+	syslog(LOG_DEBUG, "websocket_frame: fin=%i, rsv1=%i, rsv2=%i, rsv3=%i, opcode=%#04x, mask=%i, payload_len=%i\n",
 			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
@@ -568,7 +589,7 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 #ifdef THREADED
 	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting
 	// in a lock wait if the socket "read" is blocking as it awaits incoming data.
-	if((websocket->state & WEBSOCKET_STATE_OPEN) != 0) {
+	if(websocket->state & WEBSOCKET_STATE_OPEN) {
 		pthread_mutex_unlock(&websocket->lock);
 	}
 

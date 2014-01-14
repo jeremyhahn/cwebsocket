@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <signal.h>
+#include <locale.h>
 #include "cwebsocket.h"
 
 cwebsocket_client websocket_client;
@@ -111,6 +112,8 @@ void onerror(cwebsocket_client *websocket, const char *message) {
 
 int main(int argc, char **argv) {
 
+	setlocale(LC_ALL, "");
+
 	print_program_header();
 	if(argc != 2) print_program_usage(argv[0]);
 
@@ -147,11 +150,13 @@ int main(int argc, char **argv) {
 		return main_exit(EXIT_FAILURE);
 	}
 
-	do {
-		syslog(LOG_DEBUG, "main: calling websocket_read");
-		cwebsocket_read_data(&websocket_client);
-	}
-	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
+	/*
+	cwebsocket_write_data(&websocket_client,
+			"testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234test1234test1234", 136);
+	cwebsocket_run(&websocket_client);
+	 */
+
+	cwebsocket_run(&websocket_client);
 
 	/*
 	uint64_t messages_sent = 0;

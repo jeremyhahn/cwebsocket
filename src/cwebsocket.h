@@ -43,6 +43,7 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
+#include <wchar.h>
 
 #ifdef THREADED
 	#include <pthread.h>
@@ -120,6 +121,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri);
 int cwebsocket_read_data(cwebsocket_client *websocket);
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len);
 void cwebsocket_close(cwebsocket_client *websocket, const char *message);
+void cwebsocket_run(cwebsocket_client *websocket);
 
 // "private"
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);

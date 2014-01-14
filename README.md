@@ -38,5 +38,5 @@ To build for ARM architecture:
 
 The websocket client is able to connect and exchange data with any RFC 6455 compliant server.
 
-	./websocket-client [host] [port] [path]
+	./websocket-client ws://echo.websocket.org
 
