@@ -79,12 +79,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 		syslog(LOG_ERR, "unable to initialize mutex: %s\n", strerror(errno));
 		return -1;
 	}
-	pthread_mutex_lock(&websocket->lock);
-	websocket->state = WEBSOCKET_STATE_CONNECTING;
-	pthread_mutex_unlock(&websocket->lock);
-#else
-	websocket->state = WEBSOCKET_STATE_CONNECTING;
 #endif
+	websocket->state = WEBSOCKET_STATE_CONNECTING;
 
 	syslog(LOG_DEBUG, "connecting to ws://%s:%s%s", hostname, port, resource);
 
@@ -138,13 +134,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 		return -1;
 	}
 
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CONNECTED;
-	pthread_mutex_unlock(&websocket->lock);
-#else
-	websocket->state = WEBSOCKET_STATE_CONNECTED;
-#endif
 
 	if(cwebsocket_read_handshake(websocket, seckey) == -1) {
 		syslog(LOG_ERR, "%s", strerror(errno));
@@ -155,13 +145,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	   websocket->onopen(websocket);
 	}
 
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_OPEN;
-	pthread_mutex_unlock(&websocket->lock);
-#else
-	websocket->state = WEBSOCKET_STATE_OPEN;
-#endif
 
 	return 0;
 }
@@ -290,14 +274,6 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 }
 #endif
 
-void print_8bits(uint8_t x) {
-	int i;
-	for(i=(sizeof(uint8_t)*8)-1; i>=0; i--)
-		(x&(1<<i))?putchar('1'):putchar('0');
-
-	printf("\n");
-}
-
 int cwebsocket_read_data(cwebsocket_client *websocket) {
 
         cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
@@ -323,7 +299,6 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
                 if(bytes_read == DATA_BUFFER_MAX) {
                         syslog(LOG_ERR, "Data frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i", DATA_BUFFER_MAX, bytes_read, header_length);
-                        // TODO Buffer large frames to the heap/filesystem...
                         free(data);
                         return -1;
                 }
@@ -336,14 +311,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
                 int bytes = read(websocket->sock_fd, data+bytes_read, 1);
 #endif
                 if(bytes == 0) {
-                        syslog(LOG_ERR, "The remote host has closed the connection");
-#ifdef THREADED
-                        pthread_mutex_lock(&websocket->lock);
-                        websocket->state = WEBSOCKET_STATE_CLOSED;
-                        pthread_mutex_unlock(&websocket->lock);
-#else
-                        websocket->state = WEBSOCKET_STATE_CLOSED;
-#endif
+                        cwebsocket_close(websocket, "The remote host has closed the connection");
                         return -1;
                 }
                 if(bytes == -1) {
@@ -450,32 +418,29 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
         }
         else if(frame.opcode == BINARY_FRAME) {
         	free(data);
-                syslog(LOG_DEBUG, "Received unsupported BINARY_FRAME opcode");
+            syslog(LOG_DEBUG, "Received unsupported BINARY_FRAME opcode");
         }
         else if(frame.opcode == CONTINUATION) {
         	free(data);
-                syslog(LOG_DEBUG, "Received unsupported CONTINUATION opcode");
+            syslog(LOG_DEBUG, "Received unsupported CONTINUATION opcode");
         }
         else if(frame.opcode == PING) {
         	free(data);
-                syslog(LOG_DEBUG, "Received PING control frame");
+            syslog(LOG_DEBUG, "Received PING control frame");
         }
         else if(frame.opcode == PONG) {
         	free(data);
-                syslog(LOG_DEBUG, "Received PONG control frame");
+            syslog(LOG_DEBUG, "Received PONG control frame");
         }
         else if(frame.opcode == CLOSE) {
         	free(data);
-                syslog(LOG_DEBUG, "Received CLOSE control frame");
-                cwebsocket_close(websocket, NULL);
-        }
-        else {
-        	free(data);
-                syslog(LOG_ERR, "Unsupported data frame opcode: %#04x", frame.opcode);
-                cwebsocket_print_frame(&frame);
-                cwebsocket_close(websocket, NULL);
+            cwebsocket_close(websocket, "Received CLOSE control frame");
         }
 
+        free(data);
+        syslog(LOG_ERR, "Unsupported data frame opcode: %#04x", frame.opcode);
+        cwebsocket_print_frame(&frame);
+        cwebsocket_close(websocket, NULL);
         return -1;
 }
 
@@ -586,19 +551,15 @@ void cwebsocket_print_frame(cwebsocket_frame *frame) {
 }
 
 void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
+
 #ifdef THREADED
 	// Kludge: SIGINT/SIGTERM/other could call cwebsocket_close resulting
 	// in a lock wait if the socket "read" is blocking as it awaits incoming data.
 	if(websocket->state & WEBSOCKET_STATE_OPEN) {
 		pthread_mutex_unlock(&websocket->lock);
 	}
-
-	pthread_mutex_lock(&websocket->lock);
-	websocket->state = WEBSOCKET_STATE_CLOSING;
-	pthread_mutex_unlock(&websocket->lock);
-#else
-	websocket->state = WEBSOCKET_STATE_CLOSING;
 #endif
+	websocket->state = WEBSOCKET_STATE_CLOSING;
 	syslog(LOG_DEBUG, "closing websocket: %s", message);
 	// close the socket
 	if(websocket->sock_fd > 0) {
@@ -630,11 +591,5 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	if(websocket->onclose != NULL) {
 	   websocket->onclose(websocket, message);
 	}
-#ifdef THREADED
-	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSED;
-	pthread_mutex_unlock(&websocket->lock);
-#else
-	websocket->state = WEBSOCKET_STATE_CLOSED;
-#endif
 }
