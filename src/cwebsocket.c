@@ -22,7 +22,6 @@
 #include "cwebsocket.h"
 
 void cwebsocket_init() {
-
 	const rlim_t kStackSize = STACK_SIZE_MIN * 1024 * 1024;
 	struct rlimit rl;
 	int result;
@@ -32,7 +31,7 @@ void cwebsocket_init() {
 			rl.rlim_cur = kStackSize;
 			result = setrlimit(RLIMIT_STACK, &rl);
 			if(result != 0) {
-			   perror("Unable to set stack space.");
+			   perror("cwebsocket_init: unable to set stack space");
 			   exit(1);
 			}
 		}
@@ -260,7 +259,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	}
 #else
 	if(write(websocket->socket, handshake, strlen(handshake)) == -1) {
-		syslog(LOG_ERR, "cwebsocket_connect2: %s", strerror(errno));
+		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
 		return -1;
 	}
 #endif
@@ -268,7 +267,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	websocket->state = WEBSOCKET_STATE_CONNECTED;
 
 	if(cwebsocket_read_handshake(websocket, seckey) == -1) {
-		syslog(LOG_ERR, "cwebsocket_connect3: %s", strerror(errno));
+		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
 		return -1;
 	}
 
@@ -425,7 +424,7 @@ int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, c
 	control_frame[0] = 0x88;
 	control_frame[1] = opcode;
 #ifdef THREADED
-	pthread_mutex_lock(&websocket->read_lock);
+	pthread_mutex_lock(&websocket->write_lock);
 	#ifdef USESSL
 		bytes_written = (websocket->ssl == NULL) ?
 			    write(websocket->socket, control_frame, 6) :
@@ -440,7 +439,7 @@ int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, c
 		syslog(LOG_CRIT, "cwebsocket_send_control_frame: error sending %s control frame. %s", frame_type, strerror(errno));
 		return -1;
 	}
-	pthread_mutex_unlock(&websocket->read_lock);
+	pthread_mutex_unlock(&websocket->write_lock);
 #else
 	bytes_written = write(websocket->socket, control_frame, 6);
 	if(bytes_written == 0) {
@@ -504,61 +503,58 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 		if(bytes_read == header_length_offset) {
 
-				frame.fin = (data[0] & 0x80) == 0x80;
-				frame.rsv1 = (data[0] & 0x40) == 0x40;
-				frame.rsv2 = (data[0] & 0x20) == 0x20;
-				frame.rsv3 = (data[0] & 0x10) == 0x10;
-				frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
-				frame.mask = (data[1] & 0x80) == 0x80;
-				frame.payload_len = (data[1] & 0x7F);
+		   frame.fin = (data[0] & 0x80) == 0x80;
+		   frame.rsv1 = (data[0] & 0x40) == 0x40;
+		   frame.rsv2 = (data[0] & 0x20) == 0x20;
+		   frame.rsv3 = (data[0] & 0x10) == 0x10;
+		   frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
+		   frame.mask = (data[1] & 0x80) == 0x80;
+		   frame.payload_len = (data[1] & 0x7F);
 
-				header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
-				payload_length = frame.payload_len;
-				extended_payload_length = 0;
+		   header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
+		   payload_length = frame.payload_len;
+		   extended_payload_length = 0;
 		}
 
 		if(frame.payload_len == 126 && bytes_read == extended_payload16_end_byte) {
 
-				extended_payload_length = 0;
-				extended_payload_length |= ((uint8_t) data[2]) << 8;
-				extended_payload_length |= ((uint8_t) data[3]) << 0;
+			extended_payload_length = 0;
+			extended_payload_length |= ((uint8_t) data[2]) << 8;
+			extended_payload_length |= ((uint8_t) data[3]) << 0;
 
-				frame_byte_pointer = 4;
-				payload_length = extended_payload_length;
+			frame_byte_pointer = 4;
+			payload_length = extended_payload_length;
 		}
 		else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
 
+			extended_payload_length = 0;
+			extended_payload_length |= ((uint64_t) data[2]) << 56;
+			extended_payload_length |= ((uint64_t) data[3]) << 48;
+			extended_payload_length |= ((uint64_t) data[4]) << 40;
+			extended_payload_length |= ((uint64_t) data[5]) << 32;
+			extended_payload_length |= ((uint64_t) data[6]) << 24;
+			extended_payload_length |= ((uint64_t) data[7]) << 16;
+			extended_payload_length |= ((uint64_t) data[8]) << 8;
+			extended_payload_length |= ((uint64_t) data[9]) << 0;
 
-
-				extended_payload_length = 0;
-				extended_payload_length |= ((uint64_t) data[2]) << 56;
-				extended_payload_length |= ((uint64_t) data[3]) << 48;
-				extended_payload_length |= ((uint64_t) data[4]) << 40;
-				extended_payload_length |= ((uint64_t) data[5]) << 32;
-				extended_payload_length |= ((uint64_t) data[6]) << 24;
-				extended_payload_length |= ((uint64_t) data[7]) << 16;
-				extended_payload_length |= ((uint64_t) data[8]) << 8;
-				extended_payload_length |= ((uint64_t) data[9]) << 0;
-
-				frame_byte_pointer = 10;
-				payload_length = extended_payload_length;
+			frame_byte_pointer = 10;
+			payload_length = extended_payload_length;
 		}
 
 		if(frame.mask) {
 
-				frame.masking_key[0] = ((uint32_t) data[frame_byte_pointer+0]) << 0;
-				frame.masking_key[1] = ((uint32_t) data[frame_byte_pointer+1]) << 0;
-				frame.masking_key[2] = ((uint32_t) data[frame_byte_pointer+2]) << 0;
-				frame.masking_key[3] = ((uint32_t) data[frame_byte_pointer+3]) << 0;
+			frame.masking_key[0] = ((uint32_t) data[frame_byte_pointer+0]) << 0;
+			frame.masking_key[1] = ((uint32_t) data[frame_byte_pointer+1]) << 0;
+			frame.masking_key[2] = ((uint32_t) data[frame_byte_pointer+2]) << 0;
+			frame.masking_key[3] = ((uint32_t) data[frame_byte_pointer+3]) << 0;
 
-				frame_byte_pointer = 14;
+			frame_byte_pointer = 14;
 		}
 		else {
-
-				frame.masking_key[0] = 0;
-				frame.masking_key[1] = 0;
-				frame.masking_key[2] = 0;
-				frame.masking_key[3] = 0;
+			frame.masking_key[0] = 0;
+			frame.masking_key[1] = 0;
+			frame.masking_key[2] = 0;
+			frame.masking_key[3] = 0;
 		}
 	}
 
@@ -718,7 +714,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 	}
 
 #ifdef THREADED
-	pthread_mutex_lock(&websocket->read_lock);
+	pthread_mutex_lock(&websocket->write_lock);
 	#ifdef USESSL
 		bytes_written = (websocket->ssl == NULL) ?
 			write(websocket->socket, framebuf, frame_length) :
@@ -726,7 +722,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 	#else
 		bytes_written = write(websocket->socket, framebuf, frame_length);
 	#endif
-	pthread_mutex_unlock(&websocket->read_lock);
+	pthread_mutex_unlock(&websocket->write_lock);
 #else
 	#ifdef USESSL
 	bytes_written = (websocket->ssl == NULL) ?
@@ -753,6 +749,7 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	// Kludge: SIGINT/SIGTERM causes a deadlock if the lock is already acquired
 	if(websocket->state & WEBSOCKET_STATE_OPEN) {
 		pthread_mutex_unlock(&websocket->read_lock);
+		pthread_mutex_unlock(&websocket->write_lock);
 	}
 #endif
 	websocket->state = WEBSOCKET_STATE_CLOSING;

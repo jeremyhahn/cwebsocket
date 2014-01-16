@@ -180,5 +180,5 @@ int main(int argc, char **argv) {
 	//cwebsocket_listen(&websocket_client);
 
 	cwebsocket_close(&websocket_client, "main run loop complete");
-    return main_exit(EXIT_SUCCESS);
+	return main_exit(EXIT_SUCCESS);
 }

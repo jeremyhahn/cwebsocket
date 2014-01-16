@@ -2,6 +2,9 @@
 
 ###### Fast, lightweight websocket server/client.
 
+The goal of cwebsocket is to provide a simple, configurable, high performance websocket solution that works especially
+well on embedded Linux systems.
+
 cwebsocket is currently in an ALPHA state. You may encounter bugs. Successful tests have been conducted on the following architectures:
 
 1. [x86](http://en.wikipedia.org/wiki/X86)
