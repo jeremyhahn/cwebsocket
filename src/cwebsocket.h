@@ -43,7 +43,8 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
-#include <wchar.h>
+#include <sys/resource.h>
+#include "utf8.h"
 
 #ifdef THREADED
 	#include <pthread.h>
@@ -55,6 +56,10 @@
 
 #ifndef DATA_BUFFER_MAX
 	#define DATA_BUFFER_MAX 65536
+#endif
+
+#ifndef STACK_SIZE_MIN
+	#define STACK_SIZE_MIN 128
 #endif
 
 #define WEBSOCKET_STATE_CONNECTING (1 << 0)
@@ -120,12 +125,13 @@ typedef struct {
 int cwebsocket_connect(cwebsocket_client *websocket, const char *uri);
 int cwebsocket_read_data(cwebsocket_client *websocket);
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len);
-void cwebsocket_close(cwebsocket_client *websocket, const char *message);
 void cwebsocket_run(cwebsocket_client *websocket);
+void cwebsocket_close(cwebsocket_client *websocket, const char *message);
+void cwebsocket_listen(cwebsocket_client *websocket);
 
 // "private"
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
-int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, const char *seckey);
+//int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, const char *seckey);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 #endif

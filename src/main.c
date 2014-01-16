@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <signal.h>
-#include <locale.h>
 #include "cwebsocket.h"
 
 cwebsocket_client websocket_client;
@@ -30,16 +29,6 @@ void signal_handler(int sig) {
 	}
 }
 
-int is_valid_arg(const char *string) {
-	int i=0;
-	for(i=0; i < strlen(string); i++) {
-		if(!isalnum(string[i]) && string[i] != '/' && string[i] != '.' && string[i] != '_' && string[i] != '-') {
-			return 0;
-		}
-	}
-	return 1;
-}
-
 void print_program_header() {
 
 	fprintf(stderr, "****************************************************************************\n");
@@ -66,7 +55,7 @@ void print_program_header() {
 void print_program_usage(const char *progname) {
 
 	fprintf(stderr, "usage: [uri]\n");
-	fprintf(stderr, "example: %s ws://echo.websocket.org/resource\n\n", progname);
+	fprintf(stderr, "example: %s ws://echo.websocket.org\n\n", progname);
 	exit(0);
 }
 
@@ -91,6 +80,7 @@ void onopen(cwebsocket_client *websocket) {
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
+
 #if defined(__arm__ ) || defined(__i386__)
 	syslog(LOG_DEBUG, "on_message: sock_fd:%i, opcode=%#04x, payload_len=%i, payload=%s",
 			websocket->sock_fd, message->opcode, message->payload_len, message->payload);
@@ -110,9 +100,43 @@ void onerror(cwebsocket_client *websocket, const char *message) {
 	syslog(LOG_DEBUG, "on_error: message=%s", message);
 }
 
-int main(int argc, char **argv) {
+void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 
-	setlocale(LC_ALL, "");
+	const char *message1 = "testme1234testme1234testme1234te";
+	cwebsocket_write_data(&websocket_client, message1, strlen(message1));
+	cwebsocket_read_data(websocket);
+
+	const char *message2 = "testme1234testme1234testme1234testme1234testme1234testme1234";
+	cwebsocket_write_data(&websocket_client, message2, strlen(message2));
+	cwebsocket_read_data(websocket);
+
+	const char *message3 = "testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234test123";
+	cwebsocket_write_data(&websocket_client, message3, strlen(message3));
+	cwebsocket_read_data(websocket);
+}
+
+void run_send_metrics(cwebsocket_client *websocket) {
+
+	uint64_t messages_sent = 0;
+	char metrics[255];
+
+	time_t start_time, finish_time;
+	start_time = time(0);
+
+	do {
+		create_mock_metrics(metrics);
+		//printf("Metrics: %s\n", metrics);
+		cwebsocket_write_data(websocket, metrics, strlen(metrics));
+		sleep(1);
+		messages_sent++;
+	}
+	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
+
+	finish_time = time(0);
+	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
+}
+
+int main(int argc, char **argv) {
 
 	print_program_header();
 	if(argc != 2) print_program_usage(argv[0]);
@@ -150,33 +174,9 @@ int main(int argc, char **argv) {
 		return main_exit(EXIT_FAILURE);
 	}
 
-	/*
-	cwebsocket_write_data(&websocket_client,
-			"testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234test1234test1234", 136);
-	cwebsocket_run(&websocket_client);
-	 */
-
-	cwebsocket_run(&websocket_client);
-
-	/*
-	uint64_t messages_sent = 0;
-	char metrics[255];
-
-	time_t start_time, finish_time;
-	start_time = time(0);
-
-	do {
-		create_mock_metrics(metrics);
-		//printf("Metrics: %s\n", metrics);
-		cwebsocket_write_data(&websocket, metrics, strlen(metrics));
-		sleep(1);
-		messages_sent++;
-	}
-	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
-
-	finish_time = time(0);
-	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
-	*/
+	run_websocket_org_echo_test(&websocket_client);
+	//run_send_metrics(&websocket_client);
+	//cwebsocket_listen(&websocket_client);
 
 	cwebsocket_close(&websocket_client, "main run loop complete");
     return main_exit(EXIT_SUCCESS);
