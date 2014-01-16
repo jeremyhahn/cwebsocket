@@ -76,23 +76,23 @@ void create_mock_metrics(char *metrics) {
 }
 
 void onopen(cwebsocket_client *websocket) {
-	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", websocket->sock_fd);
+	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", websocket->socket);
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 
 #if defined(__arm__ ) || defined(__i386__)
-	syslog(LOG_DEBUG, "on_message: sock_fd:%i, opcode=%#04x, payload_len=%i, payload=%s",
-			websocket->sock_fd, message->opcode, message->payload_len, message->payload);
+	syslog(LOG_DEBUG, "on_message: socket:%i, opcode=%#04x, payload_len=%i, payload=%s",
+			websocket->socket, message->opcode, message->payload_len, message->payload);
 #else
-	syslog(LOG_DEBUG, "on_message: cwebsocket_message: opcode=%#04x, payload_len=%zu, payload=%s",
-			message->opcode, message->payload_len, message->payload);
+	syslog(LOG_DEBUG, "on_message: socket=%i, opcode=%#04x, payload_len=%zu, payload=%s",
+			websocket->socket, message->opcode, message->payload_len, message->payload);
 #endif
 }
 
 void onclose(cwebsocket_client *websocket, const char *message) {
 	if(message != NULL) {
-		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->sock_fd, message);
+		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->socket, message);
 	}
 }
 
@@ -105,7 +105,7 @@ void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 	const char *message1 = "testme1234testme1234testme1234te";
 	cwebsocket_write_data(&websocket_client, message1, strlen(message1));
 	cwebsocket_read_data(websocket);
-
+/*
 	const char *message2 = "testme1234testme1234testme1234testme1234testme1234testme1234";
 	cwebsocket_write_data(&websocket_client, message2, strlen(message2));
 	cwebsocket_read_data(websocket);
@@ -113,6 +113,7 @@ void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 	const char *message3 = "testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234test123";
 	cwebsocket_write_data(&websocket_client, message3, strlen(message3));
 	cwebsocket_read_data(websocket);
+*/
 }
 
 void run_send_metrics(cwebsocket_client *websocket) {

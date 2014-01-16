@@ -1,4 +1,4 @@
-CFLAGS      = -O3 -g3 -Wall -fmessage-length=0
+CFLAGS      = -O0 -g3 -Wall -fmessage-length=0
 OBJS        = src/utf8.o src/cwebsocket.o src/main.o
 LIBS        = -lcrypto
 TARGET      = websocket-client
@@ -8,6 +8,12 @@ ifdef NOTHREADS
 else
   CFLAGS += -pthread -DTHREADED
   LIBS += -lpthread
+endif
+
+ifdef NOSSL
+else
+   CFLAGS += -DUSESSL
+   LIBS += -lssl
 endif
 
 ifeq ($(PLATFORM), x86)

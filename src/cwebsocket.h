@@ -46,6 +46,12 @@
 #include <sys/resource.h>
 #include "utf8.h"
 
+#ifdef USESSL
+	#include <openssl/rand.h>
+	#include <openssl/ssl.h>
+	#include <openssl/err.h>
+#endif
+
 #ifdef THREADED
 	#include <pthread.h>
 #endif
@@ -104,16 +110,21 @@ typedef struct {
 } cwebsocket_frame;
 
 typedef struct _cwebsocket {
-	int sock_fd;
+	int socket;
 #ifdef THREADED
 	pthread_t thread;
-	pthread_mutex_t lock;
+	pthread_mutex_t read_lock;
+	pthread_mutex_t write_lock;
 #endif
 	uint8_t state;
 	void (*onopen)(struct _cwebsocket *);
 	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);
 	void (*onclose)(struct _cwebsocket *, const char *message);
 	void (*onerror)(struct _cwebsocket *, const char *error);
+#ifdef USESSL
+	SSL_CTX *sslctx;
+	SSL *ssl;
+#endif
 } cwebsocket_client;
 
 typedef struct {
@@ -132,7 +143,7 @@ void cwebsocket_listen(cwebsocket_client *websocket);
 // "private"
 void cwebsocket_init();
 char* cwebsocket_base64_encode(const unsigned char *input, int length);
-void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource);
+void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource, char *querystring, int *secure);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
 int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
