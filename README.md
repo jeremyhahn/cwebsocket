@@ -32,7 +32,7 @@ To build for ARM architecture:
 
 	make PLATFORM=arm
 
-> NOTE: 32-bit architectures are limited to a max payload size of 65536 bytes.
+> NOTE: 32-bit architectures are limited to a max payload size of 65536 byte frames.
 
 ### Client
 

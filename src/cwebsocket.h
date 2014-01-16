@@ -130,8 +130,13 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message);
 void cwebsocket_listen(cwebsocket_client *websocket);
 
 // "private"
-int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
-//int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *message, const char *seckey);
+void cwebsocket_init();
+char* cwebsocket_base64_encode(const unsigned char *input, int length);
+void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
+int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
+int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
+void cwebsocket_listen(cwebsocket_client *websocket);
+int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, char *frame_type);
 
 #endif
