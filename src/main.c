@@ -76,7 +76,7 @@ void create_mock_metrics(char *metrics) {
 }
 
 void onopen(cwebsocket_client *websocket) {
-	syslog(LOG_DEBUG, "on_connect: websocket file descriptor: %i", websocket->socket);
+	syslog(LOG_DEBUG, "onconnect: websocket file descriptor: %i", websocket->socket);
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
@@ -92,12 +92,12 @@ void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 
 void onclose(cwebsocket_client *websocket, const char *message) {
 	if(message != NULL) {
-		syslog(LOG_DEBUG, "on_close: file descriptor: %i, %s", websocket->socket, message);
+		syslog(LOG_DEBUG, "onclose: file descriptor: %i, %s", websocket->socket, message);
 	}
 }
 
 void onerror(cwebsocket_client *websocket, const char *message) {
-	syslog(LOG_DEBUG, "on_error: message=%s", message);
+	syslog(LOG_DEBUG, "onerror: message=%s", message);
 }
 
 void run_websocket_org_echo_test(cwebsocket_client *websocket) {
