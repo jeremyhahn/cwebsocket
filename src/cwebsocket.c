@@ -152,8 +152,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 #ifdef THREADED
 	if(pthread_mutex_init(&websocket->read_lock, NULL) != 0) {
 		syslog(LOG_ERR, "cwebsocket_connect: unable to initialize mutex: %s\n", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -190,8 +190,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	if(getaddrinfo(hostname, port, &hints, &servinfo) != 0 ) {
 		freeaddrinfo(servinfo);
 		syslog(LOG_ERR, "cwebsocket_connect: invalid hostname or IP");
-		if(websocket->onerror) {
-			websocket->onerror("invalid hostname or IP");
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, "invalid hostname or IP");
 		}
 		return -1;
 	}
@@ -200,8 +200,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	if(websocket->socket < 0) {
 		freeaddrinfo(servinfo);
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -209,8 +209,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	if(connect(websocket->socket, servinfo->ai_addr, servinfo->ai_addrlen) != 0 ) {
 		freeaddrinfo(servinfo);
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -220,8 +220,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
     int optval = 1;
     if(setsockopt(websocket->socket, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval) == -1) {
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
     }
@@ -262,8 +262,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 	   if((ssize_t)SSL_write(websocket->ssl, handshake, strlen(handshake)) == -1) {
 	   		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-			if(websocket->onerror) {
-				websocket->onerror(strerror(errno));
+			if(websocket->onerror != NULL) {
+				websocket->onerror(websocket, strerror(errno));
 			}
 	   		return -1;
 	   	}
@@ -272,8 +272,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 	   if(write(websocket->socket, handshake, strlen(handshake)) == -1) {
 		  syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		  if(websocket->onerror) {
-		     websocket->onerror(strerror(errno));
+		  if(websocket->onerror != NULL) {
+		     websocket->onerror(websocket, strerror(errno));
 		  }
 		  return -1;
 	   }
@@ -281,8 +281,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 #else
 	if(write(websocket->socket, handshake, strlen(handshake)) == -1) {
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -292,8 +292,8 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 	if(cwebsocket_read_handshake(websocket, seckey) == -1) {
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -396,15 +396,15 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 		if(byte == 0) return -1;
 		if(byte == -1) {
 			syslog(LOG_ERR, "cwebsocket_read_handshake: %s", strerror(errno));
-			if(websocket->onerror) {
-				websocket->onerror(strerror(errno));
+			if(websocket->onerror != NULL) {
+				websocket->onerror(websocket, strerror(errno));
 			}
 			return -1;
 		}
 		if(bytes_read == HANDSHAKE_BUFFER_MAX) {
 			syslog(LOG_ERR, "cwebsocket_read_handshake: handshake response too large. HANDSHAKE_BUFFER_MAX = %i bytes.", HANDSHAKE_BUFFER_MAX);
-			if(websocket->onerror) {
-				websocket->onerror("handshake response too large");
+			if(websocket->onerror != NULL) {
+				websocket->onerror(websocket, "handshake response too large");
 			}
 			return -1;
 		}
@@ -475,8 +475,8 @@ int inline cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode op
 	}
 	else if(bytes_written == -1) {
 		syslog(LOG_CRIT, "cwebsocket_send_control_frame: error sending %s control frame. %s", frame_type, strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -488,8 +488,8 @@ int inline cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode op
 	}
 	else if(bytes_written == -1) {
 		syslog(LOG_CRIT, "cwebsocket_send_control_frame: error sending %s control frame. %s", frame_type, strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -524,8 +524,8 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 				#ifdef THREADED
 					pthread_mutex_unlock(&websocket->read_lock);
 				#endif
-				if(websocket->onerror) {
-					websocket->onerror("frame too large");
+				if(websocket->onerror != NULL) {
+					websocket->onerror(websocket, "frame too large");
 				}
 				return -1;
 		}
@@ -540,14 +540,14 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		if(byte == 0) {
 		   syslog(LOG_ERR, "cwebsocket_read_data: remote host closed the connection");
 		   if(websocket->onclose) {
-			  websocket->onclose("remote host closed the connection");
+			  websocket->onclose(websocket, "remote host closed the connection");
 		   }
 		   return -1;
 		}
 		if(byte == -1) {
 		   syslog(LOG_ERR, "cwebsocket_read_data: error reading frame: %s", strerror(errno));
-		   if(websocket->onerror) {
-			  websocket->onerror(strerror(errno));
+		   if(websocket->onerror != NULL) {
+			  websocket->onerror(websocket, strerror(errno));
 		   }
 		   return -1;
 		}
@@ -604,8 +604,8 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
 			syslog(LOG_ERR, "cwebsocket_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
-			if(websocket->onerror) {
-				websocket->onerror("received malformed utf-8 payload");
+			if(websocket->onerror != NULL) {
+				websocket->onerror(websocket, "received malformed utf-8 payload");
 			}
 			return -1;
 		}
@@ -695,8 +695,8 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 	syslog(LOG_ERR, "cwebsocket_read_data: received unsupported opcode: %#04x", frame.opcode);
 
-	if(websocket->onerror) {
-		websocket->onerror("received unsupported opcode");
+	if(websocket->onerror != NULL) {
+		websocket->onerror(websocket, "received unsupported opcode");
 	}
 
 	cwebsocket_close(websocket, NULL);
@@ -812,8 +812,8 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 
 	if(bytes_written == -1) {
 		syslog(LOG_ERR, "cwebsocket_write_data: error: %s", strerror(errno));
-		if(websocket->onerror) {
-			websocket->onerror(strerror(errno));
+		if(websocket->onerror != NULL) {
+			websocket->onerror(websocket, strerror(errno));
 		}
 		return -1;
 	}
@@ -838,9 +838,6 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 		cwebsocket_send_control_frame(websocket, 0x80, "CLOSE", message);
 		if(close(websocket->socket) == -1) {
 			syslog(LOG_ERR, "cwebsocket_close: error closing websocket: %s", strerror(errno));
-			if(websocket->onerror) {
-				websocket->onerror(strerror(errno));
-			}
 		}
 	}
 #ifdef USESSL
