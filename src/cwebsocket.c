@@ -555,11 +555,11 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		payload[payload_length] = '\0';
 
 		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
-			syslog(LOG_ERR, "cwebsocket_read_data: received malformed UTF-8 TEXT payload\n");
+			syslog(LOG_ERR, "cwebsocket_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
 			return -1;
 		}
 
-		syslog(LOG_DEBUG, "cwebsocket_read_data: received UTF-8 TEXT payload. bytes=%i, payload=%s", payload_length, payload);
+		syslog(LOG_DEBUG, "cwebsocket_read_data: received %i byte UTF-8 TEXT payload: %s", payload_length, payload);
 
 		if(websocket->onmessage != NULL) {
 
@@ -717,9 +717,9 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 		header_length += 8;
 	}
 	else {
-		syslog(LOG_CRIT, "cwebsocket_write_data: too much data");
+		syslog(LOG_CRIT, "cwebsocket_write_data: frame too large");
 		if(websocket->onerror != NULL) {
-			websocket->onerror(websocket, "too much data");
+			websocket->onerror(websocket, "frame too large");
 		}
 		return -1;
 	}
@@ -760,7 +760,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 		return -1;
 	}
 
-	syslog(LOG_DEBUG, "cwebsocket_write_data: wrote %lld bytes. data=%s\n", payload_len, data);
+	syslog(LOG_DEBUG, "cwebsocket_write_data: wrote %lld byte payload: %s\n", payload_len, data);
 
 	return bytes_written;
 }
