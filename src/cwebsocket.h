@@ -148,6 +148,6 @@ void cwebsocket_print_frame(cwebsocket_frame *frame);
 int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
 void cwebsocket_listen(cwebsocket_client *websocket);
-int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, char *frame_type);
+int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload);
 
 #endif

@@ -412,9 +412,11 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 }
 #endif
 
-int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, char *frame_type) {
+int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload) {
 	ssize_t bytes_written;
-	char control_frame[6];
+	int payload_len = strlen(payload);
+	int frame_len = 6 + payload_len;
+	char control_frame[frame_len];
 	int mask_int;
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -423,14 +425,17 @@ int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, c
 	memcpy(control_frame+2, &mask_int, 4);
 	control_frame[0] = 0x88;
 	control_frame[1] = opcode;
+	if(payload_len > 0) {
+		memcpy(&control_frame[2], payload, payload_len);
+	}
 #ifdef THREADED
 	pthread_mutex_lock(&websocket->write_lock);
 	#ifdef USESSL
 		bytes_written = (websocket->ssl == NULL) ?
-			    write(websocket->socket, control_frame, 6) :
-			    (ssize_t)SSL_write(websocket->ssl, control_frame, 6);
+			    write(websocket->socket, control_frame, frame_len) :
+			    (ssize_t)SSL_write(websocket->ssl, control_frame, frame_len);
 	#else
-		bytes_written = write(websocket->socket, control_frame, 6);
+		bytes_written = write(websocket->socket, control_frame, frame_len);
 	#endif
 	if(bytes_written == 0) {
 		syslog(LOG_DEBUG, "cwebsocket_send_control_frame: sending %s control frame", frame_type);
@@ -457,7 +462,6 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 	size_t utf8_code_points;
 	ssize_t byte;
-	int frame_byte_pointer = 2;                 // Used to extract masking-key if present
 	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
 	const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
@@ -522,7 +526,6 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			extended_payload_length |= ((uint8_t) data[2]) << 8;
 			extended_payload_length |= ((uint8_t) data[3]) << 0;
 
-			frame_byte_pointer = 4;
 			payload_length = extended_payload_length;
 		}
 		else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
@@ -537,24 +540,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			extended_payload_length |= ((uint64_t) data[8]) << 8;
 			extended_payload_length |= ((uint64_t) data[9]) << 0;
 
-			frame_byte_pointer = 10;
 			payload_length = extended_payload_length;
-		}
-
-		if(frame.mask) {
-
-			frame.masking_key[0] = ((uint32_t) data[frame_byte_pointer+0]) << 0;
-			frame.masking_key[1] = ((uint32_t) data[frame_byte_pointer+1]) << 0;
-			frame.masking_key[2] = ((uint32_t) data[frame_byte_pointer+2]) << 0;
-			frame.masking_key[3] = ((uint32_t) data[frame_byte_pointer+3]) << 0;
-
-			frame_byte_pointer = 14;
-		}
-		else {
-			frame.masking_key[0] = 0;
-			frame.masking_key[1] = 0;
-			frame.masking_key[2] = 0;
-			frame.masking_key[3] = 0;
 		}
 	}
 
@@ -562,18 +548,18 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	pthread_mutex_unlock(&websocket->read_lock);
 #endif
 
-	char payload[payload_length];
-	memcpy(payload, &data[header_length], payload_length);
-	payload[payload_length] = '\0';
-
-	syslog(LOG_DEBUG, "cwebsocket_read_data: read %i bytes. payload=%s", bytes_read, payload);
-
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
+		char payload[payload_length];
+		memcpy(payload, &data[header_length], payload_length);
+		payload[payload_length] = '\0';
+
 		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
-			syslog(LOG_ERR, "cwebsocket_read_data: received malformed utf-8 payload\n");
+			syslog(LOG_ERR, "cwebsocket_read_data: received malformed UTF-8 TEXT payload\n");
 			return -1;
 		}
+
+		syslog(LOG_DEBUG, "cwebsocket_read_data: received UTF-8 TEXT payload. bytes=%i, payload=%s", payload_length, payload);
 
 		if(websocket->onmessage != NULL) {
 
@@ -595,23 +581,59 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			message.opcode = frame.opcode;
 			message.payload_len = frame.payload_len;
 			message.payload = payload;
-		    websocket.onmessage(websocket, &message);
+		    websocket->onmessage(websocket, &message);
 		    return bytes_read;
 #endif
 		}
 
-		syslog(LOG_WARNING, "cwebsocket_read_data: No on_message callback defined to handle data: %s", payload);
+		syslog(LOG_WARNING, "cwebsocket_read_data: No onmessage callback defined");
 		return bytes_read;
 	}
-	else if(frame.opcode == BINARY_FRAME) {
-		syslog(LOG_DEBUG, "cwebsocket_read_data: received unsupported BINARY_FRAME opcode");
+	else if(frame.fin && frame.opcode == BINARY_FRAME) {
+
+		syslog(LOG_DEBUG, "cwebsocket_read_data: received BINARY payload. bytes=%i", payload_length);
+
+		char payload[payload_length];
+		memcpy(payload, &data[header_length], payload_length);
+
+		if(websocket->onmessage != NULL) {
+
+#ifdef THREADED
+			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+			message->opcode = frame.opcode;
+			message->payload_len = frame.payload_len;
+			message->payload = malloc(sizeof(char) * payload_length);
+			memcpy(message->payload, payload, payload_length);
+
+			cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
+			args->socket = websocket;
+			args->message = message;
+
+			pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
+			return bytes_read;
+#else
+			cwebsocket_message message;
+			message.opcode = frame.opcode;
+			message.payload_len = frame.payload_len;
+			message.payload = payload;
+			websocket->onmessage(websocket, &message);
+			return bytes_read;
+#endif
+		}
+		syslog(LOG_WARNING, "cwebsocket_read_data: No onmessage callback defined");
+		return bytes_read;
 	}
 	else if(frame.opcode == CONTINUATION) {
-		syslog(LOG_DEBUG, "cwebsocket_read_data: received unsupported CONTINUATION opcode");
+		syslog(LOG_DEBUG, "cwebsocket_read_data: received CONTINUATION opcode");
+		return -1; // continuations are accounted for in read loop
 	}
 	else if(frame.opcode == PING) {
+
 		syslog(LOG_DEBUG, "cwebsocket_read_data: received PING control frame");
-		cwebsocket_send_control_frame(websocket, 0x0A, "PONG");
+		char payload[payload_length];
+		memcpy(payload, &data[header_length], payload_length);
+		payload[payload_length] = '\0';
+		cwebsocket_send_control_frame(websocket, 0x0A, "PONG", payload);
 	}
 	else if(frame.opcode == PONG) {
 		syslog(LOG_DEBUG, "cwebsocket_read_data: received PONG control frame");
@@ -738,7 +760,7 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 		return -1;
 	}
 
-	syslog(LOG_DEBUG, "cwebsocket_write_data: wrote %zd bytes. data=%s\n", bytes_written, data);
+	syslog(LOG_DEBUG, "cwebsocket_write_data: wrote %lld bytes. data=%s\n", payload_len, data);
 
 	return bytes_written;
 }
@@ -755,7 +777,7 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 	syslog(LOG_DEBUG, "cwebsocket_close: closing websocket: %s", message);
 	if(websocket->socket > 0) {
-		cwebsocket_send_control_frame(websocket, 0x80, "CLOSE");
+		cwebsocket_send_control_frame(websocket, 0x80, "CLOSE", message);
 		if(close(websocket->socket) == -1) {
 			syslog(LOG_ERR, "cwebsocket_close: error closing websocket: %s", strerror(errno));
 		}
