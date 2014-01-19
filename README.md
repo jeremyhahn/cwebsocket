@@ -37,7 +37,11 @@ Without threads:
 
 	make NOTHREADS=1
 
-Target x86 32-bit architecture:
+Without SSL:
+
+	make NOSSL=1
+
+Target 32-bit architecture:
 
 	make PLATFORM=x86
 
@@ -47,25 +51,11 @@ Target ARM architecture:
 
 > NOTE: 32-bit architectures are limited to a max payload size of 65536 byte frames.
 
-Without SSL:
-
-	make NOSSL=1
-
 ### Client
 
 The websocket client is able to connect and exchange data with any RFC 6455 compliant server.
 
-##### Binary Example
-
-	./websocket-client ws://echo.websocket.org
-
-	./websocket-client wss://echo.websocket.org
-
-##### Code Sample
-
 ```C
-#include <stdio.h>
-#include <signal.h>
 #include "cwebsocket.h"
 
 cwebsocket_client websocket;
@@ -103,15 +93,26 @@ int main(int argc, char **argv) {
 	websocket.onerror = &onerror;
 
 	if(cwebsocket_connect(&websocket, argv[1]) == -1) {
-		perror("unable to connect to remove websocket server");
-		return -1;
+           perror("unable to connect to remote websocket server");
+           return -1;
 	}
 
 	const char *message = "WebSocket Works!";
-	cwebsocket_write_data(&websocket, message, strlen(message));
-	cwebsocket_read_data(&websocket);
+	if(cwebsocket_write_data(&websocket, message, strlen(message)) == -1) {
+		perror("unable to write to websocket");
+		return -1;
+	}
+
+	if(cwebsocket_read_data(&websocket) == -1) {
+		perror("unable to read from websocket");
+		return -1;
+	}
 
 	cwebsocket_close(&websocket, "main: cwebsocket exiting");
 	return EXIT_SUCCESS;
 }
 ```
+
+	./websocket-client ws://echo.websocket.org
+	./websocket-client wss://echo.websocket.org
+
