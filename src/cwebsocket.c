@@ -367,8 +367,13 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 					free(base64_encoded);
 					free(seckey);
 					if(websocket->onerror != NULL) {
-				       websocket->onerror(websocket, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 checksum");
-					   return -1;
+						char errmsg[255];
+						strcpy(errmsg, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 checksum. expected=");
+						strcat(errmsg, ptr+1);
+						strcat(errmsg, ", got=");
+						strcat(errmsg, base64_encoded);
+				        websocket->onerror(websocket, errmsg);
+					    return -1;
 					}
 					return -1;
 				}
@@ -428,6 +433,7 @@ void cwebsocket_listen(cwebsocket_client *websocket) {
 		cwebsocket_read_data(websocket);
 	}
 	while(websocket->state & WEBSOCKET_STATE_OPEN);
+	syslog(LOG_DEBUG, "cwebsocket_listen: shutting down");
 }
 
 #ifdef THREADED
@@ -487,6 +493,10 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	memset(&frame, 0, sizeof frame);
 
 	while(bytes_read < header_length + payload_length) {
+
+		if((websocket->state & WEBSOCKET_STATE_OPEN) == 0) {
+			return -1;
+		}
 
 		if(bytes_read == DATA_BUFFER_MAX) {
 				syslog(LOG_ERR, "cwebsocket_read_data: frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i",
@@ -663,6 +673,10 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len) {
 
+	if((websocket->state & WEBSOCKET_STATE_OPEN) == 0) {
+		return -1;
+	}
+
 	//websocket_frame frame;
 	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
 	unsigned long long payload_len = len;
@@ -773,11 +787,11 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 #endif
 
-	syslog(LOG_DEBUG, "cwebsocket_close: closing websocket: %s", message);
+	syslog(LOG_DEBUG, "cwebsocket_close: closing websocket: %s\n", message);
 	if(websocket->socket > 0) {
 		cwebsocket_send_control_frame(websocket, 0x80, "CLOSE", message);
 		if(close(websocket->socket) == -1) {
-			syslog(LOG_ERR, "cwebsocket_close: error closing websocket: %s", strerror(errno));
+			syslog(LOG_ERR, "cwebsocket_close: error closing websocket: %s\n", strerror(errno));
 		}
 	}
 
@@ -799,9 +813,12 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 	pthread_mutex_unlock(&websocket->lock);
+	pthread_cancel(websocket->thread);
 #else
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 #endif
+
+	syslog(LOG_DEBUG, "cwebsocket_close: websocket closed\n");
 }
 
 ssize_t inline cwebsocket_read(cwebsocket_client *websocket, void *buf, int len) {
