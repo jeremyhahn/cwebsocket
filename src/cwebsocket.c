@@ -748,8 +748,6 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 		framebuf[header_length+i] ^= masking_key[i % 4] & 0xff;
 	}
 
-	syslog(LOG_DEBUG, "cwebsocket_write_data: about to write data");
-
 	bytes_written = cwebsocket_write(websocket, framebuf, frame_length);
 
 	if(bytes_written == -1) {
