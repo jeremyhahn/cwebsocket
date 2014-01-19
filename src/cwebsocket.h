@@ -114,6 +114,10 @@ typedef struct {
 typedef struct _cwebsocket {
 	int socket;
 	uint8_t flags;
+#ifdef USESSL
+	SSL_CTX *sslctx;
+	SSL *ssl;
+#endif
 #ifdef THREADED
 	pthread_t thread;
 	pthread_mutex_t lock;
@@ -124,10 +128,6 @@ typedef struct _cwebsocket {
 	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);
 	void (*onclose)(struct _cwebsocket *, const char *message);
 	void (*onerror)(struct _cwebsocket *, const char *error);
-#ifdef USESSL
-	SSL_CTX *sslctx;
-	SSL *ssl;
-#endif
 } cwebsocket_client;
 
 typedef struct {

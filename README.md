@@ -5,7 +5,7 @@
 The goal of cwebsocket is to provide a simple, lightweight, high performance websocket solution that's
 efficient enough to run well on low power embedded systems.
 
-cwebsocket is currently in an ALPHA state. The client is development complete. You may encounter bugs, however. Report them. They will be fixed.
+cwebsocket is currently in a development state. You may encounter bugs. Report them for a timely fix.
 
 Successful tests have been conducted on the following architectures:
 
