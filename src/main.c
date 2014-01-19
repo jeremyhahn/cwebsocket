@@ -103,7 +103,6 @@ void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 void run_broadcast(cwebsocket_client *websocket) {
 
 	uint64_t messages_sent = 0;
-	char metrics[255];
 
 	time_t start_time, finish_time;
 	start_time = time(0);

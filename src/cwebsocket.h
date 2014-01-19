@@ -74,6 +74,8 @@
 #define WEBSOCKET_STATE_CLOSING    (1 << 3)
 #define WEBSOCKET_STATE_CLOSED     (1 << 4)
 
+#define WEBSOCKET_FLAG_SSL         (1 << 1)
+
 typedef enum {
 	TRUE,
 	FALSE
@@ -111,9 +113,10 @@ typedef struct {
 
 typedef struct _cwebsocket {
 	int socket;
+	uint8_t flags;
 #ifdef THREADED
 	pthread_t thread;
-	pthread_mutex_t read_lock;
+	pthread_mutex_t lock;
 	pthread_mutex_t write_lock;
 #endif
 	uint8_t state;
@@ -139,15 +142,16 @@ ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, in
 void cwebsocket_run(cwebsocket_client *websocket);
 void cwebsocket_close(cwebsocket_client *websocket, const char *message);
 void cwebsocket_listen(cwebsocket_client *websocket);
+void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 // "private"
 void cwebsocket_init();
 char* cwebsocket_base64_encode(const unsigned char *input, int length);
-void cwebsocket_parse_uri(const char *uri, char *hostname, char *port, char *resource, char *querystring, int *secure);
-void cwebsocket_print_frame(cwebsocket_frame *frame);
+void cwebsocket_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
 int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
 int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
-void cwebsocket_listen(cwebsocket_client *websocket);
 int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload);
+ssize_t inline cwebsocket_read(cwebsocket_client *websocket, void *buf, int len);
+ssize_t inline cwebsocket_write(cwebsocket_client *websocket, void *buf, int len);
 
 #endif
