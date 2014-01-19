@@ -1,8 +1,12 @@
 CFLAGS      = -O3 -g3 -Wall -fmessage-length=0
 OBJS        = src/utf8.o src/cwebsocket.o src/main.o
+SRC         = src/utf8.c src/cwebsocket.c src/main.c
 LIBS        = -lcrypto
 TARGET      = websocket-client
+TARGET_LIB  = libcwebsocket.so
 PLATFORM    = x86_64
+
+.PHONY: lib clean
 
 ifdef NOTHREADS
 else
@@ -30,9 +34,15 @@ endif
 
 $(TARGET):	$(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS)
+	rm -rf src/*.o
 
 all:	$(TARGET)
 
+so:
+	rm -f $(OBJS)
+	gcc -c -Wall -Werror -fPIC $(SRC) $(LIBS)
+	gcc -shared -o $(TARGET_LIB) cwebsocket.o
+	rm -f *.o
+
 clean:
-	rm -f $(OBJS) $(TARGET)
-	rm -rf Debug
+	rm -rf $(OBJS) $(TARGET) $(TARGET_LIB) Debug

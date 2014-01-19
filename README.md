@@ -1,3 +1,5 @@
+[logo]: https://github.com/jeremyhahn/cwebsocket/raw/master/websocket.png "WebSocket"
+
 # cwebsocket
 
 ###### Fast, lightweight websocket server/client.
@@ -44,6 +46,10 @@ Target ARM architecture:
 Without SSL:
 
 	make NOSSL=1
+
+To build a shared object library (libcwebsocket.so):
+
+	make so
 
 ### Client
 
