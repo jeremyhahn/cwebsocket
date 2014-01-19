@@ -74,7 +74,7 @@
 #define WEBSOCKET_STATE_CLOSING    (1 << 3)
 #define WEBSOCKET_STATE_CLOSED     (1 << 4)
 
-#define WEBSOCKET_FLAG_SSL         (1 << 1)
+#define WEBSOCKET_FLAG_SSL         (1 << 0)
 
 typedef enum {
 	TRUE,

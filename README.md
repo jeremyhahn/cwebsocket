@@ -23,9 +23,13 @@ cwebsocket is compliant with the following standards:
 
 ### Build
 
-By default, cwebsocket is built with SSL support for multi-threaded, 64-bit architectures.
+By default, cwebsocket is built with SSL support for multi-threaded, 64-bit architectures. To build, run:
 
 	make
+
+To build a shared object library (libcwebsocket.so), run:
+
+	make so
 
 ##### Customizing/Optimizing Build
 
@@ -46,10 +50,6 @@ Target ARM architecture:
 Without SSL:
 
 	make NOSSL=1
-
-To build a shared object library (libcwebsocket.so):
-
-	make so
 
 ### Client
 

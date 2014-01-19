@@ -564,7 +564,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
 			syslog(LOG_ERR, "cwebsocket_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
 			if(websocket->onerror != NULL) {
-				websocket->onerror(websocket, "received malformed utf-8 payload");
+				websocket->onerror(websocket, "received malformed UTF-8 payload");
 			}
 			return -1;
 		}

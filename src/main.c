@@ -21,7 +21,7 @@ void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 
 void onclose(cwebsocket_client *websocket, const char *message) {
 	if(message != NULL) {
-		syslog(LOG_DEBUG, "onclose: file descriptor: %i, %s", websocket->socket, message);
+		syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, %s", websocket->socket, message);
 	}
 }
 
@@ -87,36 +87,9 @@ void print_program_usage(const char *progname) {
 
 void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 
-	const char *message1 = "testme1234testme1234testme1234te";
+	const char *message1 = "WebSocket Works!";
 	cwebsocket_write_data(&websocket_client, message1, strlen(message1));
 	cwebsocket_read_data(websocket);
-
-	const char *message2 = "testme1234testme1234testme1234testme1234testme1234testme1234";
-	cwebsocket_write_data(&websocket_client, message2, strlen(message2));
-	cwebsocket_read_data(websocket);
-
-	const char *message3 = "testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234testme1234test123";
-	cwebsocket_write_data(&websocket_client, message3, strlen(message3));
-	cwebsocket_read_data(websocket);
-}
-
-void run_broadcast(cwebsocket_client *websocket) {
-
-	uint64_t messages_sent = 0;
-
-	time_t start_time, finish_time;
-	start_time = time(0);
-
-	const char *message = "Websocket Works!";
-	do {
-		cwebsocket_write_data(websocket, message, strlen(message));
-		sleep(1);
-		messages_sent++;
-	}
-	while((websocket_client.state & WEBSOCKET_STATE_OPEN) != 0);
-
-	finish_time = time(0);
-	printf("Sent %lld messages in %i seconds\n", (long long)messages_sent, (int) (finish_time-start_time));
 }
 
 int main(int argc, char **argv) {
@@ -158,9 +131,7 @@ int main(int argc, char **argv) {
 	}
 
 	run_websocket_org_echo_test(&websocket_client);
-	//run_broadcast(&websocket_client);
-	//cwebsocket_listen(&websocket_client);
 
-	cwebsocket_close(&websocket_client, "main run loop complete");
+	cwebsocket_close(&websocket_client, "main: run loop complete");
 	return main_exit(EXIT_SUCCESS);
 }
