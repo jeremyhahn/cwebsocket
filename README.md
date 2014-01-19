@@ -1,6 +1,6 @@
-[logo]: https://github.com/jeremyhahn/cwebsocket/raw/master/websocket.png "WebSocket"
+[logo]: https://github.com/jeremyhahn/cwebsocket/raw/master/websocket.png "cwebsocket"
 
-# cwebsocket
+# ![alt text][logo] cwebsocket
 
 ###### Fast, lightweight websocket server/client.
 
