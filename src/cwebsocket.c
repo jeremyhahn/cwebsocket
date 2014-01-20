@@ -54,7 +54,7 @@ char* cwebsocket_base64_encode(const unsigned char *input, int length) {
 
 	char *buff = (char *)malloc(bptr->length);
 	memcpy(buff, bptr->data, bptr->length-1);
-	buff[bptr->length-1] = 0;
+	buff[bptr->length-1] = '\0';
 
 	BIO_free_all(b64);
 
@@ -362,17 +362,14 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 				memcpy(&sha1buf[seckey_len], GUID, 36);
 		        unsigned char sha1_bytes[20];
 		        SHA1((const unsigned char *)sha1buf, total_len, sha1_bytes);
-			    char *base64_encoded = cwebsocket_base64_encode((const unsigned char *)sha1_bytes, sizeof(sha1_bytes));
+		        char* base64_encoded = cwebsocket_base64_encode((const unsigned char *)sha1_bytes, sizeof(sha1_bytes));
 				if(strcmp(ptr+1, base64_encoded) != 0) {
-					free(base64_encoded);
 					free(seckey);
 					if(websocket->onerror != NULL) {
 						char errmsg[255];
-						strcpy(errmsg, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 checksum. expected=");
-						strcat(errmsg, ptr+1);
-						strcat(errmsg, ", got=");
-						strcat(errmsg, base64_encoded);
+						sprintf(errmsg, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 checksum. expected=%s, got=%s", base64_encoded, ptr+1);
 				        websocket->onerror(websocket, errmsg);
+				        free(base64_encoded);
 					    return -1;
 					}
 					return -1;
@@ -391,7 +388,7 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
 	int byte, tmplen = 0;
 	uint32_t bytes_read = 0;
-	char data[HANDSHAKE_BUFFER_MAX];
+	uint8_t data[HANDSHAKE_BUFFER_MAX];
 	memset(data, 0, HANDSHAKE_BUFFER_MAX);
 
 	while(1) {
@@ -421,7 +418,8 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
 	tmplen = bytes_read - 3;
 	char buf[tmplen+1];
-	strncpy(buf, data, tmplen);
+	memset(buf, 0, tmplen+1);
+	memcpy(buf, data, tmplen);
 	buf[tmplen+1] = '\0';
 
 	return cwebsocket_handshake_handler(websocket, buf, seckey);

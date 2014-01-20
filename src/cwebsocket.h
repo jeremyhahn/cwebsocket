@@ -65,7 +65,7 @@
 #endif
 
 #ifndef STACK_SIZE_MIN
-	#define STACK_SIZE_MIN 128
+	#define STACK_SIZE_MIN 16
 #endif
 
 #define WEBSOCKET_STATE_CONNECTING (1 << 0)
@@ -92,11 +92,7 @@ typedef enum {
 
 typedef struct {
 	uint32_t opcode;
-#if defined(__arm__ ) || defined(__i386__)
-	uint32_t payload_len;
-#else
 	uint64_t payload_len;
-#endif
 	char *payload;
 } cwebsocket_message;
 
