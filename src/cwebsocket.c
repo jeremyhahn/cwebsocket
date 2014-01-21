@@ -317,7 +317,7 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 
 int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey) {
 
-	syslog(LOG_DEBUG, "%s\n", handshake_response);
+	syslog(LOG_DEBUG, "cwebsocket_handshake_handler: handshake response: \n%s\n", handshake_response);
 
 	char *ptr = NULL, *token = NULL;
 	for(token = strtok((char *)handshake_response, "\r\n"); token != NULL; token = strtok(NULL, "\r\n")) {
@@ -477,8 +477,8 @@ int inline cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode op
 
 int cwebsocket_read_data(cwebsocket_client *websocket) {
 
-	size_t utf8_code_points;
-	ssize_t byte;
+	size_t utf8_code_points = 0;
+	ssize_t byte = 0;
 	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
 	const int extended_payload16_end_byte = 4;  // The byte which completes the extended 16-bit payload length bits
@@ -565,11 +565,11 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
-		char payload[payload_length];
-		memcpy(payload, &data[header_length], payload_length);
+		uint8_t payload[payload_length];
+		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
 		payload[payload_length] = '\0';
 
-		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
+		if(utf8_count_code_points(payload, &utf8_code_points)) {
 			syslog(LOG_ERR, "cwebsocket_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
 			if(websocket->onerror != NULL) {
 				websocket->onerror(websocket, "received malformed UTF-8 payload");
@@ -583,28 +583,30 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 
 #ifdef THREADED
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+			memset(message, 0, sizeof(cwebsocket_message));
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
-			message->payload = malloc(sizeof(char) * payload_length);
-			strcpy(message->payload, payload);
+			message->payload = malloc(sizeof(payload));
+			strcpy(message->payload, (char *)payload);
 
 		    cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
+		    memset(args, 0, sizeof(cwebsocket_thread_args));
 		    args->socket = websocket;
 		    args->message = message;
 
 		    pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
 		    return bytes_read;
 #else
-		    cwebsocket_message message;
+		    cwebsocket_message message = {0};
 			message.opcode = frame.opcode;
 			message.payload_len = frame.payload_len;
-			message.payload = payload;
+			message.payload = (char *)payload;
 		    websocket->onmessage(websocket, &message);
 		    return bytes_read;
 #endif
 		}
 
-		syslog(LOG_WARNING, "cwebsocket_read_data: No onmessage callback defined");
+		syslog(LOG_WARNING, "cwebsocket_read_data: no onmessage callback defined");
 		return bytes_read;
 	}
 	else if(frame.fin && frame.opcode == BINARY_FRAME) {
