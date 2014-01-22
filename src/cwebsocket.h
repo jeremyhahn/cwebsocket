@@ -65,16 +65,17 @@
 #endif
 
 #ifndef STACK_SIZE_MIN
-	#define STACK_SIZE_MIN 16
+	#define STACK_SIZE_MIN 2
 #endif
 
-#define WEBSOCKET_STATE_CONNECTING (1 << 0)
-#define WEBSOCKET_STATE_CONNECTED  (1 << 1)
-#define WEBSOCKET_STATE_OPEN       (1 << 2)
-#define WEBSOCKET_STATE_CLOSING    (1 << 3)
-#define WEBSOCKET_STATE_CLOSED     (1 << 4)
+#define WEBSOCKET_STATE_CONNECTING   (1 << 0)
+#define WEBSOCKET_STATE_CONNECTED    (1 << 1)
+#define WEBSOCKET_STATE_OPEN         (1 << 2)
+#define WEBSOCKET_STATE_CLOSING      (1 << 3)
+#define WEBSOCKET_STATE_CLOSED       (1 << 4)
 
-#define WEBSOCKET_FLAG_SSL         (1 << 0)
+#define WEBSOCKET_FLAG_SSL           (1 << 0)
+#define WEBSOCKET_FLAG_AUTORECONNECT (1 << 1)
 
 typedef enum {
 	TRUE,
@@ -109,6 +110,8 @@ typedef struct {
 
 typedef struct _cwebsocket {
 	int socket;
+	int retry;
+	char *uri;
 	uint8_t flags;
 #ifdef USESSL
 	SSL_CTX *sslctx;
@@ -132,7 +135,8 @@ typedef struct {
 } cwebsocket_thread_args;
 
 // "public"
-int cwebsocket_connect(cwebsocket_client *websocket, const char *uri);
+void cwebsocket_init();
+int cwebsocket_connect(cwebsocket_client *websocket);
 int cwebsocket_read_data(cwebsocket_client *websocket);
 ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len);
 void cwebsocket_run(cwebsocket_client *websocket);
@@ -141,7 +145,6 @@ void cwebsocket_listen(cwebsocket_client *websocket);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
 
 // "private"
-void cwebsocket_init();
 char* cwebsocket_base64_encode(const unsigned char *input, int length);
 void cwebsocket_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
 int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);

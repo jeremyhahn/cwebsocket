@@ -132,15 +132,20 @@ void cwebsocket_print_frame(cwebsocket_frame *frame) {
 			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
-int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
+int cwebsocket_connect(cwebsocket_client *websocket) {
 
-	if(websocket->socket > 0) {
+	if(websocket->state & WEBSOCKET_STATE_CONNECTED) {
 		syslog(LOG_CRIT, "cwebsocket_connect: socket already connected");
 		return -1;
 	}
 
 	if(websocket->state & WEBSOCKET_STATE_CONNECTING) {
 		syslog(LOG_CRIT, "cwebsocket_connect: socket already connecting");
+		return -1;
+	}
+
+	if(websocket->state & WEBSOCKET_STATE_OPEN) {
+		syslog(LOG_CRIT, "cwebsocket_connect: socket already open");
 		return -1;
 	}
 
@@ -162,15 +167,15 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CONNECTING;
 	pthread_mutex_unlock(&websocket->lock);
-
+#else
+	websocket->state = WEBSOCKET_STATE_CONNECTING;
 #endif
 
 	char hostname[100];
 	char port[5];
 	char resource[256];
 	char querystring[256];
-	cwebsocket_parse_uri(websocket, uri, hostname, port, resource, querystring);
-	cwebsocket_init();
+	cwebsocket_parse_uri(websocket, websocket->uri, hostname, port, resource, querystring);
 
 	syslog(LOG_DEBUG, "cwebsocket_connect: hostname=%s, port=%s, resource=%s, querystring=%s, secure=%i\n",
 			hostname, port, resource, querystring, (websocket->flags & WEBSOCKET_FLAG_SSL));
@@ -225,6 +230,11 @@ int cwebsocket_connect(cwebsocket_client *websocket, const char *uri) {
 		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
 		if(websocket->onerror != NULL) {
 			websocket->onerror(websocket, strerror(errno));
+		}
+		websocket->state = WEBSOCKET_STATE_CLOSED;
+		if(websocket->retry > 0) {
+			sleep(websocket->retry);
+			cwebsocket_connect(websocket);
 		}
 		return -1;
 	}
@@ -446,6 +456,7 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 #endif
 
 int inline cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload) {
+	if(websocket->socket <= 0) return -1;
 	ssize_t bytes_written;
 	int payload_len = strlen(payload);
 	int frame_len = 6 + payload_len;
@@ -509,10 +520,11 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		byte = cwebsocket_read(websocket, data+bytes_read, 1);
 
 		if(byte == 0) {
-		   syslog(LOG_ERR, "cwebsocket_read_data: remote host closed the connection");
+		   char *errmsg = "remote host closed the connection";
 		   if(websocket->onclose) {
-			  websocket->onclose(websocket, "remote host closed the connection");
+			  websocket->onclose(websocket, errmsg);
 		   }
+		   cwebsocket_close(websocket, errmsg);
 		   return -1;
 		}
 		if(byte == -1) {
@@ -586,8 +598,8 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			memset(message, 0, sizeof(cwebsocket_message));
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
-			message->payload = malloc(sizeof(payload));
-			strcpy(message->payload, (char *)payload);
+			message->payload = malloc(payload_length+1);
+			strncpy(message->payload, (char *)payload, payload_length+1);
 
 		    cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
 		    memset(args, 0, sizeof(cwebsocket_thread_args));
@@ -819,6 +831,10 @@ void cwebsocket_close(cwebsocket_client *websocket, const char *message) {
 #endif
 
 	syslog(LOG_DEBUG, "cwebsocket_close: websocket closed\n");
+
+	if(websocket->flags & WEBSOCKET_FLAG_AUTORECONNECT) {
+		cwebsocket_connect(websocket);
+	}
 }
 
 ssize_t inline cwebsocket_read(cwebsocket_client *websocket, void *buf, int len) {

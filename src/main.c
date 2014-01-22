@@ -20,9 +20,7 @@ void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 }
 
 void onclose(cwebsocket_client *websocket, const char *message) {
-	if(message != NULL) {
-		syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, %s", websocket->socket, message);
-	}
+	syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, message: %s", websocket->socket, message);
 }
 
 void onerror(cwebsocket_client *websocket, const char *message) {
@@ -126,7 +124,11 @@ int main(int argc, char **argv) {
 	websocket_client.onclose = &onclose;
 	websocket_client.onerror = &onerror;
 
-	if(cwebsocket_connect(&websocket_client, argv[1]) == -1) {
+	cwebsocket_init();
+	websocket_client.uri = argv[1];
+	websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
+	websocket_client.retry = 5;                              // OPTIONAL - seconds to wait before retrying
+	if(cwebsocket_connect(&websocket_client) == -1) {
 		return main_exit(EXIT_FAILURE);
 	}
 

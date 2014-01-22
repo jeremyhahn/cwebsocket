@@ -65,16 +65,13 @@ void onopen(cwebsocket_client *websocket) {
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
-
 	syslog(LOG_DEBUG, "onmessage: socket_fd=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
 			websocket->socket, message->opcode, message->payload_len, message->payload);
 
 }
 
 void onclose(cwebsocket_client *websocket, const char *message) {
-	if(message != NULL) {
-		syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, %s", websocket->socket, message);
-	}
+	syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, message: %s", websocket->socket, message);
 }
 
 void onerror(cwebsocket_client *websocket, const char *message) {
@@ -87,12 +84,16 @@ int main(int argc, char **argv) {
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "starting cwebsocket");
 
+	websocket.uri = argv[1];
+	websocket.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
+	websocket.retry = 5;                              // OPTIONAL - seconds to wait before retrying
 	websocket.onopen = &onopen;
 	websocket.onmessage = &onmessage;
 	websocket.onclose = &onclose;
 	websocket.onerror = &onerror;
-
-	if(cwebsocket_connect(&websocket, argv[1]) == -1) {
+	
+	cwebsocket_init();
+	if(cwebsocket_connect(&websocket) == -1) {
            perror("unable to connect to remote websocket server");
            return -1;
 	}
