@@ -606,7 +606,10 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 		    args->socket = websocket;
 		    args->message = message;
 
-		    pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
+		    if(pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args) == -1) {
+		    	syslog(LOG_ERR, "cwebsocket_read_data: %s", strerror(errno));
+		    	return -1;
+		    }
 		    return bytes_read;
 #else
 		    cwebsocket_message message = {0};
@@ -641,7 +644,10 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			args->socket = websocket;
 			args->message = message;
 
-			pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args);
+			if(pthread_create(&websocket->thread, NULL, cwebsocket_onmessage_thread, (void *)args) == -1) {
+				syslog(LOG_ERR, "cwebsocket_read_data: %s", strerror(errno));
+				return -1;
+			}
 			return bytes_read;
 #else
 			cwebsocket_message message;
