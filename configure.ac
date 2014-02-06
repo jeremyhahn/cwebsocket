@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([cwebsocket], [0.01], [root@localhost])
 AM_INIT_AUTOMAKE([1.9 foreign])
-AC_CONFIG_SRCDIR([src/main.c])
+AC_CONFIG_SRCDIR([src/client.c])
 AC_CONFIG_HEADERS([config.h])
 
 if test -z $CFLAGS; then

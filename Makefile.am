@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 bin_PROGRAMS = websocket-client
-websocket_client_SOURCES = src/utf8.h src/utf8.c src/cwebsocket.h src/cwebsocket.c src/main.c
+websocket_client_SOURCES = src/websocket/utf8.h src/websocket/utf8.c src/websocket/cwebsocket_client.h src/websocket/cwebsocket_client.c src/client.c
 
 #LDFLAGS = -L/usr/local/lib -lcrypto
 

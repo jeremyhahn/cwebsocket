@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <signal.h>
-#include "cwebsocket.h"
+#include "websocket/cwebsocket_client.h"
 
 cwebsocket_client websocket_client;
 
@@ -79,24 +79,9 @@ void signal_handler(int sig) {
 
 void print_program_header() {
 
-	fprintf(stderr, "****************************************************************************\n");
-	fprintf(stderr, "* cwebsocket: A fast, lightweight websocket client/server                  *\n");
-	fprintf(stderr, "*                                                                          *\n");
-	fprintf(stderr, "* Copyright (c) 2014 Jeremy Hahn                                           *\n");
-	fprintf(stderr, "*                                                                          *\n");
-	fprintf(stderr, "* cwebsocket is free software: you can redistribute it and/or modify       *\n");
-	fprintf(stderr, "* it under the terms of the GNU Lesser General Public License as published *\n");
-	fprintf(stderr, "* by the Free Software Foundation, either version 3 of the License, or     *\n");
-	fprintf(stderr, "* (at your option) any later version.                                      *\n");
-	fprintf(stderr, "*                                                                          *\n");
-	fprintf(stderr, "* cwebsocket is distributed in the hope that it will be useful,            *\n");
-	fprintf(stderr, "* but WITHOUT ANY WARRANTY; without even the implied warranty of           *\n");
-	fprintf(stderr, "* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *\n");
-	fprintf(stderr, "* GNU Lesser General Public License for more details.                      *\n");
-	fprintf(stderr, "*                                                                          *\n");
-	fprintf(stderr, "* You should have received a copy of the GNU Lesser General Public License *\n");
-	fprintf(stderr, "* along with cwebsocket.  If not, see <http://www.gnu.org/licenses/>.      *\n");
-	fprintf(stderr, "****************************************************************************\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, " cwebsocket: A fast, lightweight websocket client/server\n");
+	fprintf(stderr, "                          Copyright (c) 2014 Jeremy Hahn\n");
 	fprintf(stderr, "\n");
 }
 

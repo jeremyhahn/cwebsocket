@@ -22,7 +22,7 @@
  *  THE SOFTWARE.
  */
 
-#include "cwebsocket.h"
+#include "cwebsocket_client.h"
 
 void cwebsocket_init() {
 	const rlim_t kStackSize = STACK_SIZE_MIN * 1024 * 1024;
