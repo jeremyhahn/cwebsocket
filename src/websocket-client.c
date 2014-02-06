@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <signal.h>
-#include "websocket/cwebsocket_client.h"
+#include "cwebsocket/client.h"
 
 cwebsocket_client websocket_client;
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
-	syslog(LOG_DEBUG, "starting cwebsocket");
+	syslog(LOG_DEBUG, "starting cwebsocket client");
 
 	websocket_client.onopen = &onopen;
 	websocket_client.onmessage = &onmessage;

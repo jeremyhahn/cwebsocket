@@ -4,10 +4,9 @@
 
 ###### Fast, lightweight websocket server/client.
 
-The goal of cwebsocket is to provide a simple, lightweight, high performance websocket solution that's
-efficient enough to run well on low power embedded systems.
+The goal of cwebsocket is to provide a simple, lightweight, high performance websocket client/server optimized for low power embedded systems.
 
-cwebsocket is currently in a development state. You may encounter bugs. Report them for a timely fix.
+cwebsocket is currently in a development state. You may encounter bugs. Report them in the issues section for a timely fix.
 
 Successful tests have been conducted on the following architectures:
 
@@ -43,7 +42,7 @@ Without SSL:
 The websocket client is able to connect and exchange data with any RFC 6455 compliant server.
 
 ```C
-#include "cwebsocket.h"
+#include "cwebsocket/client.h"
 
 cwebsocket_client websocket;
 
@@ -54,7 +53,6 @@ void onopen(cwebsocket_client *websocket) {
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
 	syslog(LOG_DEBUG, "onmessage: socket_fd=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
 			websocket->socket, message->opcode, message->payload_len, message->payload);
-
 }
 
 void onclose(cwebsocket_client *websocket, const char *message) {
@@ -103,4 +101,11 @@ int main(int argc, char **argv) {
 
 	./websocket-client ws://echo.websocket.org
 	./websocket-client wss://echo.websocket.org
+
+### TODO
+
+1. More testing on various embedded devices
+2. Implement pluggable sub-protocols (socketio, WAMP, custom)
+3. Implement pluggable extensions on the client per RFC (section 9)
+4. Get a basic websocket server developed
 

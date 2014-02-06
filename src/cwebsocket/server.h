@@ -21,3 +21,19 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+
+#ifndef CWEBSOCKET_SERVER_H_
+#define CWEBSOCKET_SERVER_H_
+
+#include "common.h"
+
+typedef struct {
+	int socket;
+	int port;
+	uint8_t flags;
+} cwebsocket_server;
+
+int cwebsocket_connect(cwebsocket_server *websocket);
+int cwebsocket_close(cwebsocket_server *websocket);
+
+#endif
