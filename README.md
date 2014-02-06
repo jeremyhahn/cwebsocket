@@ -25,31 +25,18 @@ cwebsocket is compliant with the following standards:
 
 By default, cwebsocket is built with SSL support for multi-threaded, 64-bit architectures. To build, run:
 
+	./autogen.sh
+	./configure
 	make
-
-To build a shared object library (libcwebsocket.so), run:
-
-	make so
-
-##### Customizing/Optimizing Build
+	sudo make install
 
 Without threads:
 
-	make NOTHREADS=1
+	./configure --enable-threads=no
 
 Without SSL:
 
-	make NOSSL=1
-
-Target 32-bit architecture:
-
-	make PLATFORM=x86
-
-Target ARM architecture:
-
-	make PLATFORM=arm
-
-> NOTE: 32-bit architectures are limited to a max payload size of 65536 byte frames.
+	./configure --enable-ssl=no
 
 ### Client
 
