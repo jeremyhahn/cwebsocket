@@ -126,8 +126,8 @@ int main(int argc, char **argv) {
 
 	cwebsocket_init();
 	websocket_client.uri = argv[1];
-	websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
-	websocket_client.retry = 5;                              // OPTIONAL - seconds to wait before retrying
+	//websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
+	//websocket_client.retry = 5;                              // OPTIONAL - seconds to wait before retrying
 	if(cwebsocket_connect(&websocket_client) == -1) {
 		return main_exit(EXIT_FAILURE);
 	}
