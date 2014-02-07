@@ -42,6 +42,16 @@
 #include <openssl/buffer.h>
 #include "utf8.h"
 
+#ifdef USESSL
+	#include <openssl/rand.h>
+	#include <openssl/ssl.h>
+	#include <openssl/err.h>
+#endif
+
+#ifdef THREADED
+	#include <pthread.h>
+#endif
+
 #ifndef HANDSHAKE_BUFFER_MAX
 	#define HANDSHAKE_BUFFER_MAX 256  // bytes
 #endif

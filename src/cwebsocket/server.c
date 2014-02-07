@@ -27,12 +27,7 @@
 int cwebsocket_connect(cwebsocket_server *websocket) {
 
 	struct sockaddr_in srvaddr;
-
-	char buffer[DATA_BUFFER_MAX];
-	time_t ticks;
-
 	memset(&srvaddr, 0, sizeof(srvaddr));
-	memset(buffer, 0, sizeof(buffer));
 
 	websocket->socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(websocket->socket == -1) {
@@ -54,8 +49,72 @@ int cwebsocket_connect(cwebsocket_server *websocket) {
 		return -1;
 	}
 
+	if(listen(websocket->socket, CWS_MAX_QUEUED_CONNECTIONS) == -1) {
+		syslog(LOG_ERR, "cwebsocket_connect: unable to set maximum queued connections: %s", strerror(errno));
+		return -1;
+	}
+
+	struct ev_io w_accept;
+	struct ev_loop *loop = ev_default_loop(0);
+	ev_io_init(&w_accept, cwebsocket_accept, websocket->socket, EV_READ);
+	ev_io_start(loop, &w_accept);
+
+	while(1) {
+		ev_loop(loop, 0);
+	}
+
 	syslog(LOG_DEBUG, "cwebsocket_connect: connected");
 
+	return 0;
+}
+
+int cwebsocket_accept(struct ev_loop *loop, struct ev_io *watcher, int revents) {
+
+	struct sockaddr_in client_addr;
+	socklen_t client_len = sizeof(client_addr);
+	struct ev_io *w_client = (struct ev_io*) malloc (sizeof(struct ev_io));
+
+	if(EV_ERROR & revents) {
+		syslog(LOG_ERR, "cwebsocket_accept: received invalid event");
+		return -1;
+	}
+
+	int fd = accept(watcher->fd, (struct sockaddr *)&client_addr, &client_len);
+	if(fd == -1) {
+		syslog(LOG_ERR, "cwebsocket_accept: %s", strerror(errno));
+		return -1;
+	}
+
+	syslog(LOG_DEBUG, "cwebsocket_accept: connection accepted");
+
+	ev_io_init(w_client, cwebsocket_read_handshake, fd, EV_READ);
+	ev_io_start(loop, w_client);
+
+	return 0;
+}
+
+int cwebsocket_read_handshake(struct ev_loop *loop, struct ev_io *watcher, int revents){
+
+	char buffer[HANDSHAKE_BUFFER_MAX] = {0};
+
+	if(EV_ERROR & revents) {
+		syslog(LOG_ERR, "cwebsocket_accept: received invalid event");
+		return -1;
+	}
+
+	ssize_t bytes_read = read(watcher->fd, buffer, HANDSHAKE_BUFFER_MAX);
+	if(bytes_read == -1) {
+		perror("read error");
+		return -1;
+	}
+	if(bytes_read == 0) {
+		ev_io_stop(loop, watcher);
+		free(watcher);
+		syslog(LOG_ERR, "cwebsocket_read_handshake: client closed the connection");
+		return -1;
+	}
+
+	syslog(LOG_DEBUG, "cwebsocket_read_handshake: %s", buffer);
 	return 0;
 }
 

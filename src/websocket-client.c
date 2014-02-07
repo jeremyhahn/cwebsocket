@@ -22,7 +22,6 @@
  *  THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <signal.h>
 #include "cwebsocket/client.h"
 
@@ -33,14 +32,8 @@ void onopen(cwebsocket_client *websocket) {
 }
 
 void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
-
-#if defined(__arm__ ) || defined(__i386__)
-	syslog(LOG_DEBUG, "onmessage: socket:%i, opcode=%#04x, payload_len=%i, payload=%s\n",
-			websocket->socket, message->opcode, message->payload_len, message->payload);
-#else
 	syslog(LOG_DEBUG, "onmessage: socket=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
 			websocket->socket, message->opcode, message->payload_len, message->payload);
-#endif
 }
 
 void onclose(cwebsocket_client *websocket, const char *message) {
@@ -50,7 +43,6 @@ void onclose(cwebsocket_client *websocket, const char *message) {
 void onerror(cwebsocket_client *websocket, const char *message) {
 	syslog(LOG_DEBUG, "onerror: message=%s", message);
 }
-
 
 int main_exit(int exit_status) {
 	syslog(LOG_DEBUG, "exiting cwebsocket");
@@ -62,7 +54,6 @@ void signal_handler(int sig) {
 	switch(sig) {
 		case SIGHUP:
 			syslog(LOG_DEBUG, "Received SIGHUP signal");
-			// Reload config and reopen files
 			break;
 		case SIGINT:
 		case SIGTERM:
@@ -78,11 +69,15 @@ void signal_handler(int sig) {
 }
 
 void print_program_header() {
-
-	fprintf(stderr, "\n");
-	fprintf(stderr, " cwebsocket: A fast, lightweight websocket client/server\n");
-	fprintf(stderr, "                          Copyright (c) 2014 Jeremy Hahn\n");
-	fprintf(stderr, "\n");
+	printf("\n");
+	printf("                      ______                    ______      _____ \n");
+    printf(" _________      _________  /_______________________  /________  /_\n");
+    printf(" _  ___/_ | /| / /  _ \\_  __ \\_  ___/  __ \\  ___/_  //_/  _ \\  __/\n");
+    printf(" / /__ __ |/ |/ //  __/  /_/ /(__  )/ /_/ / /__ _  ,<  /  __/ /_  \n");
+    printf(" \\___/ ____/|__/ \\___//_.___//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
+    printf("\n");
+    printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
+	printf("\n");
 }
 
 void print_program_usage(const char *progname) {

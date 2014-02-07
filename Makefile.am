@@ -4,22 +4,11 @@ bin_PROGRAMS = websocket-client websocket-server
 websocket_client_SOURCES = src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/client.h src/cwebsocket/client.c src/websocket-client.c
 websocket_server_SOURCES = src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/server.h src/cwebsocket/server.c src/websocket-server.c
 
-#LDFLAGS = -L/usr/local/lib -lcrypto
+AM_CFLAGS= -Wall -O3
+LDFLAGS=
 
 if DEBUG
-  AM_CFLAGS = -Wall -g3
-else
-  AM_CFLAGS = -Wall -03
-endif
-
-if THREADED
-  AM_CFLAGS += -pthread -DTHREADED
-  LDFLAGS += -lpthread
-endif
-
-if USESSL
-  AM_CFLAGS += -DUSESSL
-  LDFLAGS += -lssl
+  AM_CFLAGS += -g3
 endif
 
 clean:

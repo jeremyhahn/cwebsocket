@@ -34,16 +34,6 @@
 #include <sys/resource.h>
 #include "common.h"
 
-#ifdef USESSL
-	#include <openssl/rand.h>
-	#include <openssl/ssl.h>
-	#include <openssl/err.h>
-#endif
-
-#ifdef THREADED
-	#include <pthread.h>
-#endif
-
 #define WEBSOCKET_STATE_CONNECTING   (1 << 0)
 #define WEBSOCKET_STATE_CONNECTED    (1 << 1)
 #define WEBSOCKET_STATE_OPEN         (1 << 2)

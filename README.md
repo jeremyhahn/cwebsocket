@@ -6,7 +6,7 @@
 
 The goal of cwebsocket is to provide a simple, lightweight, high performance websocket client/server optimized for low power embedded systems.
 
-cwebsocket is currently in a development state. You may encounter bugs. Report them in the issues section for a timely fix.
+cwebsocket is currently in a development state. You may encounter bugs. Report them for a timely fix.
 
 Successful tests have been conducted on the following architectures:
 
@@ -22,18 +22,20 @@ cwebsocket is compliant with the following standards:
 
 ### Build
 
-By default, cwebsocket is built with SSL support for multi-threaded, 64-bit architectures. To build, run:
+By defaults, cwebsocket is built with multi-threading and SSL support. 
+
+To build, run:
 
 	./autogen.sh
 	./configure
 	make
 	sudo make install
 
-Without threads:
+To built without multi-threading:
 
 	./configure --enable-threads=no
 
-Without SSL:
+To build without SSL:
 
 	./configure --enable-ssl=no
 

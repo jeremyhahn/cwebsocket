@@ -32,6 +32,10 @@ AC_CHECK_LIB([pthread], [main],, AC_MSG_ERROR($missing_library))
 PKG_CHECK_MODULES([pthread], [pthread], [have_libpthread=yes], [have_libpthread=no])
 AM_CONDITIONAL([PTHREAD],  [test "$have_libpthread" = "yes"])
 
+AC_CHECK_LIB([ev], [main],, AC_MSG_ERROR($missing_library))
+PKG_CHECK_MODULES([ev], [ev], [have_libev=yes], [have_libev=no])
+AM_CONDITIONAL([EV],  [test "$have_libev" = "yes"])
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h syslog.h unistd.h])
 

@@ -25,7 +25,16 @@
 #ifndef CWEBSOCKET_SERVER_H_
 #define CWEBSOCKET_SERVER_H_
 
+#include <ev.h>
 #include "common.h"
+
+#ifndef CWS_MAX_CONNECTIONS
+	#define CWS_MAX_CONNECTIONS 1024
+#endif
+
+#ifndef CWS_MAX_QUEUED_CONNECTIONS
+	#define CWS_MAX_QUEUED_CONNECTIONS 100
+#endif
 
 typedef struct {
 	int socket;
@@ -33,7 +42,18 @@ typedef struct {
 	uint8_t flags;
 } cwebsocket_server;
 
+typedef struct {
+	int socket;
+#ifdef THREADED
+	pthread_t thread;
+	pthread_mutex_t lock;
+#endif
+} cwebsocket_connection;
+
 int cwebsocket_connect(cwebsocket_server *websocket);
+int cwebsocket_accept(struct ev_loop *loop, struct ev_io *watcher, int revents);
+int cwebsocket_read_handshake(struct ev_loop *loop, struct ev_io *watcher, int revents);
+int cwebsocket_read_data(struct ev_loop *loop, struct ev_io *watcher, int revents);
 int cwebsocket_close(cwebsocket_server *websocket);
 
 #endif

@@ -44,11 +44,15 @@ void signal_handler(int sig) {
 }
 
 void print_program_header() {
-
-	fprintf(stderr, "\n");
-	fprintf(stderr, " cwebsocket: A fast, lightweight websocket client/server\n");
-	fprintf(stderr, "                          Copyright (c) 2014 Jeremy Hahn\n");
-	fprintf(stderr, "\n");
+	printf("\n");
+	printf("                      ______                    ______      _____ \n");
+    printf(" _________      _________  /_______________________  /________  /_\n");
+    printf(" _  ___/_ | /| / /  _ \\_  __ \\_  ___/  __ \\  ___/_  //_/  _ \\  __/\n");
+    printf(" / /__ __ |/ |/ //  __/  /_/ /(__  )/ /_/ / /__ _  ,<  /  __/ /_  \n");
+    printf(" \\___/ ____/|__/ \\___//_.___//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
+    printf("\n");
+    printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
+	printf("\n");
 }
 
 void print_program_usage(const char *progname) {
@@ -58,6 +62,8 @@ void print_program_usage(const char *progname) {
 }
 
 int main(int argc, char **argv) {
+
+	print_program_header();
 
 	websocket_server.port = 8080;
 
