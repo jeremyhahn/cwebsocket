@@ -25,7 +25,7 @@
 #include "client.h"
 
 void cwebsocket_init() {
-	const rlim_t kStackSize = STACK_SIZE_MIN * 1024 * 1024;
+	const rlim_t kStackSize = CWS_STACK_SIZE_MIN * 1024 * 1024;
 	struct rlimit rl;
 	int result;
 	result = getrlimit(RLIMIT_STACK, &rl);
@@ -287,10 +287,6 @@ int cwebsocket_connect(cwebsocket_client *websocket) {
 		return -1;
 	}
 
-	if(websocket->onopen != NULL) {
-	   websocket->onopen(websocket);
-	}
-
 #ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_OPEN;
@@ -298,6 +294,10 @@ int cwebsocket_connect(cwebsocket_client *websocket) {
 #else
 	websocket->state = WEBSOCKET_STATE_OPEN;
 #endif
+
+	if(websocket->onopen != NULL) {
+	   websocket->onopen(websocket);
+	}
 
 	return 0;
 }
@@ -341,27 +341,19 @@ int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *hands
 				}
 			}
 			if(strcasecmp(token, "Sec-WebSocket-Accept:") == 0) {
-				const char *GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-				const int seckey_len = strlen(seckey);
-				const int total_len = seckey_len + 36;
-				char sha1buf[total_len];
-				memcpy(sha1buf, seckey, seckey_len);
-				memcpy(&sha1buf[seckey_len], GUID, 36);
-		        unsigned char sha1_bytes[20];
-		        SHA1((const unsigned char *)sha1buf, total_len, sha1_bytes);
-		        char* base64_encoded = cwebsocket_base64_encode((const unsigned char *)sha1_bytes, sizeof(sha1_bytes));
-				if(strcmp(ptr+1, base64_encoded) != 0) {
+				char* response = cwebsocket_create_key_challenge_response(seckey);
+				if(strcmp(ptr+1, response) != 0) {
 					free(seckey);
 					if(websocket->onerror != NULL) {
 						char errmsg[255];
-						sprintf(errmsg, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 checksum. expected=%s, got=%s", base64_encoded, ptr+1);
+						sprintf(errmsg, "cwebsocket_handshake_handler: Sec-WebSocket-Accept header does not match computed sha1/base64 response. expected=%s, actual=%s", response, ptr+1);
 				        websocket->onerror(websocket, errmsg);
-				        free(base64_encoded);
+				        free(response);
 					    return -1;
 					}
 					return -1;
 				}
-				free(base64_encoded);
+				free(response);
 				free(seckey);
 			}
 		}
@@ -375,8 +367,8 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 
 	int byte, tmplen = 0;
 	uint32_t bytes_read = 0;
-	uint8_t data[HANDSHAKE_BUFFER_MAX];
-	memset(data, 0, HANDSHAKE_BUFFER_MAX);
+	uint8_t data[CWS_HANDSHAKE_BUFFER_MAX];
+	memset(data, 0, CWS_HANDSHAKE_BUFFER_MAX);
 
 	while(1) {
 
@@ -390,8 +382,8 @@ int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey) {
 			}
 			return -1;
 		}
-		if(bytes_read == HANDSHAKE_BUFFER_MAX) {
-			syslog(LOG_ERR, "cwebsocket_read_handshake: handshake response too large. HANDSHAKE_BUFFER_MAX = %i bytes.", HANDSHAKE_BUFFER_MAX);
+		if(bytes_read == CWS_HANDSHAKE_BUFFER_MAX) {
+			syslog(LOG_ERR, "cwebsocket_read_handshake: handshake response too large. CWS_HANDSHAKE_BUFFER_MAX = %i bytes.", CWS_HANDSHAKE_BUFFER_MAX);
 			if(websocket->onerror != NULL) {
 				websocket->onerror(websocket, "handshake response too large");
 			}
@@ -474,7 +466,7 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 	int bytes_read = 0;                         // Current byte counter
 	int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
 	int extended_payload_length;                // Stores the extended payload length bits, if present
-	uint8_t data[DATA_BUFFER_MAX];              // Data stream buffer
+	uint8_t data[CWS_DATA_BUFFER_MAX];              // Data stream buffer
 	cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
 	memset(&frame, 0, sizeof frame);
 
@@ -484,9 +476,9 @@ int cwebsocket_read_data(cwebsocket_client *websocket) {
 			return -1;
 		}
 
-		if(bytes_read == DATA_BUFFER_MAX) {
+		if(bytes_read == CWS_DATA_BUFFER_MAX) {
 				syslog(LOG_ERR, "cwebsocket_read_data: frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i",
-						DATA_BUFFER_MAX, bytes_read, header_length);
+						CWS_DATA_BUFFER_MAX, bytes_read, header_length);
 
 				if(websocket->onerror != NULL) {
 					websocket->onerror(websocket, "frame too large");

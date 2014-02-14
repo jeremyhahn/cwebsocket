@@ -25,8 +25,6 @@
 #include <signal.h>
 #include "cwebsocket/server.h"
 
-cwebsocket_server websocket_server;
-
 void signal_handler(int sig) {
 	switch(sig) {
 		case SIGHUP:
@@ -52,11 +50,11 @@ void print_program_header() {
     printf(" \\___/ ____/|__/ \\___//_.___//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
     printf("\n");
     printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
+    printf("                                   mail@jeremyhahn.com           \n");
 	printf("\n");
 }
 
 void print_program_usage(const char *progname) {
-
 	fprintf(stderr, "usage: %s -p 8080\n\n", progname);
 	exit(0);
 }
@@ -65,19 +63,30 @@ int main(int argc, char **argv) {
 
 	print_program_header();
 
-	websocket_server.port = 8080;
+	cwebsocket_server *server = cwebsocket_server_new();
+	server->port = 8080;
 
-	// Parse command line arguments
 	size_t i;
-	for (i = 0; i < argc; i++) {
+	for(i = 0; i < argc; i++) {
 		char const *option =  argv[i];
 		if(option[0] == '-') {
-			switch (option[1]) {
+			switch(option[1]) {
 				case 'p':
-					websocket_server.port = atoi(argv[i+1]);
+					server->port = atoi(argv[i+1]);
+					if(server->port < 0 || server->port > 65535) {
+						perror("invalid port number\n");
+						return -1;
+					}
+					break;
+				case 'c':
+					server->cores = atoi(argv[i+1]);
+					if(server->cores < 0) {
+						perror("server cores must be greater than zero\n");
+						return -1;
+					}
 					break;
 				default:
-					printf("invalid option: %s", option);
+					printf("invalid option: %s\n", option);
 					break;
 			}
 		}
@@ -105,10 +114,11 @@ int main(int argc, char **argv) {
 
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
-	syslog(LOG_DEBUG, "starting cwebsocket server on port %i", websocket_server.port);
+	syslog(LOG_DEBUG, "starting cwebsocket server on port %i", server->port);
 
-	cwebsocket_connect(&websocket_server);
-	cwebsocket_close(&websocket_server);
+	cwebsocket_server_connect(server);
+	cwebsocket_server_close(server);
+	free(server);
 
 	return EXIT_SUCCESS;
 }

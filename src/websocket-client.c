@@ -77,6 +77,7 @@ void print_program_header() {
     printf(" \\___/ ____/|__/ \\___//_.___//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
     printf("\n");
     printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
+    printf("                                   mail@jeremyhahn.com           \n");
 	printf("\n");
 }
 

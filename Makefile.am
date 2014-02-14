@@ -5,7 +5,6 @@ websocket_client_SOURCES = src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwe
 websocket_server_SOURCES = src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/server.h src/cwebsocket/server.c src/websocket-server.c
 
 AM_CFLAGS= -Wall -O3
-LDFLAGS=
 
 if DEBUG
   AM_CFLAGS += -g3

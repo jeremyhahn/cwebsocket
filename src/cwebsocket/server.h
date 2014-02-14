@@ -22,8 +22,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef CWEBSOCKET_SERVER_H_
-#define CWEBSOCKET_SERVER_H_
+#ifndef cwebsocket_server_SERVER_H_
+#define cwebsocket_server_SERVER_H_
 
 #include <ev.h>
 #include "common.h"
@@ -36,24 +36,38 @@
 	#define CWS_MAX_QUEUED_CONNECTIONS 100
 #endif
 
+#ifndef CWS_MAX_CONNECTIONS
+	#define CWS_MAX_CONNECTIONS 1000000
+#endif
+
+typedef struct {
+	int websocket;
+	uint8_t state;
+	pthread_t thread;
+	pthread_mutex_t write_lock;
+} cwebsocket_connection;
+
 typedef struct {
 	int socket;
 	int port;
 	uint8_t flags;
+	int cores;                       // logical
+	struct ev_loop *ev_accept_loop;
+	struct ev_io ev_accept;
+	int connections;
+	pthread_mutex_t lock;
+	//cwebsocket_protocol protocols[];
 } cwebsocket_server;
 
-typedef struct {
-	int socket;
-#ifdef THREADED
-	pthread_t thread;
-	pthread_mutex_t lock;
-#endif
-} cwebsocket_connection;
+cwebsocket_server *websocket_server;
 
-int cwebsocket_connect(cwebsocket_server *websocket);
-int cwebsocket_accept(struct ev_loop *loop, struct ev_io *watcher, int revents);
-int cwebsocket_read_handshake(struct ev_loop *loop, struct ev_io *watcher, int revents);
-int cwebsocket_read_data(struct ev_loop *loop, struct ev_io *watcher, int revents);
-int cwebsocket_close(cwebsocket_server *websocket);
+cwebsocket_server* cwebsocket_server_new();
+int cwebsocket_server_connect(cwebsocket_server *websocket);
+int cwebsocket_server_accept(struct ev_loop *loop, struct ev_io *watcher, int revents);
+void* cwebsocket_server_accept_thread(void *ptr);
+int cwebsocket_server_read_handshake(cwebsocket_connection *connection);
+int cwebsocket_server_read_handshake_handler(cwebsocket_connection *connection, const char *handshake);
+int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection, const char *seckey);
+int cwebsocket_server_close(cwebsocket_server *websocket);
 
 #endif

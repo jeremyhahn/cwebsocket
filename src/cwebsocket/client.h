@@ -22,11 +22,10 @@
  *  THE SOFTWARE.
  */
 
-#ifndef WEBSOCKET_CLIENT_H
-#define WEBSOCKET_CLIENT_H
+#ifndef CWEBSOCKET_CLIENT_H
+#define CWEBSOCKET_CLIENT_H
 
 #include <time.h>
-#include <fcntl.h>
 #include <ctype.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -34,13 +33,6 @@
 #include <sys/resource.h>
 #include "common.h"
 
-#define WEBSOCKET_STATE_CONNECTING   (1 << 0)
-#define WEBSOCKET_STATE_CONNECTED    (1 << 1)
-#define WEBSOCKET_STATE_OPEN         (1 << 2)
-#define WEBSOCKET_STATE_CLOSING      (1 << 3)
-#define WEBSOCKET_STATE_CLOSED       (1 << 4)
-
-#define WEBSOCKET_FLAG_SSL           (1 << 0)
 #define WEBSOCKET_FLAG_AUTORECONNECT (1 << 1)
 
 typedef struct _cwebsocket {
