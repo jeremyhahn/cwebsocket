@@ -40,6 +40,7 @@ typedef struct _cwebsocket {
 	int retry;
 	char *uri;
 	uint8_t flags;
+	uint8_t state;
 #ifdef USESSL
 	SSL_CTX *sslctx;
 	SSL *ssl;
@@ -49,11 +50,8 @@ typedef struct _cwebsocket {
 	pthread_mutex_t lock;
 	pthread_mutex_t write_lock;
 #endif
-	uint8_t state;
-	void (*onopen)(struct _cwebsocket *);
-	void (*onmessage)(struct _cwebsocket *, cwebsocket_message *message);
-	void (*onclose)(struct _cwebsocket *, const char *message);
-	void (*onerror)(struct _cwebsocket *, const char *error);
+	cwebsocket_subprotocol *subprotocol;
+	cwebsocket_subprotocol subprotocols[];
 } cwebsocket_client;
 
 typedef struct {
@@ -62,20 +60,24 @@ typedef struct {
 } cwebsocket_thread_args;
 
 // "public"
-void cwebsocket_init();
-int cwebsocket_connect(cwebsocket_client *websocket);
-int cwebsocket_read_data(cwebsocket_client *websocket);
-ssize_t cwebsocket_write_data(cwebsocket_client *websocket, const char *data, int len);
-void cwebsocket_run(cwebsocket_client *websocket);
-void cwebsocket_close(cwebsocket_client *websocket, const char *message);
-void cwebsocket_listen(cwebsocket_client *websocket);
+void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol subprotocols[], int subprotocol_len);
+int cwebsocket_client_connect(cwebsocket_client *websocket);
+int cwebsocket_client_read_data(cwebsocket_client *websocket);
+ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len);
+void cwebsocket_client_run(cwebsocket_client *websocket);
+void cwebsocket_client_close(cwebsocket_client *websocket, const char *message);
+void cwebsocket_client_listen(cwebsocket_client *websocket);
 
 // "private"
-void cwebsocket_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
-int cwebsocket_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
-int cwebsocket_read_handshake(cwebsocket_client *websocket, char *seckey);
-int cwebsocket_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload);
-ssize_t inline cwebsocket_read(cwebsocket_client *websocket, void *buf, int len);
-ssize_t inline cwebsocket_write(cwebsocket_client *websocket, void *buf, int len);
+void cwebsocket_client_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
+int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
+int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey);
+int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload);
+ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
+ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);
+void cwebsocket_client_onopen(cwebsocket_client *websocket);
+void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_message *message);
+void cwebsocket_client_onclose(cwebsocket_client *websocket, const char *message);
+void cwebsocket_client_onerror(cwebsocket_client *websocket, const char *error);
 
 #endif

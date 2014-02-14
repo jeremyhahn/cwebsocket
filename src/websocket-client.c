@@ -27,21 +27,25 @@
 
 cwebsocket_client websocket_client;
 
-void onopen(cwebsocket_client *websocket) {
-	syslog(LOG_DEBUG, "onconnect: websocket file descriptor: %i", websocket->socket);
+void onopen(void *websocket) {
+	cwebsocket_client *client = (cwebsocket_client *)websocket;
+	syslog(LOG_DEBUG, "onconnect: websocket file descriptor: %i", client->socket);
 }
 
-void onmessage(cwebsocket_client *websocket, cwebsocket_message *message) {
+void onmessage(void *websocket, cwebsocket_message *message) {
+	cwebsocket_client *client = (cwebsocket_client *)websocket;
 	syslog(LOG_DEBUG, "onmessage: socket=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
-			websocket->socket, message->opcode, message->payload_len, message->payload);
+			client->socket, message->opcode, message->payload_len, message->payload);
 }
 
-void onclose(cwebsocket_client *websocket, const char *message) {
-	syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, message: %s", websocket->socket, message);
+void onclose(void *websocket, const char *message) {
+	cwebsocket_client *client = (cwebsocket_client *)websocket;
+	syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, message: %s", client->socket, message);
 }
 
-void onerror(cwebsocket_client *websocket, const char *message) {
-	syslog(LOG_DEBUG, "onerror: message=%s", message);
+void onerror(void *websocket, const char *message) {
+	cwebsocket_client *client = (cwebsocket_client *)websocket;
+	syslog(LOG_DEBUG, "onerror: websocket file descriptor: %i, message=%s", client->socket, message);
 }
 
 int main_exit(int exit_status) {
@@ -58,7 +62,7 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
-			cwebsocket_close(&websocket_client, "SIGINT/SIGTERM");
+			cwebsocket_client_close(&websocket_client, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
 			exit(0);
 			break;
@@ -82,17 +86,21 @@ void print_program_header() {
 }
 
 void print_program_usage(const char *progname) {
-
 	fprintf(stderr, "usage: [uri]\n");
 	fprintf(stderr, "example: %s ws://echo.websocket.org\n\n", progname);
 	exit(0);
 }
 
 void run_websocket_org_echo_test(cwebsocket_client *websocket) {
-
 	const char *message1 = "WebSocket Works!";
-	cwebsocket_write_data(&websocket_client, message1, strlen(message1));
-	cwebsocket_read_data(websocket);
+	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1));
+	cwebsocket_client_read_data(websocket);
+}
+
+void run_echo_subprotocol_test(cwebsocket_client *websocket) {
+	const char *message1 = "WebSocket Works!";
+	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1));
+	cwebsocket_client_read_data(websocket);
 }
 
 int main(int argc, char **argv) {
@@ -124,21 +132,26 @@ int main(int argc, char **argv) {
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
-	websocket_client.onopen = &onopen;
-	websocket_client.onmessage = &onmessage;
-	websocket_client.onclose = &onclose;
-	websocket_client.onerror = &onerror;
+	cwebsocket_subprotocol default_protocol;
+	default_protocol.name = "default.cwebsocket.local";
+	default_protocol.onopen = &onopen;
+	default_protocol.onmessage = &onmessage;
+	default_protocol.onclose = &onclose;
+	default_protocol.onerror = &onerror;
 
-	cwebsocket_init();
+	cwebsocket_subprotocol subprotocols[1];
+	subprotocols[0] = default_protocol;
+
+	cwebsocket_client_init(&websocket_client, subprotocols, 1);
 	websocket_client.uri = argv[1];
 	//websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
 	//websocket_client.retry = 5;                              // OPTIONAL - seconds to wait before retrying
-	if(cwebsocket_connect(&websocket_client) == -1) {
+	if(cwebsocket_client_connect(&websocket_client) == -1) {
 		return main_exit(EXIT_FAILURE);
 	}
 
 	run_websocket_org_echo_test(&websocket_client);
 
-	cwebsocket_close(&websocket_client, "main: run loop complete");
+	cwebsocket_client_close(&websocket_client, "main: run loop complete");
 	return main_exit(EXIT_SUCCESS);
 }

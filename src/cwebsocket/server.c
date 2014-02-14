@@ -231,7 +231,7 @@ int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection,
 	      "Sec-WebSocket-Accept: %s\r\n\r\n", CWS_VERSION, seckey);
 	syslog(LOG_DEBUG, "cwebsocket_server_send_handshake_response: sending Sec-WebSocket-Accept key: %s", seckey);
 	if(write(connection->websocket, buf, strlen(buf)) == -1) {
-		syslog(LOG_ERR, "cwebsocket_server_send_handshake_response: ");
+		syslog(LOG_ERR, "cwebsocket_server_send_handshake_response: %s", strerror(errno));
 		return -1;
 	}
 	connection->state |= WEBSOCKET_STATE_OPEN;

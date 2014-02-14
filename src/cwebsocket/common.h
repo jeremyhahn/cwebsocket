@@ -87,10 +87,11 @@ typedef enum {
 } opcode;
 
 typedef struct {
-	uint32_t opcode;
-	uint64_t payload_len;
-	char *payload;
-} cwebsocket_message;
+	int websocket;
+	uint8_t state;
+	pthread_t thread;
+	pthread_mutex_t write_lock;
+} cwebsocket_connection;
 
 typedef struct {
 	bool fin;
@@ -102,6 +103,20 @@ typedef struct {
 	int payload_len;
 	uint32_t masking_key[4];
 } cwebsocket_frame;
+
+typedef struct {
+	uint32_t opcode;
+	uint64_t payload_len;
+	char *payload;
+} cwebsocket_message;
+
+typedef struct {
+	char *name;
+	void (*onopen)(void *arg);
+	void (*onmessage)(void *arg, cwebsocket_message *message);
+	void (*onclose)(void *arg, const char *message);
+	void (*onerror)(void *arg, const char *error);
+} cwebsocket_subprotocol;
 
 char* cwebsocket_create_key_challenge_response(const char *seckey);
 char* cwebsocket_base64_encode(const unsigned char *input, int length);

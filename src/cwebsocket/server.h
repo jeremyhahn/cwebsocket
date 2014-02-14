@@ -40,12 +40,23 @@
 	#define CWS_MAX_CONNECTIONS 1000000
 #endif
 
-typedef struct {
-	int websocket;
+typedef struct _cwebsocket {
+	int socket;
+	int retry;
+	char *uri;
+	uint8_t flags;
 	uint8_t state;
+#ifdef USESSL
+	SSL_CTX *sslctx;
+	SSL *ssl;
+#endif
+#ifdef THREADED
 	pthread_t thread;
+	pthread_mutex_t lock;
 	pthread_mutex_t write_lock;
-} cwebsocket_connection;
+#endif
+	cwebsocket_subprotocol *subprotocol;
+} cwebsocket_client;
 
 typedef struct {
 	int socket;
@@ -56,7 +67,7 @@ typedef struct {
 	struct ev_io ev_accept;
 	int connections;
 	pthread_mutex_t lock;
-	//cwebsocket_protocol protocols[];
+	cwebsocket_subprotocol protocols[];
 } cwebsocket_server;
 
 cwebsocket_server *websocket_server;
