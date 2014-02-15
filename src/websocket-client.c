@@ -24,29 +24,9 @@
 
 #include <signal.h>
 #include "cwebsocket/client.h"
+#include "cwebsocket/subprotocol/syslog_subprotocol.h"
 
 cwebsocket_client websocket_client;
-
-void onopen(void *websocket) {
-	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "onconnect: websocket file descriptor: %i", client->socket);
-}
-
-void onmessage(void *websocket, cwebsocket_message *message) {
-	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "onmessage: socket=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
-			client->socket, message->opcode, message->payload_len, message->payload);
-}
-
-void onclose(void *websocket, const char *message) {
-	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "onclose: websocket file descriptor: %i, message: %s", client->socket, message);
-}
-
-void onerror(void *websocket, const char *message) {
-	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "onerror: websocket file descriptor: %i, message=%s", client->socket, message);
-}
 
 int main_exit(int exit_status) {
 	syslog(LOG_DEBUG, "exiting cwebsocket");
@@ -93,14 +73,15 @@ void print_program_usage(const char *progname) {
 
 void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 	const char *message1 = "WebSocket Works!";
-	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1));
-	cwebsocket_client_read_data(websocket);
+	//const char *message1 = "WebSocket Works!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1), TEXT_FRAME);
+	cwebsocket_client_read_data(&websocket_client);
 }
 
 void run_echo_subprotocol_test(cwebsocket_client *websocket) {
 	const char *message1 = "WebSocket Works!";
-	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1));
-	cwebsocket_client_read_data(websocket);
+	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1), TEXT_FRAME);
+	cwebsocket_client_read_data(&websocket_client);
 }
 
 int main(int argc, char **argv) {
@@ -132,15 +113,8 @@ int main(int argc, char **argv) {
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
-	cwebsocket_subprotocol default_protocol;
-	default_protocol.name = "default.cwebsocket.local";
-	default_protocol.onopen = &onopen;
-	default_protocol.onmessage = &onmessage;
-	default_protocol.onclose = &onclose;
-	default_protocol.onerror = &onerror;
-
-	cwebsocket_subprotocol subprotocols[1];
-	subprotocols[0] = default_protocol;
+	cwebsocket_subprotocol *subprotocols[1];
+	subprotocols[0] = cwebsocket_subprotocol_syslog_new();
 
 	cwebsocket_client_init(&websocket_client, subprotocols, 1);
 	websocket_client.uri = argv[1];
@@ -153,5 +127,6 @@ int main(int argc, char **argv) {
 	run_websocket_org_echo_test(&websocket_client);
 
 	cwebsocket_client_close(&websocket_client, "main: run loop complete");
+	free(subprotocols[0]);
 	return main_exit(EXIT_SUCCESS);
 }

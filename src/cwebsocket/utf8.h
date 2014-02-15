@@ -7,6 +7,10 @@
 // Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
 // See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UTF8_ACCEPT 0
 #define UTF8_REJECT 1
 
@@ -29,5 +33,9 @@ static const uint8_t utf8d[] = {
 
 int utf8_count_code_points(uint8_t* s, size_t* count);
 uint32_t inline utf8_decode(uint32_t* state, uint32_t* codep, uint32_t byte);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

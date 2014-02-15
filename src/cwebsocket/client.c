@@ -24,15 +24,16 @@
 
 #include "client.h"
 
-void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol subprotocols[], int subprotocol_len) {
+void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol *subprotocols[], int subprotocol_len) {
 	websocket->socket = 0;
 	websocket->retry = 0;
 	websocket->uri = '\0';
 	websocket->flags = 0 << 0;
 	websocket->state = 0 << 0;
+	websocket->subprotocol_len = subprotocol_len;
 	int i;
 	for(i=0; i<subprotocol_len; i++) {
-		syslog(LOG_DEBUG, "cwebsocket_client_init: initializing subprotocol %s\n", subprotocols[i].name);
+		syslog(LOG_DEBUG, "cwebsocket_client_init: initializing subprotocol %s\n", subprotocols[i]->name);
 		websocket->subprotocols[i] = subprotocols[i];
 	}
 	const rlim_t kStackSize = CWS_STACK_SIZE_MIN * 1024 * 1024;
@@ -324,6 +325,15 @@ int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char
 					return -1;
 				}
 			}
+			if(strcasecmp(token, "Sec-WebSocket-Protocol:") == 0) {
+				int i;
+				for(i=0; i<websocket->subprotocol_len; i++) {
+					if(strcasecmp(ptr+1, websocket->subprotocols[i]->name) == 0) {
+						websocket->subprotocol = websocket->subprotocols[i];
+						syslog(LOG_DEBUG, "cwebsocket_client_handshake_handler: setting subprotocol to %s", websocket->subprotocol->name);
+					}
+				}
+			}
 			if(strcasecmp(token, "Sec-WebSocket-Accept:") == 0) {
 				char* response = cwebsocket_create_key_challenge_response(seckey);
 				if(strcmp(ptr+1, response) != 0) {
@@ -435,7 +445,7 @@ int inline cwebsocket_client_send_control_frame(cwebsocket_client *websocket, op
 
 int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
-	size_t utf8_code_points = 0;
+	//size_t utf8_code_points = 0;
 	ssize_t byte = 0;
 	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
@@ -515,21 +525,24 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		}
 	}
 
+	//syslog(LOG_DEBUG, "cwebsocket_client_read_data: received raw data: %s\n", data);
+
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
 		uint8_t payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
 		payload[payload_length] = '\0';
 
+		/*
 		if(utf8_count_code_points(payload, &utf8_code_points)) {
 			syslog(LOG_ERR, "cwebsocket_client_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
 			cwebsocket_client_onerror(websocket, "received malformed UTF-8 payload");
 			return -1;
-		}
+		}*/
 
-		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received %i byte UTF-8 TEXT payload: %s", payload_length, payload);
+		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received %i byte text payload: %s", payload_length, payload);
 
-		if(websocket->subprotocol->onmessage != NULL) {
+		if(websocket->subprotocol != NULL && websocket->subprotocol->onmessage != NULL) {
 
 #ifdef THREADED
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
@@ -627,14 +640,15 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	return -1;
 }
 
-ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len) {
+ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code) {
 
 	if((websocket->state & WEBSOCKET_STATE_OPEN) == 0) {
 		return -1;
 	}
 
 	//websocket_frame frame;
-	uint32_t header_length = 6;           // 4 = first two bytes of header plus masking key
+	uint32_t masking_length = 4;
+	uint32_t header_length = ((len <= 125) ? 2 : (len <= 65535 ? 4 : 10)) + masking_length;
 	unsigned long long payload_len = len;
 	uint8_t header[header_length];
 	ssize_t bytes_written;
@@ -648,8 +662,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
     mask_bit = rand();
     memcpy(masking_key, &mask_bit, 4);
 
-    // Assemble first two bytes - 10000001 10000001
-	header[0] = 0x81;
+	header[0] = code | 0x80;
 	/*
 	frame.fin = ((uint8_t) 1) << 0;
 	frame.mask = ((uint8_t) 1) << 0;
@@ -661,14 +674,14 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 	frame.payload_len = payload_len;
 	*/
 
-	if(payload_len < 126) {
+	if(payload_len <= 125) {
 		header[1] = payload_len | 0x80;
 		header[2] = masking_key[0];
 		header[3] = masking_key[1];
 		header[4] = masking_key[2];
 		header[5] = masking_key[3];
 	}
-	else if(payload_len == 126) {
+	else if(payload_len <= 65535) {
 		//frame.payload_len = 126;
 		header[1] = 126;
 		header[2] = (payload_len >> 8) & 0xff;
@@ -677,11 +690,9 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[5] = masking_key[1];
 		header[6] = masking_key[2];
 		header[7] = masking_key[3];
-
 		header_length += 2;
 	}
 	else if(payload_len >= 127) {
-
 		//frame.payload_len = 127;
 		header[1] = 127;
 		header[2] = (payload_len >> 56) & 0xff;
@@ -696,7 +707,6 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[11] = masking_key[1];
 		header[12] = masking_key[2];
 		header[13] = masking_key[3];
-
 		header_length += 8;
 	}
 	else {

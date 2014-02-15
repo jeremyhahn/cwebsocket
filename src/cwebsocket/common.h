@@ -72,6 +72,10 @@
 
 #define WEBSOCKET_FLAG_SSL           (1 << 0)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
 	TRUE,
 	FALSE
@@ -85,13 +89,6 @@ typedef enum {
 	PING = 0x09,
 	PONG = 0x0A,
 } opcode;
-
-typedef struct {
-	int websocket;
-	uint8_t state;
-	pthread_t thread;
-	pthread_mutex_t write_lock;
-} cwebsocket_connection;
 
 typedef struct {
 	bool fin;
@@ -121,5 +118,9 @@ typedef struct {
 char* cwebsocket_create_key_challenge_response(const char *seckey);
 char* cwebsocket_base64_encode(const unsigned char *input, int length);
 void cwebsocket_print_frame(cwebsocket_frame *frame);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

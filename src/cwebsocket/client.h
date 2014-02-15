@@ -35,6 +35,10 @@
 
 #define WEBSOCKET_FLAG_AUTORECONNECT (1 << 1)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _cwebsocket {
 	int socket;
 	int retry;
@@ -50,8 +54,9 @@ typedef struct _cwebsocket {
 	pthread_mutex_t lock;
 	pthread_mutex_t write_lock;
 #endif
+	size_t subprotocol_len;
 	cwebsocket_subprotocol *subprotocol;
-	cwebsocket_subprotocol subprotocols[];
+	cwebsocket_subprotocol *subprotocols[];
 } cwebsocket_client;
 
 typedef struct {
@@ -60,10 +65,10 @@ typedef struct {
 } cwebsocket_thread_args;
 
 // "public"
-void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol subprotocols[], int subprotocol_len);
+void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol *subprotocols[], int subprotocol_len);
 int cwebsocket_client_connect(cwebsocket_client *websocket);
 int cwebsocket_client_read_data(cwebsocket_client *websocket);
-ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len);
+ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code);
 void cwebsocket_client_run(cwebsocket_client *websocket);
 void cwebsocket_client_close(cwebsocket_client *websocket, const char *message);
 void cwebsocket_client_listen(cwebsocket_client *websocket);
@@ -79,5 +84,9 @@ void cwebsocket_client_onopen(cwebsocket_client *websocket);
 void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_message *message);
 void cwebsocket_client_onclose(cwebsocket_client *websocket, const char *message);
 void cwebsocket_client_onerror(cwebsocket_client *websocket, const char *error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
