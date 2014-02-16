@@ -33,7 +33,7 @@ void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol
 	websocket->subprotocol_len = subprotocol_len;
 	int i;
 	for(i=0; i<subprotocol_len; i++) {
-		syslog(LOG_DEBUG, "cwebsocket_client_init: initializing subprotocol %s\n", subprotocols[i]->name);
+		syslog(LOG_DEBUG, "cwebsocket_client_init: initializing subprotocol %s", subprotocols[i]->name);
 		websocket->subprotocols[i] = subprotocols[i];
 	}
 	const rlim_t kStackSize = CWS_STACK_SIZE_MIN * 1024 * 1024;
@@ -187,13 +187,27 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		      "Connection: Upgrade\r\n"
 		      "Sec-WebSocket-Key: %s\r\n"
 		      "Sec-WebSocket-Version: 13\r\n"
-			  //"Sec-WebSocket-Protocol: chat, superchat\r\n"
-			  "\r\n", resource, hostname, seckey);
+			  ,resource, hostname, seckey);
+
+	if(websocket->subprotocol_len > 0) {
+		strcat(handshake, "Sec-WebSocket-Protocol: ");
+		for(i=0; i<websocket->subprotocol_len; i++) {
+			strcat(handshake, websocket->subprotocols[i]->name);
+			if(i<websocket->subprotocol_len) {
+				strcat(handshake, " ");
+			}
+			else {
+				strcat(handshake, "\r\n");
+			}
+		}
+	}
+
+	strcat(handshake, "\r\n\r\n");
 
 	if(getaddrinfo(hostname, port, &hints, &servinfo) != 0 ) {
 		freeaddrinfo(servinfo);
 		const char *errmsg = "invalid hostname or IP";
-		syslog(LOG_ERR, "cwebsocket_connect: %s", errmsg);
+		syslog(LOG_ERR, "cwebsocket_client_connect: %s", errmsg);
 		cwebsocket_client_onerror(websocket, errmsg);
 		return -1;
 	}
@@ -201,14 +215,14 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 	websocket->socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
 	if(websocket->socket < 0) {
 		freeaddrinfo(servinfo);
-		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
+		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		return -1;
 	}
 
 	if(connect(websocket->socket, servinfo->ai_addr, servinfo->ai_addrlen) != 0 ) {
 		freeaddrinfo(servinfo);
-		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
+		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		websocket->state = WEBSOCKET_STATE_CLOSED;
 		if(websocket->retry > 0) {
@@ -222,7 +236,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 
     int optval = 1;
     if(setsockopt(websocket->socket, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval) == -1) {
-		syslog(LOG_ERR, "cwebsocket_connect: %s", strerror(errno));
+		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		return -1;
     }
@@ -364,7 +378,7 @@ int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey)
 	uint8_t data[CWS_HANDSHAKE_BUFFER_MAX];
 	memset(data, 0, CWS_HANDSHAKE_BUFFER_MAX);
 
-	while(1) {
+	while(bytes_read <= CWS_HANDSHAKE_BUFFER_MAX) {
 
 		byte = cwebsocket_client_read(websocket, data+bytes_read, 1);
 

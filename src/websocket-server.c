@@ -24,6 +24,7 @@
 
 #include <signal.h>
 #include "cwebsocket/server.h"
+#include "cwebsocket/subprotocol/syslog_server.h"
 
 void signal_handler(int sig) {
 	switch(sig) {
@@ -47,7 +48,7 @@ void print_program_header() {
     printf(" _________      _________  /_______________________  /________  /_\n");
     printf(" _  ___/_ | /| / /  _ \\_  __ \\_  ___/  __ \\  ___/_  //_/  _ \\  __/\n");
     printf(" / /__ __ |/ |/ //  __/  /_/ /(__  )/ /_/ / /__ _  ,<  /  __/ /_  \n");
-    printf(" \\___/ ____/|__/ \\___//_.___//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
+    printf(" \\___/ ____/|__/ \\___//_____//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
     printf("\n");
     printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
     printf("                                   mail@jeremyhahn.com           \n");
@@ -63,8 +64,8 @@ int main(int argc, char **argv) {
 
 	print_program_header();
 
-	cwebsocket_server *server = cwebsocket_server_new();
-	server->port = 8080;
+	int cores = 1;
+	int port = 8080;
 
 	size_t i;
 	for(i = 0; i < argc; i++) {
@@ -72,16 +73,16 @@ int main(int argc, char **argv) {
 		if(option[0] == '-') {
 			switch(option[1]) {
 				case 'p':
-					server->port = atoi(argv[i+1]);
-					if(server->port < 0 || server->port > 65535) {
+					port = atoi(argv[i+1]);
+					if(port < 0 || port > 65535) {
 						perror("invalid port number\n");
 						return -1;
 					}
 					break;
 				case 'c':
-					server->cores = atoi(argv[i+1]);
-					if(server->cores < 0) {
-						perror("server cores must be greater than zero\n");
+					cores = atoi(argv[i+1]);
+					if(cores < 0) {
+						perror("number of cores must be greater than zero\n");
 						return -1;
 					}
 					break;
@@ -114,11 +115,14 @@ int main(int argc, char **argv) {
 
 	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
-	syslog(LOG_DEBUG, "starting cwebsocket server on port %i", server->port);
+	syslog(LOG_DEBUG, "starting cwebsocket server on port %i", port);
 
-	cwebsocket_server_connect(server);
-	cwebsocket_server_close(server);
-	free(server);
+	cwebsocket_subprotocol *subprotocols[1];
+	subprotocols[0] = cwebsocket_subprotocol_syslog_server_new();
+
+	cwebsocket_server_init(port, subprotocols, 1);
+	cwebsocket_server_listen();
+	cwebsocket_server_shutdown();
 
 	return EXIT_SUCCESS;
 }

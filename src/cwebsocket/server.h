@@ -49,6 +49,7 @@ typedef struct {
 	uint8_t state;
 	pthread_t thread;
 	pthread_mutex_t write_lock;
+	cwebsocket_subprotocol *subprotocol;
 } cwebsocket_connection;
 
 typedef struct {
@@ -60,19 +61,20 @@ typedef struct {
 	struct ev_io ev_accept;
 	int connections;
 	pthread_mutex_t lock;
-	cwebsocket_subprotocol protocols[];
+	size_t subprotocol_len;
+	cwebsocket_subprotocol *subprotocols[];
 } cwebsocket_server;
 
 cwebsocket_server *websocket_server;
 
-cwebsocket_server* cwebsocket_server_new();
-int cwebsocket_server_connect(cwebsocket_server *websocket);
+void cwebsocket_server_init(int port, cwebsocket_subprotocol *subprotocols[], int subprotocol_len);
+int cwebsocket_server_listen();
 int cwebsocket_server_accept(struct ev_loop *loop, struct ev_io *watcher, int revents);
 void* cwebsocket_server_accept_thread(void *ptr);
 int cwebsocket_server_read_handshake(cwebsocket_connection *connection);
 int cwebsocket_server_read_handshake_handler(cwebsocket_connection *connection, const char *handshake);
 int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection, const char *seckey);
-int cwebsocket_server_close(cwebsocket_server *websocket);
+int cwebsocket_server_shutdown();
 
 #ifdef __cplusplus
 }
