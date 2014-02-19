@@ -24,7 +24,7 @@
 
 #include <signal.h>
 #include "cwebsocket/server.h"
-#include "cwebsocket/subprotocol/syslog_server.h"
+#include "cwebsocket/subprotocol/echo_server.h"
 
 void signal_handler(int sig) {
 	switch(sig) {
@@ -34,6 +34,8 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
+			cwebsocket_server_shutdown();
+			perror("cwebsocket_server_shutdown() failed. forcing shutdown");
 			exit(0);
 			break;
 		default:
@@ -50,6 +52,7 @@ void print_program_header() {
     printf(" / /__ __ |/ |/ //  __/  /_/ /(__  )/ /_/ / /__ _  ,<  /  __/ /_  \n");
     printf(" \\___/ ____/|__/ \\___//_____//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
     printf("\n");
+    printf("                                   WebSocket Server              \n");
     printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
     printf("                                   mail@jeremyhahn.com           \n");
 	printf("\n");
@@ -118,7 +121,7 @@ int main(int argc, char **argv) {
 	syslog(LOG_DEBUG, "starting cwebsocket server on port %i", port);
 
 	cwebsocket_subprotocol *subprotocols[1];
-	subprotocols[0] = cwebsocket_subprotocol_syslog_server_new();
+	subprotocols[0] = cwebsocket_subprotocol_echo_server_new();
 
 	cwebsocket_server_init(port, subprotocols, 1);
 	cwebsocket_server_listen();

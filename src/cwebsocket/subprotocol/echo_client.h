@@ -26,13 +26,13 @@
 #define SYSLOG_SUBPROTOCOL_H_
 
 #include "../common.h"
-#include "../server.h"
+#include "../client.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-cwebsocket_subprotocol* cwebsocket_subprotocol_syslog_server_new();
+cwebsocket_subprotocol* cwebsocket_subprotocol_echo_client_new();
 
 #ifdef __cplusplus
 }

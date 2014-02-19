@@ -1,8 +1,9 @@
 AUTOMAKE_OPTIONS = foreign
 
-bin_PROGRAMS = websocket-client websocket-server
-websocket_client_SOURCES = src/cwebsocket/subprotocol/syslog_client.h src/cwebsocket/subprotocol/syslog_client.c src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/client.h src/cwebsocket/client.c src/websocket-client.c
-websocket_server_SOURCES = src/cwebsocket/subprotocol/syslog_server.h src/cwebsocket/subprotocol/syslog_server.c src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/server.h src/cwebsocket/server.c src/websocket-server.c
+bin_PROGRAMS = websocket-client websocket-server websocket-testsuite
+websocket_client_SOURCES = src/cwebsocket/subprotocol/echo_client.h src/cwebsocket/subprotocol/echo_client.c src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/client.h src/cwebsocket/client.c src/websocket-client.c
+websocket_server_SOURCES = src/cwebsocket/subprotocol/echo_server.h src/cwebsocket/subprotocol/echo_server.c src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/server.h src/cwebsocket/server.c src/websocket-server.c
+websocket_testsuite_SOURCES = src/cwebsocket/utf8.h src/cwebsocket/common.h src/cwebsocket/common.c src/cwebsocket/utf8.c src/cwebsocket/client.h src/cwebsocket/client.c src/websocket-testsuite.c
 
 AM_CFLAGS= -Wall
 

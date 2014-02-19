@@ -24,7 +24,7 @@
 
 #include <signal.h>
 #include "cwebsocket/client.h"
-#include "cwebsocket/subprotocol/syslog_client.h"
+#include "cwebsocket/subprotocol/echo_client.h"
 
 cwebsocket_client websocket_client;
 
@@ -42,7 +42,7 @@ void signal_handler(int sig) {
 		case SIGINT:
 		case SIGTERM:
 			syslog(LOG_DEBUG, "SIGINT/SIGTERM");
-			cwebsocket_client_close(&websocket_client, "SIGINT/SIGTERM");
+			cwebsocket_client_close(&websocket_client, 1001, "SIGINT/SIGTERM");
 			main_exit(EXIT_SUCCESS);
 			exit(0);
 			break;
@@ -60,6 +60,7 @@ void print_program_header() {
     printf(" / /__ __ |/ |/ //  __/  /_/ /(__  )/ /_/ / /__ _  ,<  /  __/ /_  \n");
     printf(" \\___/ ____/|__/ \\___//_____//____/ \\____/\\___/ /_/|_| \\___/\\__/\n");
     printf("\n");
+	printf("                                   WebSocket Client              \n");
     printf("                                   Copyright (c) 2014 Jeremy Hahn\n");
     printf("                                   mail@jeremyhahn.com           \n");
 	printf("\n");
@@ -74,12 +75,6 @@ void print_program_usage(const char *progname) {
 void run_websocket_org_echo_test(cwebsocket_client *websocket) {
 	const char *message1 = "WebSocket Works!";
 	//const char *message1 = "WebSocket Works!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1), TEXT_FRAME);
-	cwebsocket_client_read_data(&websocket_client);
-}
-
-void run_echo_subprotocol_test(cwebsocket_client *websocket) {
-	const char *message1 = "WebSocket Works!";
 	cwebsocket_client_write_data(&websocket_client, message1, strlen(message1), TEXT_FRAME);
 	cwebsocket_client_read_data(&websocket_client);
 }
@@ -114,7 +109,7 @@ int main(int argc, char **argv) {
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
 	cwebsocket_subprotocol *subprotocols[1];
-	subprotocols[0] = cwebsocket_subprotocol_syslog_client_new();
+	subprotocols[0] = cwebsocket_subprotocol_echo_client_new();
 
 	cwebsocket_client_init(&websocket_client, subprotocols, 1);
 	websocket_client.uri = argv[1];
@@ -126,7 +121,7 @@ int main(int argc, char **argv) {
 
 	run_websocket_org_echo_test(&websocket_client);
 
-	cwebsocket_client_close(&websocket_client, "main: run loop complete");
+	cwebsocket_client_close(&websocket_client, 1000, "main: run loop complete");
 	free(subprotocols[0]);
 	return main_exit(EXIT_SUCCESS);
 }

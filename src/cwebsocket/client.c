@@ -25,11 +25,11 @@
 #include "client.h"
 
 void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol *subprotocols[], int subprotocol_len) {
-	websocket->socket = 0;
+	websocket->fd = 0;
 	websocket->retry = 0;
 	websocket->uri = '\0';
-	websocket->flags = 0 << 0;
-	websocket->state = 0 << 0;
+	websocket->flags = 0;
+	websocket->state = WEBSOCKET_STATE_CLOSED;
 	websocket->subprotocol_len = subprotocol_len;
 	int i;
 	for(i=0; i<subprotocol_len; i++) {
@@ -156,7 +156,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 #endif
 
 	char hostname[100];
-	char port[5];
+	char port[6];
 	char resource[256];
 	char querystring[256];
 	cwebsocket_client_parse_uri(websocket, websocket->uri, hostname, port, resource, querystring);
@@ -181,13 +181,13 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 	char *seckey = cwebsocket_base64_encode((const unsigned char *)nonce, sizeof(nonce));
 
 	snprintf(handshake, 1024,
-		      "GET %s HTTP/1.1\r\n"
-		      "Host: %s\r\n"
-		      "Upgrade: websocket\r\n"
+		      "GET %s%s HTTP/1.1\r\n"
+		      "Host: %s:%s\r\n"
+		      "Upgrade: WebSocket\r\n"
 		      "Connection: Upgrade\r\n"
 		      "Sec-WebSocket-Key: %s\r\n"
 		      "Sec-WebSocket-Version: 13\r\n"
-			  ,resource, hostname, seckey);
+			  ,resource, querystring, hostname, port, seckey);
 
 	if(websocket->subprotocol_len > 0) {
 		strcat(handshake, "Sec-WebSocket-Protocol: ");
@@ -212,15 +212,15 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		return -1;
 	}
 
-	websocket->socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-	if(websocket->socket < 0) {
+	websocket->fd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+	if(websocket->fd < 0) {
 		freeaddrinfo(servinfo);
 		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		return -1;
 	}
 
-	if(connect(websocket->socket, servinfo->ai_addr, servinfo->ai_addrlen) != 0 ) {
+	if(connect(websocket->fd, servinfo->ai_addr, servinfo->ai_addrlen) != 0 ) {
 		freeaddrinfo(servinfo);
 		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
@@ -235,7 +235,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 	freeaddrinfo(servinfo);
 
     int optval = 1;
-    if(setsockopt(websocket->socket, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval) == -1) {
+    if(setsockopt(websocket->fd, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval) == -1) {
 		syslog(LOG_ERR, "cwebsocket_client_connect: %s", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		return -1;
@@ -265,7 +265,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		  return -1;
 	   }
 
-	   if(!SSL_set_fd(websocket->ssl, websocket->socket)) {
+	   if(!SSL_set_fd(websocket->ssl, websocket->fd)) {
 		  ERR_print_errors_fp(stderr);
 		  return -1;
 	   }
@@ -311,9 +311,8 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 }
 
 int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey) {
-
+	uint8_t flags = 0;
 	syslog(LOG_DEBUG, "cwebsocket_client_handshake_handler: handshake response: \n%s\n", handshake_response);
-
 	char *ptr = NULL, *token = NULL;
 	for(token = strtok((char *)handshake_response, "\r\n"); token != NULL; token = strtok(NULL, "\r\n")) {
 		if(*token == 'H' && *(token+1) == 'T' && *(token+2) == 'T' && *(token+3) == 'P') {
@@ -326,18 +325,25 @@ int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char
 			}
 		} else {
 			ptr = strchr(token, ' ');
+			if(ptr == NULL) {
+				syslog(LOG_ERR, "cwebsocket_client_handshake_handler: invalid HTTP header sent: %s", token);
+				cwebsocket_client_onerror(websocket, "invalid HTTP header sent");
+				return -1;
+			}
 			*ptr = '\0';
 			if(strcasecmp(token, "Upgrade:") == 0) {
 				if(strcasecmp(ptr+1, "websocket") != 0) {
 					cwebsocket_client_onerror(websocket, "cwebsocket_client_handshake_handler: invalid HTTP upgrade header");
 					return -1;
 				}
+				flags |= CWS_HANDSHAKE_HAS_UPGRADE;
 			}
 			if(strcasecmp(token, "Connection:") == 0) {
 				if(strcasecmp(ptr+1, "upgrade") != 0) {
 					cwebsocket_client_onerror(websocket, "cwebsocket_client_handshake_handler: invalid HTTP connection header");
 					return -1;
 				}
+				flags |= CWS_HANDSHAKE_HAS_CONNECTION;
 			}
 			if(strcasecmp(token, "Sec-WebSocket-Protocol:") == 0) {
 				int i;
@@ -363,10 +369,16 @@ int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char
 				}
 				free(response);
 				free(seckey);
+				flags |= CWS_HANDSHAKE_HAS_ACCEPT;
 			}
 		}
 	}
-
+	if(((flags & CWS_HANDSHAKE_HAS_UPGRADE) == 0) || ((flags & CWS_HANDSHAKE_HAS_CONNECTION) == 0) ||
+				((flags & CWS_HANDSHAKE_HAS_ACCEPT) == 0)) {
+		// TODO send http error code (500?)
+		cwebsocket_client_close(websocket, 1002, "invalid websocket HTTP headers");
+		return -1;
+	}
 	syslog(LOG_DEBUG, "cwebsocket_client_handshake_handler: handshake successful");
 	return 0;
 }
@@ -420,7 +432,7 @@ void cwebsocket_client_listen(cwebsocket_client *websocket) {
 #ifdef THREADED
 void *cwebsocket_onmessage_thread(void *ptr) {
 	cwebsocket_thread_args *args = (cwebsocket_thread_args *)ptr;
-	args->socket->onmessage(args->socket, args->message);
+	cwebsocket_client_onmessage(args->socket, args->message);
 	free(args->message->payload);
 	free(args->message);
 	free(ptr);
@@ -428,24 +440,33 @@ void *cwebsocket_onmessage_thread(void *ptr) {
 }
 #endif
 
-int inline cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload) {
-	if(websocket->socket <= 0) return -1;
+int inline cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, uint8_t *payload, int payload_len) {
+	if(websocket->fd <= 0) return -1;
 	ssize_t bytes_written;
-	int payload_len = strlen(payload);
-	int frame_len = 6 + payload_len;
+	int header_len = 6;
+	int frame_len = header_len + payload_len;
 	char control_frame[frame_len];
-	int mask_int;
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	srand(tv.tv_sec * tv.tv_usec);
-	mask_int = rand();
-	memcpy(control_frame+2, &mask_int, 4);
+	unsigned char masking_key[4];
+	uint8_t mask_bit;
+	mask_bit = rand();
+	memcpy(masking_key, &mask_bit, 4);
 	control_frame[0] = 0x88;
 	control_frame[1] = opcode;
+	control_frame[2] = masking_key[0];
+	control_frame[3] = masking_key[1];
+	control_frame[4] = masking_key[2];
+	control_frame[5] = masking_key[3];
 	if(payload_len > 0) {
 		memcpy(&control_frame[2], payload, payload_len);
 	}
-	bytes_written = cwebsocket_client_write(websocket, control_frame, 6);
+	int i;
+	for(i=0; i<payload_len; i++) {
+		control_frame[header_len+i] ^= masking_key[i % 4] & 0xff;
+	}
+	bytes_written = cwebsocket_client_write(websocket, control_frame, frame_len);
 	if(bytes_written == 0) {
 		syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: sending %s control frame", frame_type);
 	}
@@ -454,12 +475,12 @@ int inline cwebsocket_client_send_control_frame(cwebsocket_client *websocket, op
 		cwebsocket_client_onerror(websocket, strerror(errno));
 		return -1;
 	}
+	syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: sending %s control frame with message %s", frame_type, payload);
 	return bytes_written;
 }
 
 int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
-	//size_t utf8_code_points = 0;
 	ssize_t byte = 0;
 	int header_length = 2;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 2;         // The byte which starts the 2 byte header
@@ -490,7 +511,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		if(byte == 0) {
 		   char *errmsg = "remote host closed the connection";
 		   cwebsocket_client_onerror(websocket, errmsg);
-		   cwebsocket_client_close(websocket, errmsg);
+		   cwebsocket_client_close(websocket, 1001, errmsg);
 		   return -1;
 		}
 		if(byte == -1) {
@@ -502,13 +523,20 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 		if(bytes_read == header_length_offset) {
 
-		   frame.fin = (data[0] & 0x80) == 0x80;
-		   frame.rsv1 = (data[0] & 0x40) == 0x40;
-		   frame.rsv2 = (data[0] & 0x20) == 0x20;
-		   frame.rsv3 = (data[0] & 0x10) == 0x10;
-		   frame.opcode = ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
+		   frame.fin = (data[0] & 0x80) == 0x80 ? 1 : 0;
+		   frame.rsv1 = (data[0] & 0x40) == 0x40 ? 1 : 0;
+		   frame.rsv2 = (data[0] & 0x20) == 0x20 ? 1 : 0;
+		   frame.rsv3 = (data[0] & 0x10) == 0x10 ? 1 : 0;
+		   frame.opcode = data[0] & 0x0f; // ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
 		   frame.mask = (data[1] & 0x80) == 0x80;
 		   frame.payload_len = (data[1] & 0x7F);
+
+		   if(frame.mask == 1) {
+			   const char *errmsg = "received masked frame from server";
+			   syslog(LOG_CRIT, "cwebsocket_client_read_data: %s", errmsg);
+			   cwebsocket_client_onerror(websocket, errmsg);
+			   return -1;
+		   }
 
 		   header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
 		   payload_length = frame.payload_len;
@@ -539,20 +567,18 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		}
 	}
 
-	//syslog(LOG_DEBUG, "cwebsocket_client_read_data: received raw data: %s\n", data);
-
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
 		uint8_t payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
 		payload[payload_length] = '\0';
 
-		/*
+		size_t utf8_code_points = 0;
 		if(utf8_count_code_points(payload, &utf8_code_points)) {
-			syslog(LOG_ERR, "cwebsocket_client_read_data: received %i byte malformed UTF-8 TEXT payload: %s\n", payload_length, payload);
-			cwebsocket_client_onerror(websocket, "received malformed UTF-8 payload");
+			syslog(LOG_ERR, "cwebsocket_client_read_data: received %i byte malformed utf8 text payload: %s", payload_length, payload);
+			cwebsocket_client_onerror(websocket, "received malformed utf8 payload");
 			return -1;
-		}*/
+		}
 
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received %i byte text payload: %s", payload_length, payload);
 
@@ -582,12 +608,12 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 			message.opcode = frame.opcode;
 			message.payload_len = frame.payload_len;
 			message.payload = (char *)payload;
-		    websocket->subprotocol->onmessage(websocket, &message);
+		    cwebsocket_client_onmessage(websocket, &message);
 		    return bytes_read;
 #endif
 		}
 
-		syslog(LOG_WARNING, "cwebsocket_client_read_data: no onmessage callback defined");
+		syslog(LOG_WARNING, "cwebsocket_client_read_data: onmessage callback undefined");
 		return bytes_read;
 	}
 	else if(frame.fin && frame.opcode == BINARY_FRAME) {
@@ -625,7 +651,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 			return bytes_read;
 #endif
 		}
-		syslog(LOG_WARNING, "cwebsocket_client_read_data: No onmessage callback defined");
+		syslog(LOG_WARNING, "cwebsocket_client_read_data: onmessage callback undefined");
 		return bytes_read;
 	}
 	else if(frame.opcode == CONTINUATION) {
@@ -634,29 +660,39 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	}
 	else if(frame.opcode == PING) {
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received PING control frame");
-		char payload[payload_length];
+		uint8_t payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length);
 		payload[payload_length] = '\0';
-		return cwebsocket_client_send_control_frame(websocket, 0x0A, "PONG", payload);
+		return cwebsocket_client_send_control_frame(websocket, 0x0A, "PONG", payload, payload_length);
 	}
 	else if(frame.opcode == PONG) {
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received PONG control frame");
 		return 0;
 	}
 	else if(frame.opcode == CLOSE) {
-		cwebsocket_client_close(websocket, "cwebsocket_client_read_data: received CLOSE control frame");
+		uint8_t payload[payload_length];
+		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
+		payload[payload_length] = '\0';
+		char closemsg[payload_length + 41];
+		sprintf(closemsg, "received CLOSE control frame. message=%s", payload);
+		cwebsocket_client_close(websocket, 1000, closemsg);
 		return 0;
 	}
 
-	syslog(LOG_ERR, "cwebsocket_client_read_data: received unsupported opcode: %#04x", frame.opcode);
-	cwebsocket_client_onerror(websocket, "received unsupported opcode");
-	cwebsocket_client_close(websocket, "received frame with unsupported opcode");
+	char closemsg[50];
+	sprintf(closemsg, "received unsupported opcode: %#04x", frame.opcode);
+	syslog(LOG_ERR, "cwebsocket_client_read_data: %s", closemsg);
+	cwebsocket_print_frame(&frame);
+	cwebsocket_client_onerror(websocket, closemsg);
+	cwebsocket_client_close(websocket, 1000, closemsg);
 	return -1;
 }
 
 ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code) {
 
 	if((websocket->state & WEBSOCKET_STATE_OPEN) == 0) {
+		syslog(LOG_DEBUG, "cwebsocket_client_write_data: websocket closed");
+		cwebsocket_client_onerror(websocket, "websocket closed");
 		return -1;
 	}
 
@@ -695,7 +731,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[4] = masking_key[2];
 		header[5] = masking_key[3];
 	}
-	else if(payload_len <= 65535) {
+	else if(payload_len > 125 && payload_len <= 0xffff) {
 		//frame.payload_len = 126;
 		header[1] = 126;
 		header[2] = (payload_len >> 8) & 0xff;
@@ -706,7 +742,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[7] = masking_key[3];
 		header_length += 2;
 	}
-	else if(payload_len >= 127) {
+	else if(payload_len > 0xffff && payload_len <= 0xffffffffffffffffLL) {
 		//frame.payload_len = 127;
 		header[1] = 127;
 		header[2] = (payload_len >> 56) & 0xff;
@@ -753,7 +789,11 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 	return bytes_written;
 }
 
-void cwebsocket_client_close(cwebsocket_client *websocket, const char *message) {
+void cwebsocket_client_close(cwebsocket_client *websocket, int code, const char *message) {
+
+	if((websocket->state & WEBSOCKET_STATE_OPEN) == 0 || websocket->fd < 1) {
+		return;
+	}
 
 #ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
@@ -763,15 +803,25 @@ void cwebsocket_client_close(cwebsocket_client *websocket, const char *message) 
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 #endif
 
-	syslog(LOG_DEBUG, "cwebsocket_client_close: closing websocket: %s\n", message);
-	if(websocket->socket > 0) {
-		cwebsocket_client_send_control_frame(websocket, 0x80, "CLOSE", message);
-		if(close(websocket->socket) == -1) {
-			syslog(LOG_ERR, "cwebsocket_client_close: error closing websocket: %s\n", strerror(errno));
-			cwebsocket_client_onerror(websocket, strerror(errno));
-		}
-		websocket->socket = 0;
+	syslog(LOG_DEBUG, "cwebsocket_client_close: %s\n", message);
+
+	int message_len = strlen(message);
+	uint8_t close_frame[message_len+2];
+	close_frame[0] = code >> 16 & 0xFF;
+	close_frame[1] = code >> 8 & 0xFF;
+	int i, j=0;
+	for(i=2; i<message_len; i++) {
+		close_frame[i] = message[j];
+		j++;
 	}
+
+	cwebsocket_client_send_control_frame(websocket, 0x80, "CLOSE", close_frame, message_len+2);
+
+	if(close(websocket->fd) == -1) {
+		syslog(LOG_ERR, "cwebsocket_client_close: error closing websocket: %s\n", strerror(errno));
+		cwebsocket_client_onclose(websocket, strerror(errno));
+	}
+	websocket->fd = 0;
 
 #ifdef USESSL
 	if(websocket->ssl != NULL) {
@@ -783,7 +833,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, const char *message) 
 	}
 #endif
 
-	cwebsocket_client_onerror(websocket, message);
+	cwebsocket_client_onclose(websocket, message);
 
 #ifdef THREADED
 	pthread_mutex_lock(&websocket->lock);
@@ -795,6 +845,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, const char *message) 
 #endif
 
 	syslog(LOG_DEBUG, "cwebsocket_client_close: websocket closed\n");
+	websocket->state = 0;
 
 	if(websocket->flags & WEBSOCKET_FLAG_AUTORECONNECT) {
 		cwebsocket_client_connect(websocket);
@@ -805,32 +856,32 @@ ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, i
 #ifdef USESSL
 	return (websocket->flags & WEBSOCKET_FLAG_SSL) ?
 			SSL_read(websocket->ssl, buf, len) :
-			read(websocket->socket, buf, len);
+			read(websocket->fd, buf, len);
 #else
-	return read(websocket->socket, buf, len);
+	return read(websocket->fd, buf, len);
 #endif
 }
 
 ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len) {
 #ifdef THREADED
-	ssize_t retval;
+	ssize_t bytes_written;
 	pthread_mutex_lock(&websocket->write_lock);
 	#ifdef USESSL
-		retval = (websocket->flags & WEBSOCKET_FLAG_SSL) ?
+		bytes_written = (websocket->flags & WEBSOCKET_FLAG_SSL) ?
 				SSL_write(websocket->ssl, buf, len) :
-				write(websocket->socket, buf, len);
+				write(websocket->fd, buf, len);
 	#else
-		retval = write(websocket->socket, buf, len);
+		bytes_written = write(websocket->fd, buf, len);
 	#endif
 	pthread_mutex_unlock(&websocket->write_lock);
-	return retval;
+	return bytes_written;
 #else
 	#ifdef USESSL
 		return (websocket->flags & WEBSOCKET_FLAG_SSL) ?
 				SSL_write(websocket->ssl, buf, len) :
-				write(websocket->socket, buf, len);
+				write(websocket->fd, buf, len);
 	#else
-		return write(websocket->socket, buf, len);
+		return write(websocket->fd, buf, len);
 	#endif
 #endif
 }

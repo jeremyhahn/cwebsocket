@@ -29,7 +29,6 @@
 #include <ctype.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/time.h>
 #include <sys/resource.h>
 #include "common.h"
 
@@ -40,7 +39,7 @@ extern "C" {
 #endif
 
 typedef struct _cwebsocket {
-	int socket;
+	int fd;
 	int retry;
 	char *uri;
 	uint8_t flags;
@@ -70,14 +69,14 @@ int cwebsocket_client_connect(cwebsocket_client *websocket);
 int cwebsocket_client_read_data(cwebsocket_client *websocket);
 ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code);
 void cwebsocket_client_run(cwebsocket_client *websocket);
-void cwebsocket_client_close(cwebsocket_client *websocket, const char *message);
+void cwebsocket_client_close(cwebsocket_client *websocket, int code, const char *message);
 void cwebsocket_client_listen(cwebsocket_client *websocket);
 
 // "private"
 void cwebsocket_client_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
 int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
 int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey);
-int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const char *payload);
+int inline cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, uint8_t *payload, int payload_len);
 ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
 ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);
 void cwebsocket_client_onopen(cwebsocket_client *websocket);

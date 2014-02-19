@@ -34,6 +34,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -50,6 +51,16 @@
 	#include <openssl/err.h>
 #endif
 
+#if defined(__linux__)
+	#include <endian.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+	#include <sys/endian.h>
+#elif defined(__OpenBSD__)
+	#define be16toh(x) betoh16(x)
+	#define be32toh(x) betoh32(x)
+	#define be64toh(x) betoh64(x)
+#endif
+
 #ifndef CWS_HANDSHAKE_BUFFER_MAX
 	#define CWS_HANDSHAKE_BUFFER_MAX 256  // bytes
 #endif
@@ -59,7 +70,7 @@
 #endif
 
 #ifndef CWS_STACK_SIZE_MIN
-	#define CWS_STACK_SIZE_MIN 2          // MB
+	#define CWS_STACK_SIZE_MIN 8          // MB
 #endif
 
 #define CWS_VERSION "0.1a"
@@ -71,6 +82,12 @@
 #define WEBSOCKET_STATE_CLOSED       (1 << 4)
 
 #define WEBSOCKET_FLAG_SSL           (1 << 0)
+
+#define CWS_HANDSHAKE_HAS_UPGRADE    (1 << 0)
+#define CWS_HANDSHAKE_HAS_CONNECTION (1 << 1)
+#define CWS_HANDSHAKE_HAS_KEY        (1 << 2)
+#define CWS_HANDSHAKE_HAS_VERSION    (1 << 3)
+#define CWS_HANDSHAKE_HAS_ACCEPT     (1 << 4)
 
 #ifdef __cplusplus
 extern "C" {

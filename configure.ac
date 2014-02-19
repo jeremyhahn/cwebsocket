@@ -59,7 +59,7 @@ AC_OUTPUT
 AC_ARG_ENABLE(debug,
   AS_HELP_STRING(
     [--enable-debug],
-    [Enable verbose logging - default: yes]),
+    [Include debug symbols and enable verbose logging - default: yes]),
     [case "${enableval}" in
       yes) debug=true ;;
       no)  debug=false ;;
