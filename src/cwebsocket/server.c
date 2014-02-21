@@ -655,7 +655,7 @@ inline void cwebsocket_server_onmessage(cwebsocket_connection *connection, cwebs
 
 inline void cwebsocket_server_onclose(cwebsocket_connection *connection, const char *message) {
 	if(connection->subprotocol != NULL && connection->subprotocol->onclose != NULL) {
-	   connection->subprotocol->onclose(connection, message);
+	   connection->subprotocol->onclose(connection, 1000, message);
 	}
 }
 

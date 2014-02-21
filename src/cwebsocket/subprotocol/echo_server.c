@@ -36,9 +36,9 @@ void cwebsocket_subprotocol_echo_server_onmessage(void *websocket, cwebsocket_me
 	cwebsocket_server_write_data(connection, message->payload, message->payload_len, TEXT_FRAME);
 }
 
-void cwebsocket_subprotocol_echo_server_onclose(void *websocket, const char *message) {
+void cwebsocket_subprotocol_echo_server_onclose(void *websocket, int code, const char *reason) {
 	cwebsocket_connection *connection = (cwebsocket_connection *)websocket;
-	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_server_onclose: fd=%i, message=%s", connection->fd, message);
+	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_server_onclose: fd=%i, code=%i, reason=%s", connection->fd, code, reason);
 }
 
 void cwebsocket_subprotocol_echo_server_onerror(void *websocket, const char *message) {

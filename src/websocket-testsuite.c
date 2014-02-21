@@ -28,7 +28,7 @@
 
 cwebsocket_client websocket_client;
 
-#define STATE_NULL               (1 << 0)
+#define STATE_GET_CASE_COUNT     (1 << 0)
 #define STATE_RUNNING_TESTS      (1 << 1)
 #define STATE_GENERATNING_REPORT (1 << 2)
 
@@ -41,22 +41,25 @@ void autobahn_onopen(void *websocket) {
 }
 
 void autobahn_onmessage(void *websocket, cwebsocket_message *message) {
+
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
 	syslog(LOG_DEBUG, "autobahn_onmessage: fd=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
 			client->fd, message->opcode, message->payload_len, message->payload);
 
-	if(STATE & STATE_NULL) {
+	if(STATE & STATE_GET_CASE_COUNT) {
 		number_of_tests = atoi(message->payload);
 		STATE |= STATE_RUNNING_TESTS;
+		syslog(LOG_DEBUG, "autobahn_onmessage: STATE_GET_CASE_COUNT complete");
 	}
-	else if (STATE & STATE_RUNNING_TESTS) {
+	else if(STATE & STATE_RUNNING_TESTS) {
+		syslog(LOG_DEBUG, "autobahn_onmessage: STATE_RUNNING_TESTS");
 		cwebsocket_client_write_data(client, message->payload, message->payload_len, message->opcode);
 	}
 }
 
-void autobahn_onclose(void *websocket, const char *message) {
+void autobahn_onclose(void *websocket, int code, const char *message) {
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "autobahn_onclose: fd=%i, message: %s", client->fd, message);
+	syslog(LOG_DEBUG, "autobahn_onclose: fd=%i, code=%i, message=%s", client->fd, code, message);
 }
 
 void autobahn_onerror(void *websocket, const char *message) {
@@ -99,24 +102,23 @@ int main(int argc, char **argv) {
 
 	print_program_header();
 
-	setlogmask(LOG_UPTO(LOG_DEBUG)); // LOG_INFO, LOG_DEBUG
+	setlogmask(LOG_UPTO(LOG_DEBUG));
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
-	 STATE |= STATE_NULL;
+	STATE |= STATE_GET_CASE_COUNT;
 
 	websocket_client.subprotocol = autobahn_testsuite_new();
 
 	cwebsocket_client_init(&websocket_client, NULL, 0);
 
-	// Get number of tests
 	websocket_client.uri = "ws://localhost:9001/getCaseCount";
 	cwebsocket_client_connect(&websocket_client);
 	cwebsocket_client_read_data(&websocket_client);
 	cwebsocket_client_close(&websocket_client, 1000, "received number of tests");
 	syslog(LOG_DEBUG, "Total number of tests: %i", number_of_tests);
 
-	// Run tests
+	STATE = STATE_RUNNING_TESTS;
 	int i;
 	for(i=1; i<2; i++) {
 
@@ -129,18 +131,19 @@ int main(int argc, char **argv) {
 		if(cwebsocket_client_connect(&websocket_client) == -1) {
 			break;
 		}
-		cwebsocket_client_read_data(&websocket_client);
-		cwebsocket_client_close(&websocket_client, 1000, "test complete");
+		cwebsocket_client_listen(&websocket_client);
+		//cwebsocket_client_close(&websocket_client, 1000, "test complete");
 	}
 
-	STATE |= STATE_RUNNING_TESTS;
-
-	// Generate reports
+	//STATE |= STATE_GENERATNING_REPORT;
 	websocket_client.uri = "ws://localhost:9001/updateReports?agent=cwebsocket/0.1a";
-	cwebsocket_client_connect(&websocket_client);
+	if(cwebsocket_client_connect(&websocket_client) == -1) {
+		perror("unable to connect to server to run reports");
+		exit(-1);
+	}
 	cwebsocket_client_read_data(&websocket_client);
-	cwebsocket_client_close(&websocket_client, 1000, "report generation complete");
 
+	cwebsocket_client_close(&websocket_client, 1000, "disconnecting");
 	free(websocket_client.subprotocol);
 	return main_exit(EXIT_SUCCESS);
 }

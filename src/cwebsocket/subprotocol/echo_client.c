@@ -35,9 +35,9 @@ void cwebsocket_subprotocol_echo_client_onmessage(void *websocket, cwebsocket_me
 			client->fd, message->opcode, message->payload_len, message->payload);
 }
 
-void cwebsocket_subprotocol_echo_client_onclose(void *websocket, const char *message) {
+void cwebsocket_subprotocol_echo_client_onclose(void *websocket, int code, const char *reason) {
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onclose: fd=%i, message: %s", client->fd, message);
+	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onclose: fd=%i, code=%i, reason=%s", client->fd, code, reason);
 }
 
 void cwebsocket_subprotocol_echo_client_onerror(void *websocket, const char *message) {
