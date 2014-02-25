@@ -67,7 +67,7 @@ typedef struct {
 void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol *subprotocols[], int subprotocol_len);
 int cwebsocket_client_connect(cwebsocket_client *websocket);
 int cwebsocket_client_read_data(cwebsocket_client *websocket);
-ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code);
+ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, uint64_t len, opcode code);
 void cwebsocket_client_run(cwebsocket_client *websocket);
 void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const char *reason);
 void cwebsocket_client_listen(cwebsocket_client *websocket);

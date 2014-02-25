@@ -462,6 +462,10 @@ int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode co
 		   if(payload_len > 2) {
 			  char parsed_payload[payload_len-2];
 			  memcpy(parsed_payload, &payload[2], payload_len-2);
+			  int i;
+			  for(i=0; i<payload_len; i++) {
+				  control_frame[8+i] = (parsed_payload[i] ^ masking_key[i % 4]) & 0xff;
+			  }
 			  syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: opcode=%#04x, frame_type=%s, payload_len=%i, code=%i, payload=%s",
 					  code, frame_type, payload_len, close_code, parsed_payload);
 		   }
@@ -475,9 +479,11 @@ int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode co
 					code, frame_type, payload_len, close_code);
 		}
 	}
-	int i;
-	for(i=0; i<payload_len; i++) {
-		control_frame[header_len+i] = (payload[i] ^ masking_key[i % 4]) & 0xff;
+	else {
+		int i;
+		for(i=0; i<payload_len; i++) {
+			control_frame[header_len+i] = (payload[i] ^ masking_key[i % 4]) & 0xff;
+		}
 	}
 	bytes_written = cwebsocket_client_write(websocket, control_frame, frame_len);
 	if(bytes_written == 0) {
@@ -505,9 +511,9 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	int bytes_read = 0;                         // Current byte counter
 	int payload_length = 0;                     // Total length of the payload/data (minus the variable length header)
 	int extended_payload_length;                // Stores the extended payload length bits, if present
-	uint8_t data[CWS_DATA_BUFFER_MAX];          // Data stream buffer
+	uint8_t data[CWS_DATA_BUFFER_MAX] = {0};    // Data stream buffer
 	cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
-	memset(&frame, 0, sizeof frame);
+	memset(&frame, 0, sizeof(frame));
 
 	while(bytes_read < header_length + payload_length) {
 
@@ -525,7 +531,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		byte = cwebsocket_client_read(websocket, data+bytes_read, 1);
 
 		if(byte == 0) {
-		   char *errmsg = "remote host closed the connection";
+		   char *errmsg = "server closed the connection";
 		   cwebsocket_client_onerror(websocket, errmsg);
 		   cwebsocket_client_close(websocket, 1006, errmsg);
 		   return -1;
@@ -543,7 +549,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		   frame.rsv1 = (data[0] & 0x40) == 0x40 ? 1 : 0;
 		   frame.rsv2 = (data[0] & 0x20) == 0x20 ? 1 : 0;
 		   frame.rsv3 = (data[0] & 0x10) == 0x10 ? 1 : 0;
-		   frame.opcode = data[0] & 0x0f; // ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
+		   frame.opcode = (data[0] & 0x7F);// ((data[0] & 0x08) | (data[0] & 0x04) | (data[0] & 0x02) | (data[0] & 0x01));
 		   frame.mask = data[1] & 0x80;
 		   frame.payload_len = (data[1] & 0x7F);
 
@@ -620,12 +626,10 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		    }
 		    return bytes_read;
 #else
-			char pload[payload_length+1];
-			memcpy(pload, payload, payload_length);
 		    cwebsocket_message message = {0};
 			message.opcode = frame.opcode;
 			message.payload_len = frame.payload_len;
-			message.payload = pload;
+			message.payload = (char *)payload;
 		    cwebsocket_client_onmessage(websocket, &message);
 		    return bytes_read;
 #endif
@@ -707,7 +711,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	syslog(LOG_ERR, "cwebsocket_client_read_data: %s", closemsg);
 	cwebsocket_print_frame(&frame);
 	cwebsocket_client_onerror(websocket, closemsg);
-	cwebsocket_client_close(websocket, 1000, closemsg);
+	cwebsocket_client_close(websocket, 1002, closemsg);
 	return -1;
 }
 
@@ -720,7 +724,7 @@ void cwebsocket_client_create_masking_key(uint8_t *masking_key) {
 	memcpy(masking_key, &mask_bit, 4);
 }
 
-ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, int len, opcode code) {
+ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *data, uint64_t payload_len, opcode code) {
 
 	if((websocket->state & WEBSOCKET_STATE_OPEN) == 0) {
 		syslog(LOG_DEBUG, "cwebsocket_client_write_data: websocket closed");
@@ -728,8 +732,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		return -1;
 	}
 
-	unsigned long long payload_len = len;
-	uint32_t header_length = 6 + (len > 125 ? 2 : 0) + (len > 0xffff ? 8 : 0);
+	uint32_t header_length = 6 + (payload_len > 125 ? 2 : 0) + (payload_len > 0xffff ? 8 : 0);
 	uint8_t masking_key[4];
 	uint8_t header[header_length];
 	ssize_t bytes_written;
@@ -745,7 +748,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[5] = masking_key[3];
 	}
 	else if(payload_len > 125 && payload_len <= 0xffff) {
-		uint16_t len16 = htons(len);
+		uint16_t len16 = htons(payload_len);
 		header[1] = (126 | 0x80);
 		memcpy(header+2, &len16, 2);
 		header[4] = masking_key[0];
@@ -754,7 +757,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 		header[7] = masking_key[3];
 	}
 	else if(payload_len > 0xffff && payload_len <= 0xffffffffffffffffLL) {
-		char len64[8] = htonl64(len);
+		char len64[8] = htonl64(payload_len);
 		header[1] = (127 | 0x80);
 		memcpy(header+2, &len64, 8);
 		header[10] = masking_key[0];
@@ -788,7 +791,7 @@ ssize_t cwebsocket_client_write_data(cwebsocket_client *websocket, const char *d
 	}
 
 	syslog(LOG_DEBUG, "cwebsocket_client_write_data: bytes_written=%zu, frame_length=%i, payload_len=%lld, payload=%s\n",
-			bytes_written, frame_length, payload_len, data);
+			bytes_written, frame_length, (long long)payload_len, data);
 
 	return bytes_written;
 }
@@ -812,8 +815,8 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 	int code32 = 0;
 	if(code > 0) {
 		code = code ? htons(code) : htons(1005);
-		int message_len = (message == NULL) ? 0 : strlen(message) +2;
-		uint8_t close_frame[message_len+2];
+		int message_len = (message == NULL) ? 0 : strlen(message) + 2;
+		uint8_t close_frame[message_len];
 		close_frame[0] = code & 0xFF;
 		close_frame[1] = (code >> 8);
 		code32 = (close_frame[0] << 8) + (close_frame[1]);
@@ -821,10 +824,10 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 		for(i=0; i<message_len; i++) {
 			close_frame[i+2] = message[i];
 		}
-		cwebsocket_client_send_control_frame(websocket, TEXT_FRAME, "CLOSE", close_frame, message_len+2);
+		cwebsocket_client_send_control_frame(websocket, CLOSE, "CLOSE", close_frame, message_len);
 	}
 	else {
-		cwebsocket_client_send_control_frame(websocket, TEXT_FRAME, "CLOSE", NULL, 0);
+		cwebsocket_client_send_control_frame(websocket, CLOSE, "CLOSE", NULL, 0);
 	}
 
 #ifdef USESSL

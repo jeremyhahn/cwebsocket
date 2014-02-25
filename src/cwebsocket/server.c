@@ -271,7 +271,7 @@ int cwebsocket_server_read_handshake_handler(cwebsocket_connection *connection, 
 		// TODO send 400 bad request or 404 not found
 		const char *errmsg = "invalid websocket HTTP headers";
 		cwebsocket_server_onerror(connection, errmsg);
-		cwebsocket_server_close_connection(connection, errmsg);
+		cwebsocket_server_close_connection(connection, 1002, errmsg);
 		free(seckey_response);
 		free(connection);
 		return -1;
@@ -297,7 +297,7 @@ int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection,
 		strcat(buf, connection->subprotocol->name);
 		strcat(buf, "\r\n");
 	}
-	strcat(buf, "\r\n\r\n");
+	strcat(buf, "\r\n");
 	if(write(connection->fd, buf, strlen(buf)) == -1) {
 		syslog(LOG_ERR, "cwebsocket_server_send_handshake_response: %s", strerror(errno));
 		cwebsocket_server_onerror(connection, strerror(errno));
@@ -320,7 +320,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 	int extended_payload_length;                // Stores the extended payload length bits, if present
 	uint8_t data[CWS_DATA_BUFFER_MAX];          // Data stream buffer
 	cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
-	memset(&frame, 0, sizeof frame);
+	memset(&frame, 0, sizeof(frame));
 
 	while(bytes_read < header_length + payload_length) {
 
@@ -339,15 +339,15 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		byte = cwebsocket_server_read(connection, data+bytes_read, 1);
 
 		if(byte == 0) {
-		   char *errmsg = "remote host closed the connection";
+		   char *errmsg = "client closed the connection";
 		   cwebsocket_server_onerror(connection, errmsg);
-		   cwebsocket_server_close_connection(connection, errmsg);
+		   cwebsocket_server_close_connection(connection, 1006, errmsg);
 		   return -1;
 		}
 		if(byte == -1) {
 		   syslog(LOG_ERR, "cwebsocket_server_read_data: error reading frame: %s", strerror(errno));
 		   cwebsocket_server_onerror(connection, strerror(errno));
-		   cwebsocket_server_close_connection(connection, strerror(errno));
+		   cwebsocket_server_close_connection(connection, 1002, strerror(errno));
 		   return -1;
 		}
 		bytes_read++;
@@ -363,7 +363,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		   frame.payload_len = (data[1] & 0x7F);
 
 		   if(frame.mask == 0) {
-			   cwebsocket_server_close_connection(connection, "received unmasked frame from client");
+			   cwebsocket_server_close_connection(connection, 1002, "received unmasked frame from client");
 			   return -1;
 		   }
 
@@ -413,17 +413,18 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		}
 	}
 
+	cwebsocket_print_frame(&frame);
+
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
 		uint8_t payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
+		payload[payload_length] = '\0';
 
 		int i;
 		for(i=0; i<payload_length; i++) {
 			payload[i] = payload[i] ^ frame.masking_key[i%4];
 		}
-
-		payload[payload_length] = '\0';
 
 		size_t utf8_code_points = 0;
 		if(utf8_count_code_points(payload, &utf8_code_points)) {
@@ -504,12 +505,21 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		return 0;
 	}
 	else if(frame.opcode == CLOSE) {
-		uint8_t payload[payload_length];
-		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
-		payload[payload_length] = '\0';
-		char closemsg[payload_length + 41];
-		sprintf(closemsg, "received CLOSE control frame. message=%s", payload);
-		cwebsocket_server_close_connection(connection, closemsg);
+		int code = 0;
+		if(payload_length > 2) {
+		   code = (data[header_length] << 8) + (data[header_length+1]);
+		   header_length += 2;
+		   payload_length -= 2;
+		}
+		uint8_t reason[payload_length];
+		memcpy(reason, &data[header_length], sizeof(uint8_t) * payload_length);
+		reason[payload_length] = '\0';
+		int i;
+		for(i=0; i<payload_length; i++) {
+			reason[i] = reason[i] ^ frame.masking_key[i%4];
+		}
+		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received CLOSE control frame. bytes=%i, code=%i, reason=%s", payload_length, code, reason);
+		cwebsocket_server_close_connection(connection, code, reason);
 		return 0;
 	}
 
@@ -517,11 +527,11 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 	sprintf(closemsg, "received unsupported opcode: %#04x", frame.opcode);
 	syslog(LOG_ERR, "cwebsocket_client_read_data: %s", closemsg);
 	cwebsocket_server_onerror(connection, closemsg);
-	cwebsocket_server_close_connection(connection, closemsg);
+	cwebsocket_server_close_connection(connection, 1002, closemsg);
 	return -1;
 }
 
-ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const char *data, int len, opcode code) {
+ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const char *data, uint64_t payload_len, opcode code) {
 
 	if((connection->state & WEBSOCKET_STATE_OPEN) == 0) {
 		syslog(LOG_DEBUG, "cwebsocket_server_write_data: websocket closed");
@@ -529,40 +539,28 @@ ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const ch
 		return -1;
 	}
 
-	uint32_t masking_length = 4;
-	uint32_t header_length = ((len <= 125) ? 2 : (len <= 65535 ? 4 : 10)) + masking_length;
-	unsigned long long payload_len = len;
+	uint32_t header_length = 2 + (payload_len > 125 ? 2 : 0) + (payload_len > 0xffff ? 8 : 0);
 	uint8_t header[header_length];
 	ssize_t bytes_written;
 
-	header[0] = (code | 0x81);
+	header[0] = (code | 0x80);
 
 	if(payload_len <= 125) {
-		header[1] = payload_len | 0x80;
+		header[1] = payload_len;
 	}
 	else if(payload_len > 125 && payload_len <= 0xffff) {
-		//frame.payload_len = 126;
-		header[1] = 126 | 0x80;
-		header[2] = (payload_len >> 8) & 0xff;
-		header[3] = (payload_len >> 0) & 0xff;
-		header_length += 2;
+		header[1] = 126;
+		uint16_t len16 = htons(payload_len);
+		memcpy(header+2, &len16, 2);
 	}
 	else if(payload_len > 0xffff && payload_len <= 0xffffffffffffffffLL) {
-		//frame.payload_len = 127;
-		header[1] = 127 | 0x80;
-		header[2] = (payload_len >> 56) & 0xff;
-		header[3] = (payload_len >> 48) & 0xff;
-		header[4] = (payload_len >> 40) & 0xff;
-		header[5] = (payload_len >> 32) & 0xff;
-		header[6] = (payload_len >> 24) & 0xff;
-		header[7] = (payload_len >> 16) & 0xff;
-		header[8] = (payload_len >>  8) & 0xff;
-		header[9] = (payload_len >>  0) & 0xff;
-		header_length += 8;
+		header[1] = 127;
+		char len64[8] = htonl64(payload_len);
+		memcpy(header+2, &len64, 8);
 	}
 	else {
 		syslog(LOG_CRIT, "cwebsocket_server_write_data: frame too large");
-		cwebsocket_server_onerror(connection, "frame too large");
+		cwebsocket_server_close_connection(connection, 1009, "frame too large");
 		return -1;
 	}
 
@@ -572,8 +570,6 @@ ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const ch
 	memcpy(framebuf, header, header_length);
 	memcpy(&framebuf[header_length], data, payload_len);
 
-	syslog(LOG_DEBUG, "cwebsocket_server_write_data: writing %lld byte payload %s to fd %i", payload_len, data, connection->fd);
-
 	bytes_written = cwebsocket_server_write(connection, framebuf, frame_length);
 
 	if(bytes_written == -1) {
@@ -582,12 +578,13 @@ ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const ch
 		return -1;
 	}
 
-	syslog(LOG_DEBUG, "cwebsocket_server_write_data: wrote %lld byte payload: %s\n", payload_len, data);
+	syslog(LOG_DEBUG, "cwebsocket_server_write_data: bytes_written=%zu, frame_length=%i, opcode=%#04x, payload_len=%lld, payload=%s\n",
+			bytes_written, frame_length, code, (long long)payload_len, data);
 
 	return bytes_written;
 }
 
-int cwebsocket_server_close_connection(cwebsocket_connection *connection, const char *errmsg) {
+int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16_t code, const char *errmsg) {
 	connection->state |= WEBSOCKET_STATE_CLOSING;
 	if(connection->fd > 0) {
 		if(close(connection->fd) == -1) {
