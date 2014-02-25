@@ -24,7 +24,7 @@
 
 #include <signal.h>
 #include "cwebsocket/client.h"
-#include "cwebsocket/subprotocol/echo_client.h"
+#include "cwebsocket/subprotocol/echo/echo_client.h"
 
 cwebsocket_client websocket_client;
 

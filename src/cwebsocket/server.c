@@ -363,11 +363,10 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		   frame.payload_len = (data[1] & 0x7F);
 
 		   if(frame.mask == 0) {
-			   cwebsocket_server_close_connection(connection, 1002, "received unmasked frame from client");
+			   cwebsocket_server_close_connection(connection, 1002, "received unmasked client frame");
 			   return -1;
 		   }
 
-		   header_length = 2 + (frame.payload_len == 126 ? 2 : 0) + (frame.payload_len == 127 ? 6 : 0) + (frame.mask ? 4 : 0);
 		   payload_length = frame.payload_len;
 		   extended_payload_length = 0;
 		}
@@ -390,6 +389,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			frame.masking_key[2] = data[6];
 			frame.masking_key[3] = data[7];
 
+			header_length += 2;
 			payload_length = extended_payload_length;
 		}
 		else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
@@ -409,6 +409,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			frame.masking_key[2] = data[12];
 			frame.masking_key[3] = data[13];
 
+			header_length += 6;
 			payload_length = extended_payload_length;
 		}
 	}
@@ -519,7 +520,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			reason[i] = reason[i] ^ frame.masking_key[i%4];
 		}
 		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received CLOSE control frame. bytes=%i, code=%i, reason=%s", payload_length, code, reason);
-		cwebsocket_server_close_connection(connection, code, reason);
+		cwebsocket_server_close_connection(connection, (uint32_t)code, (const char *)reason);
 		return 0;
 	}
 
@@ -584,7 +585,7 @@ ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const ch
 	return bytes_written;
 }
 
-int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16_t code, const char *errmsg) {
+int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16_t code, const char *reason) {
 	connection->state |= WEBSOCKET_STATE_CLOSING;
 	if(connection->fd > 0) {
 		if(close(connection->fd) == -1) {
@@ -594,7 +595,7 @@ int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16
 		connection->fd = 0;
 	}
 	connection->state |= WEBSOCKET_STATE_CLOSED;
-	syslog(LOG_DEBUG, "cwebsocket_server_close_connection: %s", errmsg);
+	syslog(LOG_DEBUG, "cwebsocket_server_close_connection: code=%i, reason=%s", code, reason);
 	return 0;
 }
 

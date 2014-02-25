@@ -24,7 +24,7 @@
 
 #include <signal.h>
 #include "cwebsocket/server.h"
-#include "cwebsocket/subprotocol/echo_server.h"
+#include "cwebsocket/subprotocol/echo/echo_server.h"
 
 void signal_handler(int sig) {
 	switch(sig) {

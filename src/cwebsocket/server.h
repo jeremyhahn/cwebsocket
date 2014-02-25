@@ -83,7 +83,7 @@ int cwebsocket_server_read_handshake_handler(cwebsocket_connection *connection, 
 int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection, const char *seckey);
 int cwebsocket_server_read_data(cwebsocket_connection *connection);
 ssize_t cwebsocket_server_write_data(cwebsocket_connection *connection, const char *data, uint64_t len, opcode code);
-int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16_t code, const char *errmsg);
+int cwebsocket_server_close_connection(cwebsocket_connection *connection, uint16_t code, const char *reason);
 int cwebsocket_server_shutdown();
 
 // "private"

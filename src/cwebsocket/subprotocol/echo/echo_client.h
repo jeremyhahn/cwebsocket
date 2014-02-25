@@ -22,12 +22,20 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ECHO_SERVER_H_
-#define ECHO_SERVER_H_
+#ifndef SYSLOG_SUBPROTOCOL_H_
+#define SYSLOG_SUBPROTOCOL_H_
 
-#include "../common.h"
-#include "../server.h"
+#include "../../common.h"
+#include "../../client.h"
 
-cwebsocket_subprotocol* cwebsocket_subprotocol_echo_server_new();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+cwebsocket_subprotocol* cwebsocket_subprotocol_echo_client_new();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -202,7 +202,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		}
 	}
 
-	strcat(handshake, "\r\n\r\n");
+	strcat(handshake, "\r\n");
 
 	if(getaddrinfo(hostname, port, &hints, &servinfo) != 0 ) {
 		freeaddrinfo(servinfo);
