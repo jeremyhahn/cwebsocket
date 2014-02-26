@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Same as Case 6.4.1, but in 2nd frame, we send only up to and including the octet making the complete payload invalid.\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5f4<br>\nPART2 = 90<br>\nPART3 = 8080656469746564<br>\n",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 1,
    "expectation": "The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
@@ -37,15 +37,15 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=75&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: QXdkamFsUWFSS25UN0lpWg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: HOjUNMYAUU4k0kqiqzRm7xWxlqM=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=75&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WW9YNElOZ1RwbkU3NlY1UQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 6+MCILDL7Qq7oynzLJdLgWt3fCM=\r\n\r\n",
    "id": "6.4.2",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 11057",
+   "localCloseReason": "invalid close code 7579",
    "received": [],
-   "remoteCloseCode": 11057,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 7579,
+   "remoteCloseReason": "\u001e\u001a\u000f\u001a\u0005\t\t\u001bL\n\u0002\f\u0019\u000f\u001c\u0010\u001e\u000b\t\u001bL\u0010\u001c\u001c\u0003\u001b\tELO\u0014O]",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
@@ -57,7 +57,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:39Z",
+   "started": "2014-02-26T23:02:09Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -65,12 +65,12 @@
    },
    "txOctetStats": {
       "14": 1,
-      "28": 1,
+      "27": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -120,26 +120,26 @@
          "RO",
          [
             41,
-            "88a328db630d03ea5abe006841ad066908ae0d7e5dab13625aaf066908b4136e47bf063708eb1b3d19"
+            "88a31e71720e03ea6c14116b7707176a3e041c7d6b0102616c05176a3e1e026d711517343e410a3e2f"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x2b3139b328b322a02eb26ba325a53ea63bb939a22eb26bb93bb524b22eec6be633e67a"
+            "0x1d9b1e1a0f1a0509091b4c0a020c190f1c101e0b091b4c101c1c031b09454c4f144f5d"
          ],
          8,
          true,
          0,
          true,
-         "28db630d"
+         "1e71720e"
       ],
       [
          "TF",
          [
-            26,
-            "0x03ea696e76616c696420636c6f736520636f6465203131303537"
+            25,
+            "0x03ea696e76616c696420636c6f736520636f64652037353739"
          ],
          8,
          true,
@@ -152,8 +152,8 @@
       [
          "TO",
          [
-            28,
-            "881a03ea696e76616c696420636c6f736520636f6465203131303537"
+            27,
+            "881903ea696e76616c696420636c6f736520636f64652037353739"
          ],
          false
       ]

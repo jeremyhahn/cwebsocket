@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments, one ping with payload in-between. Octets are sent in octet-wise chops.",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 3,
    "expectation": "A pong is received, then the message is echo'ed back to us.",
    "expected": {
       "OK": [
@@ -31,14 +31,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: SGlKakVZYTFjaW4ydVJhRQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: mM2zry3LqV8p+re5TXRD8SaTH1g=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: UlpQVjVFOFlsZlliUERBQw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: L2J/vzi933/4psWNicfdd4W1tc0=\r\n\r\n",
    "id": "5.8",
    "isServer": true,
-   "localCloseCode": 1007,
-   "localCloseReason": "invalid close reason (non-UTF-8 payload)",
+   "localCloseCode": 1002,
+   "localCloseReason": "invalid close code 40832",
    "received": [],
-   "remoteCloseCode": 4921,
+   "remoteCloseCode": 40832,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -51,7 +51,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:31Z",
+   "started": "2014-02-26T23:02:02Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -238,26 +238,26 @@
          "RO",
          [
             41,
-            "88a310d3630d03ea62b6006879a5066930a60d7e65a3136262a7066930bc136e7fb7063730e31b3d21"
+            "88a39c6a720e03eaee0f116bf51c176abc1f1c7de91a0261ee1e176abc05026df30e1734bc5a0a3ead"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x133901bb10bb1aa816ba53ab1dad06ae03b101aa16ba53b103bd1cba16e453ee0bee42"
+            "0x9f809c018d0187128b00ce1180179b149e0b9c108b00ce0b9e0781008b5ece549654df"
          ],
          8,
          true,
          0,
          true,
-         "10d3630d"
+         "9c6a720e"
       ],
       [
          "TF",
          [
-            42,
-            "0x03ef696e76616c696420636c6f736520726561736f6e20286e6f6e2d5554462d38207061796c6f616429"
+            26,
+            "0x03ea696e76616c696420636c6f736520636f6465203430383332"
          ],
          8,
          true,

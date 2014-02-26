@@ -21,14 +21,14 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=28&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eTE1U3AzUXBNTmYxcDlTTA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: UMq8QQ0mxGUJWEuuNSwXyzWqBRc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=28&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "3.1",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 52539",
+   "localCloseReason": "invalid close code 58498",
    "received": [],
-   "remoteCloseCode": 52539,
+   "remoteCloseCode": 58498,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -41,7 +41,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:29Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -103,26 +103,26 @@
          "RO",
          [
             41,
-            "88a3ced1630d03eabcb40068a7a70669eea40d7ebba11362bca50669eebe136ea1b50637eee11b3cff"
+            "88a3e768720e03ea950d116b8e1e176ac71d1c7d92180261951c176ac707026d880c1734c7580a3fd6"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xcd3bdfb9ceb9c4aac8b88da9c3afd8acddb3dfa8c8b88db3ddbfc2b8c8e68decd5ed9c"
+            "0xe482e703f603fc10f002b513fb15e016e509e712f002b509e505fa02f05cb556ed57a4"
          ],
          8,
          true,
          0,
          true,
-         "ced1630d"
+         "e768720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203532353339"
+            "0x03ea696e76616c696420636c6f736520636f6465203538343938"
          ],
          8,
          true,
@@ -136,7 +136,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203532353339"
+            "881a03ea696e76616c696420636c6f736520636f6465203538343938"
          ],
          false
       ]

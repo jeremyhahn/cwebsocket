@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send a valid UTF-8 text message in fragments of 1 octet, resulting in frames ending on positions which are not code point ends.<br><br>MESSAGE:<br>Hello-\u00b5@\u00df\u00f6\u00e4\u00fc\u00e0\u00e1-UTF-8!!<br>48656c6c6f2dc2b540c39fc3b6c3a4c3bcc3a0c3a12d5554462d382121",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 4,
    "expectation": "The message is echo'ed back to us.",
    "expected": {
       "OK": [
@@ -27,14 +27,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=70&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: U2p0SlNDekFCSzBoS2RyeQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: l2+xl1wKnkXw6LZVkP1yFBCNq2w=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=70&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: S0hlYlgxcXdsc1QxanFDTQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=\r\n\r\n",
    "id": "6.2.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 15408",
+   "localCloseReason": "invalid close code 43418",
    "received": [],
-   "remoteCloseCode": 15408,
+   "remoteCloseCode": 43418,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -47,7 +47,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:38Z",
+   "started": "2014-02-26T23:02:08Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 29,
@@ -749,26 +749,26 @@
          "RO",
          [
             41,
-            "88a33fda630d03ea4dbf006856ac06691faf0d7e4aaa13624dae06691fb5136e50be06371fea1b3d0e"
+            "88a3aa70720e03ead815116bc306176a8a051c7ddf000261d804176a8a1f026dc51417348a400a3e9b"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x3c302eb23fb235a139b37ca232a429a72cb82ea339b37cb82cb433b339ed7ce724e76d"
+            "0xa99aaa1bbb1bb108bd1af80bb60dad0ea811aa0abd1af811a81db71abd44f84ea04ee9"
          ],
          8,
          true,
          0,
          true,
-         "3fda630d"
+         "aa70720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203135343038"
+            "0x03ea696e76616c696420636c6f736520636f6465203433343138"
          ],
          8,
          true,
@@ -782,7 +782,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203135343038"
+            "881a03ea696e76616c696420636c6f736520636f6465203433343138"
          ],
          false
       ]

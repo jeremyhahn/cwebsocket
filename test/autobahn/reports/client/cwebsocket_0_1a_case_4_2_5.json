@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=44&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eTE1U3AzUXBNTmYxcDlTTA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: UMq8QQ0mxGUJWEuuNSwXyzWqBRc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=44&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "4.2.5",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 45115",
+   "localCloseReason": "invalid close code 53378",
    "received": [
       [
          "message",
@@ -41,7 +41,7 @@
          false
       ]
    ],
-   "remoteCloseCode": 45115,
+   "remoteCloseCode": 53378,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:29Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -276,7 +276,7 @@
          "RO",
          [
             19,
-            "818d1bd1630d53b40f6174fd437a74a30f693a"
+            "818d2c68720e640d1e6243445279431a1e6a0d"
          ]
       ],
       [
@@ -289,7 +289,7 @@
          true,
          0,
          true,
-         "1bd1630d"
+         "2c68720e"
       ],
       [
          "TO",
@@ -415,26 +415,26 @@
          "RO",
          [
             41,
-            "88a3b3d1630d03eac1b40068daa7066993a40d7ec6a11362c1a5066993be136edcb5063793e11b3dd5"
+            "88a3d368720e03eaa10d116bba1e176af31d1c7da6180261a11c176af307026dbc0c1734f3580a3eb5"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xb03ba2b9b3b9b9aab5b8f0a9beafa5aca0b3a2a8b5b8f0b3a0bfbfb8b5e6f0eca8ecb6"
+            "0xd082d303c203c810c4028113cf15d416d109d312c4028109d105ce02c45c8156d956c7"
          ],
          8,
          true,
          0,
          true,
-         "b3d1630d"
+         "d368720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203435313135"
+            "0x03ea696e76616c696420636c6f736520636f6465203533333738"
          ],
          8,
          true,
@@ -448,7 +448,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203435313135"
+            "881a03ea696e76616c696420636c6f736520636f6465203533333738"
          ],
          false
       ]

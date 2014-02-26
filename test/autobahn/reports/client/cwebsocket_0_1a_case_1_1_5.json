@@ -1,6 +1,6 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "FAILED",
+   "behavior": "OK",
    "behaviorClose": "OK",
    "case": 5,
    "closedByMe": true,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text message message with payload of length 128.",
    "droppedByMe": true,
-   "duration": 1001,
+   "duration": 1,
    "expectation": "Receive echo'ed text message (with payload as sent). Clean close with normal code.",
    "expected": {
       "OK": [
@@ -26,13 +26,13 @@
       "closedByMe": true,
       "requireClean": true
    },
-   "failedByMe": true,
-   "httpRequest": "GET /runCase?case=5&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: M1p3akJWTFRLUFk1aFF5bQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: iFQk7MjfFqMzo55xhKag0JOX2Xc=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET /runCase?case=5&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "1.1.5",
    "isServer": true,
-   "localCloseCode": 1001,
-   "localCloseReason": "Going Away",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [
       [
          "message",
@@ -44,7 +44,7 @@
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "Actual events differ from any expected.",
+   "result": "Actual events match at least one expected.",
    "resultClose": "Connection was properly closed",
    "rxFrameStats": {
       "1": 1,
@@ -52,17 +52,17 @@
    },
    "rxOctetStats": {
       "6": 1,
-      "134": 1,
+      "136": 1,
       "189": 1
    },
-   "started": "2014-02-26T03:47:26Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
       "8": 1
    },
    "txOctetStats": {
-      "14": 1,
+      "4": 1,
       "132": 1,
       "168": 1
    },
@@ -116,30 +116,27 @@
       [
          "RO",
          [
-            134,
-            "81fe007e49ce630d63e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e4492763e44927 ..."
+            136,
+            "81fe00808368720ea9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824a9425824 ..."
          ]
       ],
       [
          "RF",
          [
-            126,
+            128,
             "**************************************************************** ..."
          ],
          1,
          true,
          0,
          true,
-         "49ce630d"
-      ],
-      [
-         "KLE"
+         "8368720e"
       ],
       [
          "TF",
          [
-            12,
-            "0x03e9476f696e672041776179"
+            2,
+            "0x03e8"
          ],
          8,
          true,
@@ -152,8 +149,8 @@
       [
          "TO",
          [
-            14,
-            "880c03e9476f696e672041776179"
+            4,
+            "880203e8"
          ],
          false
       ],
@@ -161,7 +158,7 @@
          "RO",
          [
             6,
-            "8880a7cf630d"
+            "88809d68720e"
          ]
       ],
       [
@@ -174,7 +171,7 @@
          true,
          0,
          true,
-         "a7cf630d"
+         "9d68720e"
       ]
    ]
 }

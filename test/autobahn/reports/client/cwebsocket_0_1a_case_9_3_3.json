@@ -1,14 +1,14 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behaviorClose": "UNCLEAN",
    "case": 265,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": false,
    "description": "Send fragmented text message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 1k.",
-   "droppedByMe": true,
-   "duration": 47,
+   "droppedByMe": false,
+   "duration": 49,
    "expectation": "Receive echo'ed text message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,19 +19,19 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=265&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: NTc5dGtKVGZLc1kyVnh0MA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: TARAQu7LMzsfxg1rL61w9DOPbH4=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=265&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z1gweXBKTndGM0w3ZmZqSQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Yk54qmymSS+jDhfrQedtIpft4d4=\r\n\r\n",
    "id": "9.3.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 16878",
+   "localCloseReason": "invalid close code 31350",
    "received": [],
-   "remoteCloseCode": 16878,
-   "remoteCloseReason": "TlElO\u007fCm\u0006|HzSyVfT}Cm\u0006fVjImC3\u00069^9\u0017",
+   "remoteCloseCode": 31350,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
    "result": "Did not receive message within 100 seconds.",
-   "resultClose": "The close code should have been 1000 or empty",
+   "resultClose": "The spec requires the connection to be failed cleanly here",
    "rxFrameStats": {
       "8": 1
    },
@@ -39,7 +39,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-26T03:48:20Z",
+   "started": "2014-02-26T23:02:52Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 4096,
@@ -52,9 +52,9 @@
       "168": 1,
       "1028": 4096
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [

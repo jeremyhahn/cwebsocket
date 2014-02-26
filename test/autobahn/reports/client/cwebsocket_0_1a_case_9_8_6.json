@@ -1,6 +1,6 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "FAILED",
+   "behavior": "OK",
    "behaviorClose": "OK",
    "case": 304,
    "closedByMe": true,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 1000 binary messages of payload size 4096 to measure implementation/network RTT (round trip time) / latency.",
    "droppedByMe": true,
-   "duration": 2,
+   "duration": 21448,
    "expectation": "Receive echo'ed binary messages (with payload as sent). Timeout case after 480 secs.",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=304&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: S2pUaXdwM3h3NVhYYkgzUg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: TBIOoFMnhmkUwLsljOwniunw1RY=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=304&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: NTBoekw3eVpsRE9JdlBjYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: pZFihkszwfxM0VKcxxvPtglFcXc=\r\n\r\n",
    "id": "9.8.6",
    "isServer": true,
    "localCloseCode": 1000,
@@ -30,27 +30,27 @@
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
-   "result": "Echo'ed message type or length differs from what I sent (got binary = True, payload length = 126).",
+   "result": "Ok, received all echo'ed messages in time.",
    "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "2": 1,
+      "2": 1000,
       "8": 1
    },
    "rxOctetStats": {
       "6": 1,
-      "134": 1,
-      "191": 1
+      "191": 1,
+      "4104": 1000
    },
-   "started": "2014-02-26T03:48:29Z",
+   "started": "2014-02-26T23:03:58Z",
    "trafficStats": null,
    "txFrameStats": {
-      "2": 1,
+      "2": 1000,
       "8": 1
    },
    "txOctetStats": {
       "4": 1,
       "168": 1,
-      "4100": 1
+      "4100": 1000
    },
    "wasClean": true,
    "wasCloseHandshakeTimeout": false,
@@ -111,7 +111,7 @@
          "RO",
          [
             6,
-            "88800e0d640d"
+            "88802ef3720e"
          ]
       ],
       [
@@ -124,7 +124,7 @@
          true,
          0,
          true,
-         "0e0d640d"
+         "2ef3720e"
       ]
    ]
 }

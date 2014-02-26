@@ -1,13 +1,13 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "OK",
-   "behaviorClose": "FAILED",
+   "behaviorClose": "WRONG CODE",
    "case": 38,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved non-control <b>Opcode = 6</b> and non-empty payload, then send Ping.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 1,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
@@ -27,13 +27,13 @@
       "closedByMe": false,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET /runCase?case=38&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eTE1U3AzUXBNTmYxcDlTTA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: UMq8QQ0mxGUJWEuuNSwXyzWqBRc=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET /runCase?case=38&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "4.1.4",
    "isServer": true,
-   "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 55099",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [
       [
          "message",
@@ -41,12 +41,12 @@
          false
       ]
    ],
-   "remoteCloseCode": 55099,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 4226,
+   "remoteCloseReason": "\u0013\u0003\u0002\u0003\b\u0010\u0004\u0002A\u0013\u000f\u0015\u0014\u0016\u0011\t\u0013\u0012\u0004\u0002A\t\u0011\u0005\u000e\u0002\u0004\\AV\u0019VW",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "The close code should have been 1002 or empty",
    "rxFrameStats": {
       "1": 1,
       "8": 1
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:29Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -66,13 +66,13 @@
    },
    "txOctetStats": {
       "2": 1,
+      "4": 1,
       "15": 2,
-      "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -165,7 +165,7 @@
          "RO",
          [
             19,
-            "818d37d1630d7fb40f6158fd437a58a30f6916"
+            "818d5368720e1b0d1e623c4452793c1a1e6a72"
          ]
       ],
       [
@@ -178,32 +178,32 @@
          true,
          0,
          true,
-         "37d1630d"
+         "5368720e"
       ],
       [
          "RO",
          [
             41,
-            "88a3d4d1630d03eaa6b40068bda70669f4a40d7ea1a11362a6a50669f4be136ebbb50637f4e11b3de2"
+            "88a31368720e03ea610d116b7a1e176a331d1c7d66180261611c176a3307026d7c0c173433580a3e25"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xd73bc5b9d4b9deaad2b897a9d9afc2acc7b3c5a8d2b897b3c7bfd8b8d2e697eccfec81"
+            "0x1082130302030810040241130f151416110913120402410911050e02045c4156195657"
          ],
          8,
          true,
          0,
          true,
-         "d4d1630d"
+         "1368720e"
       ],
       [
          "TF",
          [
-            26,
-            "0x03ea696e76616c696420636c6f736520636f6465203535303939"
+            2,
+            "0x03e8"
          ],
          8,
          true,
@@ -216,8 +216,8 @@
       [
          "TO",
          [
-            28,
-            "881a03ea696e76616c696420636c6f736520636f6465203535303939"
+            4,
+            "880203e8"
          ],
          false
       ]

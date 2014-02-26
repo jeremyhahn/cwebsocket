@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send again with <b>RSV = 3</b>, then send Ping. Octets are sent in frame-wise chops. Octets are sent in octet-wise chops.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 1,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since RSV must be 0, when no extension defining RSV meaning has been negoiated. The Pong is not received.",
    "expected": {
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=30&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eTE1U3AzUXBNTmYxcDlTTA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: UMq8QQ0mxGUJWEuuNSwXyzWqBRc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=30&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "3.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 59195",
+   "localCloseReason": "invalid close code 8834",
    "received": [
       [
          "message",
@@ -41,8 +41,8 @@
          false
       ]
    ],
-   "remoteCloseCode": 59195,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 8834,
+   "remoteCloseReason": "!\u00030\u0003:\u00106\u0002s\u0013=\u0015&\u0016#\t!\u00126\u0002s\t#\u0005<\u00026\\sV+Ub",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:29Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 2,
@@ -66,12 +66,12 @@
    "txOctetStats": {
       "2": 1,
       "15": 2,
-      "28": 1,
+      "27": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -164,7 +164,7 @@
          "RO",
          [
             19,
-            "818ddcd1630d94b40f61b3fd437ab3a30f69fd"
+            "818daa68720ee20d1e62c5445279c51a1e6a8b"
          ]
       ],
       [
@@ -177,32 +177,32 @@
          true,
          0,
          true,
-         "dcd1630d"
+         "aa68720e"
       ],
       [
          "RO",
          [
             41,
-            "88a3e4d1630d03ea96b400688da70669c4a40d7e91a1136296a50669c4be136e8bb50637c4e11b3ed5"
+            "88a32168720e03ea530d116b481e176a011d1c7d54180261531c176a0107026d4e0c173401580a3d10"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xe73bf5b9e4b9eeaae2b8a7a9e9aff2acf7b3f5a8e2b8a7b3f7bfe8b8e2e6a7ecffefb6"
+            "0x2282210330033a10360273133d152616230921123602730923053c02365c73562b5562"
          ],
          8,
          true,
          0,
          true,
-         "e4d1630d"
+         "2168720e"
       ],
       [
          "TF",
          [
-            26,
-            "0x03ea696e76616c696420636c6f736520636f6465203539313935"
+            25,
+            "0x03ea696e76616c696420636c6f736520636f64652038383334"
          ],
          8,
          true,
@@ -215,8 +215,8 @@
       [
          "TO",
          [
-            28,
-            "881a03ea696e76616c696420636c6f736520636f6465203539313935"
+            27,
+            "881903ea696e76616c696420636c6f736520636f64652038383334"
          ],
          false
       ]

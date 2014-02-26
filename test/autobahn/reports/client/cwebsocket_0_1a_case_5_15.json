@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, then unfragmented Text Message, all sent in one chop.",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 2,
    "expectation": "The connection is failed immediately, since there is no message to continue.",
    "expected": {
       "NON-STRICT": [],
@@ -28,14 +28,14 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=59&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: U2p0SlNDekFCSzBoS2RyeQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: l2+xl1wKnkXw6LZVkP1yFBCNq2w=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=59&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: S0hlYlgxcXdsc1QxanFDTQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=\r\n\r\n",
    "id": "5.15",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 63792",
+   "localCloseReason": "invalid close code 58010",
    "received": [],
-   "remoteCloseCode": 63792,
+   "remoteCloseCode": 58010,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -48,7 +48,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:38Z",
+   "started": "2014-02-26T23:02:08Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 2,
@@ -177,26 +177,26 @@
          "RO",
          [
             41,
-            "88a3fada630d03ea88bf006893ac0669daaf0d7e8faa136288ae0669dab5136e95be0637daea1b3dcb"
+            "88a3e170720e03ea9315116b8806176ac1051c7d940002619304176ac11f026d8e141734c1400a3ed0"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xf930ebb2fab2f0a1fcb3b9a2f7a4eca7e9b8eba3fcb3b9b8e9b4f6b3fcedb9e7e1e7a8"
+            "0xe29ae11bf01bfa08f61ab30bfd0de60ee311e10af61ab311e31dfc1af644b34eeb4ea2"
          ],
          8,
          true,
          0,
          true,
-         "fada630d"
+         "e170720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203633373932"
+            "0x03ea696e76616c696420636c6f736520636f6465203538303130"
          ],
          8,
          true,
@@ -210,7 +210,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203633373932"
+            "881a03ea696e76616c696420636c6f736520636f6465203538303130"
          ],
          false
       ]

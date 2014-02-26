@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send a text message with payload which is not valid UTF-8 in one fragment.<br><br>Payload: 0xf7bfbf",
    "droppedByMe": true,
-   "duration": 501,
+   "duration": 502,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
       "OK": []
@@ -22,8 +22,8 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=132&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: MVJLbkJlU3BWR2k3VGVtZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: d+A80O0+HCHx+4F6tYqNJfQYxAs=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=132&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: NUxHNUM4ME5uS0RCMGJkcA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: p8gemwXpVNv3qqxQUXVXGnZC7AA=\r\n\r\n",
    "id": "6.14.8",
    "isServer": true,
    "localCloseCode": 1001,
@@ -42,7 +42,7 @@
       "6": 1,
       "191": 1
    },
-   "started": "2014-02-26T03:47:59Z",
+   "started": "2014-02-26T23:02:30Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -129,7 +129,7 @@
          "RO",
          [
             6,
-            "888035ef630d"
+            "88808e87720e"
          ]
       ],
       [
@@ -142,7 +142,7 @@
          true,
          0,
          true,
-         "35ef630d"
+         "8e87720e"
       ]
    ]
 }

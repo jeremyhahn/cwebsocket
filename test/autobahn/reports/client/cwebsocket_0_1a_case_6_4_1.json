@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send invalid UTF-8 text message in 3 fragments (frames).\nFirst frame payload is valid, then wait, then 2nd frame which contains the payload making the sequence invalid, then wait, then 3rd frame with rest.\nNote that PART1 and PART3 are valid UTF-8 in themselves, PART2 is a 0x110000 encoded as in the UTF-8 integer encoding scheme, but the codepoint is invalid (out of range).\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5<br>\nPART2 = f4908080<br>\nPART3 = 656469746564<br>\n",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 1,
    "expectation": "The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
@@ -37,15 +37,15 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=74&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: QXdkamFsUWFSS25UN0lpWg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: HOjUNMYAUU4k0kqiqzRm7xWxlqM=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=74&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WW9YNElOZ1RwbkU3NlY1UQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 6+MCILDL7Qq7oynzLJdLgWt3fCM=\r\n\r\n",
    "id": "6.4.1",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 53041",
+   "localCloseReason": "invalid close code 12955",
    "received": [],
-   "remoteCloseCode": 53041,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 12955,
+   "remoteCloseReason": "1\u001a \u001a*\t&\u001bc\n-\f6\u000f3\u00101\u000b&\u001bc\u00103\u001c,\u001b&EcO;Or",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
@@ -57,7 +57,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:39Z",
+   "started": "2014-02-26T23:02:09Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -68,9 +68,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -120,26 +120,26 @@
          "RO",
          [
             41,
-            "88a3ccdb630d03eabebe0068a5ad0669ecae0d7eb9ab1362beaf0669ecb4136ea3bf0637eceb1b3dfd"
+            "88a33171720e03ea4314116b5807176a11041c7d440102614305176a111e026d5e15173411410a3e00"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xcf31ddb3ccb3c6a0cab28fa3c1a5daa6dfb9dda2cab28fb9dfb5c0b2caec8fe6d7e69e"
+            "0x329b311a201a2a09261b630a2d0c360f3310310b261b6310331c2c1b2645634f3b4f72"
          ],
          8,
          true,
          0,
          true,
-         "ccdb630d"
+         "3171720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203533303431"
+            "0x03ea696e76616c696420636c6f736520636f6465203132393535"
          ],
          8,
          true,
@@ -153,7 +153,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203533303431"
+            "881a03ea696e76616c696420636c6f736520636f6465203132393535"
          ],
          false
       ]

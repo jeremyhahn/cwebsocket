@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 256K message followed by close then a ping",
    "droppedByMe": false,
-   "duration": 19,
+   "duration": 26,
    "expectation": "Case outcome depends on implimentation defined close behavior. Message and close frame are sent back to back. If the close frame is processed before the text message write is complete (as can happen in asyncronous processing models) the close frame is processed first and the text message may not be recieved or may only be partially recieved.",
    "expected": {
       "NON-STRICT": [],
@@ -28,14 +28,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=215&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eHV6MWJzdmFGbW1sSXdtcQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 84jz4JYkpQx4UkwkQtTwBbCEX28=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=215&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: d3N6aEU2a3R5UkFVSHZPRA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: vY5SFdEHipvQnb8m7B2T01KoR60=\r\n\r\n",
    "id": "7.1.6",
    "isServer": true,
    "localCloseCode": 1000,
    "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": 50416,
+   "remoteCloseCode": 59240,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -48,7 +48,7 @@
       "23": 1,
       "191": 1
    },
-   "started": "2014-02-26T03:48:17Z",
+   "started": "2014-02-26T23:02:49Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 2,
@@ -179,20 +179,20 @@
          "RO",
          [
             23,
-            "8891c701640d03f1a1730560a2211062a821086cb56601"
+            "8891e499720e03f182eb136381b906618bb91e6f96fe17"
          ]
       ],
       [
          "RF",
          [
             17,
-            "0xc4f0c57ec261c62cd763cc2ccf6dd16bc6"
+            "0xe768f0e5f7faf3b7e2f8f9b7faf6e4f0f3"
          ],
          8,
          true,
          0,
          true,
-         "c701640d"
+         "e499720e"
       ]
    ]
 }

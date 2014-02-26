@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_ok">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.2</b></span> : Pass - <span style="font-size: 0.9em;"><b>1001</b> ms @ 2014-02-26T03:47:30Z</a></p>
+      <p class="case case_ok">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.2</b></span> : Pass - <span style="font-size: 0.9em;"><b>1002</b> ms @ 2014-02-26T23:02:01Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send Pong fragmented into 2 fragments.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Connection is failed immediately, since control message MUST NOT be fragmented.</p>
 
@@ -218,13 +218,13 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Key: NlYyU240U0ttbjJkSW1Bdg==
+Sec-WebSocket-Key: dWNLUGI0ZW9MekR2bm8wTw==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnTestSuite/0.6.0-0.8.1
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: 9KHqY6ImgOG4RbSe9/B0TUBe3QE=</pre>
+Sec-WebSocket-Accept: 0Nx/0mXh29eLoAqMcT+YUmo76Mk=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -291,8 +291,8 @@ Sec-WebSocket-Accept: 9KHqY6ImgOG4RbSe9/B0TUBe3QE=</pre>
          <pre class="wirelog_tx_frame">008 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=12, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               0x03e9476f696e672041776179</pre>
          <pre class="wirelog_tx_octets">009 TX OCTETS: 880c03e9476f696e672041776179</pre>
-         <pre class="wirelog_rx_octets">010 RX OCTETS: 8880c8d3630d</pre>
-         <pre class="wirelog_rx_frame">011 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=0, MASKED=True, MASK=6338643336333064</pre>
+         <pre class="wirelog_rx_octets">010 RX OCTETS: 8880736a720e</pre>
+         <pre class="wirelog_rx_frame">011 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=0, MASKED=True, MASK=3733366137323065</pre>
          <pre class="wirelog_tcp_closed_by_me">012 TCP DROPPED BY ME</pre>
       </div>
       <br/><hr/>

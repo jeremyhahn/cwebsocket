@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send unfragmented Text Message after Continuation Frame with FIN = true, where there is nothing to continue, sent in per-frame chops.",
    "droppedByMe": true,
-   "duration": 1001,
+   "duration": 1002,
    "expectation": "The connection is failed immediately, since there is no message to continue.",
    "expected": {
       "OK": []
@@ -21,8 +21,8 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=54&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: U2lVREtENXU0c1VwbmgwSQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: zMs06QUorHR8+nmkPPk1vVKP7jw=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=54&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WnpuaXpLQ0tNSFFvbUQwMA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Y1TiC19e8tFXLQmXIIMPoCt256E=\r\n\r\n",
    "id": "5.10",
    "isServer": true,
    "localCloseCode": 1001,
@@ -49,7 +49,7 @@
       "19": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:33Z",
+   "started": "2014-02-26T23:02:03Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -135,7 +135,7 @@
          "RO",
          [
             19,
-            "818d32d5630d7ab00f615df9437a5da70f6913"
+            "818da16b720ee90e1e62ce475279ce191e6a80"
          ]
       ],
       [
@@ -148,7 +148,7 @@
          true,
          0,
          true,
-         "32d5630d"
+         "a16b720e"
       ],
       [
          "KLE"
@@ -179,7 +179,7 @@
          "RO",
          [
             6,
-            "888086d6630d"
+            "8880d06c720e"
          ]
       ],
       [
@@ -192,7 +192,7 @@
          true,
          0,
          true,
-         "86d6630d"
+         "d06c720e"
       ]
    ]
 }

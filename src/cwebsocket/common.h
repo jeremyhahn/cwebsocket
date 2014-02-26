@@ -72,7 +72,7 @@
 #endif
 
 #ifndef CWS_DATA_BUFFER_MAX
-	#define CWS_DATA_BUFFER_MAX 65536     // bytes
+	#define CWS_DATA_BUFFER_MAX 65543     // bytes
 #endif
 
 #ifndef CWS_STACK_SIZE_MIN

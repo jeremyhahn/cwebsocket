@@ -1,14 +1,14 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "FAILED",
-   "behaviorClose": "UNCLEAN",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 14,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": true,
    "description": "Send binary message message with payload of length 65535.",
-   "droppedByMe": false,
-   "duration": 22,
+   "droppedByMe": true,
+   "duration": 217,
    "expectation": "Receive echo'ed binary message (with payload as sent). Clean close with normal code.",
    "expected": {
       "OK": [
@@ -26,41 +26,50 @@
       "closedByMe": true,
       "requireClean": true
    },
-   "failedByMe": true,
-   "httpRequest": "GET /runCase?case=14&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eTE1U3AzUXBNTmYxcDlTTA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: UMq8QQ0mxGUJWEuuNSwXyzWqBRc=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET /runCase?case=14&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
    "id": "1.2.6",
    "isServer": true,
-   "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 41504",
-   "received": [],
-   "remoteCloseCode": 41504,
+   "localCloseCode": 1000,
+   "localCloseReason": null,
+   "received": [
+      [
+         "message",
+         "0xfefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe ...",
+         true
+      ]
+   ],
+   "remoteCloseCode": null,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "Actual events differ from any expected.",
-   "resultClose": "The spec requires the connection to be failed cleanly here",
+   "result": "Actual events match at least one expected.",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
+      "2": 1,
       "8": 1
    },
    "rxOctetStats": {
-      "23": 1,
-      "190": 1
+      "6": 1,
+      "7": 1,
+      "190": 1,
+      "65536": 1
    },
-   "started": "2014-02-26T03:47:29Z",
+   "started": "2014-02-26T23:02:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
       "8": 1
    },
    "txOctetStats": {
-      "28": 1,
+      "4": 1,
       "168": 1,
       "65539": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -108,27 +117,34 @@
       [
          "RO",
          [
-            23,
-            "8891a1d1630d03f1c7a30260c4f11762cef10f6cd3b606"
+            65536,
+            "82feffff5168720eaf968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0af968cf0 ..."
+         ]
+      ],
+      [
+         "RO",
+         [
+            7,
+            "af968cf0af968c"
          ]
       ],
       [
          "RF",
          [
-            17,
-            "0xa220a4aea3b1a7fcb6b3adfcaebdb0bba7"
+            65535,
+            "0xfefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe ..."
          ],
-         8,
+         2,
          true,
          0,
          true,
-         "a1d1630d"
+         "5168720e"
       ],
       [
          "TF",
          [
-            26,
-            "0x03ea696e76616c696420636c6f736520636f6465203431353034"
+            2,
+            "0x03e8"
          ],
          8,
          true,
@@ -141,10 +157,29 @@
       [
          "TO",
          [
-            28,
-            "881a03ea696e76616c696420636c6f736520636f6465203431353034"
+            4,
+            "880203e8"
          ],
          false
+      ],
+      [
+         "RO",
+         [
+            6,
+            "88801a68720e"
+         ]
+      ],
+      [
+         "RF",
+         [
+            0,
+            ""
+         ],
+         8,
+         true,
+         0,
+         true,
+         "1a68720e"
       ]
    ]
 }

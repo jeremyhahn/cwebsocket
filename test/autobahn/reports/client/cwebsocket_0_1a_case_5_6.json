@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments, one ping with payload in-between.",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 2,
    "expectation": "A pong is received, then the message is echo'ed back to us.",
    "expected": {
       "OK": [
@@ -31,14 +31,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=50&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: SGlKakVZYTFjaW4ydVJhRQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: mM2zry3LqV8p+re5TXRD8SaTH1g=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=50&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: UlpQVjVFOFlsZlliUERBQw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: L2J/vzi933/4psWNicfdd4W1tc0=\r\n\r\n",
    "id": "5.6",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 58681",
+   "localCloseReason": "invalid close code 46464",
    "received": [],
-   "remoteCloseCode": 58681,
+   "remoteCloseCode": 46464,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -51,7 +51,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:31Z",
+   "started": "2014-02-26T23:02:02Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -160,26 +160,26 @@
          "RO",
          [
             41,
-            "88a3e6d3630d03ea94b600688fa50669c6a60d7e93a3136294a70669c6bc136e89b70637c6e31b3dd7"
+            "88a3b66a720e03eac40f116bdf1c176a961f1c7dc31a0261c41e176a9605026dd90e1734965a0a3e87"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xe539f7bbe6bbeca8e0baa5abebadf0aef5b1f7aae0baa5b1f5bdeabae0e4a5eefdeeb4"
+            "0xb580b601a701ad12a100e411aa17b114b40bb610a100e40bb407ab00a15ee454bc54f5"
          ],
          8,
          true,
          0,
          true,
-         "e6d3630d"
+         "b66a720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203538363831"
+            "0x03ea696e76616c696420636c6f736520636f6465203436343634"
          ],
          8,
          true,
@@ -193,7 +193,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203538363831"
+            "881a03ea696e76616c696420636c6f736520636f6465203436343634"
          ],
          false
       ]

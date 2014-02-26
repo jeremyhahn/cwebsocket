@@ -53,7 +53,7 @@ void autobahn_onmessage(void *websocket, cwebsocket_message *message) {
 	}
 	else if(STATE & STATE_RUNNING_TESTS) {
 		syslog(LOG_DEBUG, "autobahn_onmessage: echoing data back to server");
-		cwebsocket_client_write_data(client, message->payload, message->payload_len, message->opcode);
+		cwebsocket_client_write_data(client, message->payload, strlen(message->payload), message->opcode);
 	}
 }
 

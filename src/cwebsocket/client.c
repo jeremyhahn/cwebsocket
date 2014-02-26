@@ -681,6 +681,10 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		return -1; // continuations are accounted for in read loop
 	}
 	else if(frame.opcode == PING) {
+		if(frame.payload_len > 125) {
+			cwebsocket_client_close(websocket, 1002, "control frames must not exceed 125 bytes");
+			return -1;
+		}
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received PING control frame");
 		uint8_t payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length);
@@ -692,6 +696,10 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		return 0;
 	}
 	else if(frame.opcode == CLOSE) {
+		if(frame.payload_len > 125) {
+			cwebsocket_client_close(websocket, 1002, "control frames must not exceed 125 bytes");
+			return -1;
+		}
 		int code = 0;
 		if(payload_length > 2) {
 		   code = (data[header_length] << 8) + (data[header_length+1]);

@@ -520,7 +520,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			reason[i] = reason[i] ^ frame.masking_key[i%4];
 		}
 		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received CLOSE control frame. bytes=%i, code=%i, reason=%s", payload_length, code, reason);
-		cwebsocket_server_close_connection(connection, (uint32_t)code, (const char *)reason);
+		cwebsocket_server_close_connection(connection, (uint32_t)code, (const char *) reason);
 		return 0;
 	}
 

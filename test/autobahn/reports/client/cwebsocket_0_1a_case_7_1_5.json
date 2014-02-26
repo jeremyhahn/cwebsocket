@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send message fragment1 followed by close then fragment",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 2,
    "expectation": "Clean close with normal code.",
    "expected": {
       "OK": []
@@ -21,14 +21,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eHV6MWJzdmFGbW1sSXdtcQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 84jz4JYkpQx4UkwkQtTwBbCEX28=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: d3N6aEU2a3R5UkFVSHZPRA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: vY5SFdEHipvQnb8m7B2T01KoR60=\r\n\r\n",
    "id": "7.1.5",
    "isServer": true,
    "localCloseCode": 1000,
    "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": 61675,
+   "remoteCloseCode": 49267,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -41,7 +41,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-26T03:48:17Z",
+   "started": "2014-02-26T23:02:49Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -148,20 +148,20 @@
          "RO",
          [
             41,
-            "88a3f301640d03ea816407689a770169d3740a7e8671146281750169d36e146e9c650137d3311c3dc2"
+            "88a3c399720e03eab1fc116baaef176ae3ec1c7db6e90261b1ed176ae3f6026dacfd1734e3a90a3ef2"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xf0ebe569f469fe7af268b779f97fe27ce763e578f268b763e76ff868f236b73cef3ca6"
+            "0xc073c3f2d2f2d8e1d4f391e2dfe4c4e7c1f8c3e3d4f391f8c1f4def3d4ad91a7c9a780"
          ],
          8,
          true,
          0,
          true,
-         "f301640d"
+         "c399720e"
       ]
    ]
 }

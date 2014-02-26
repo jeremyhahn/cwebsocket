@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Same as Case 6.4.2, but we send message not in 3 frames, but in 3 chops of the same message frame.\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5f4<br>\nPART2 = 90<br>\nPART3 = <br>\n",
-   "droppedByMe": false,
-   "duration": 2001,
+   "droppedByMe": true,
+   "duration": 2002,
    "expectation": "The first chop is accepted, we expect to timeout on the first wait. The 2nd chop should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
       "NON-STRICT": [
@@ -37,12 +37,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=77&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WE1wSVJucTFRQW1MWW9DOA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: M3NtFA736LS9ftN+l0M2iYG8aDA=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=77&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: VHZjOXNzVk9GUmE4T2hHeQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 4nUp92lLXJ1jBKz2dkgKIFGAfuE=\r\n\r\n",
    "id": "6.4.4",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 29493",
+   "localCloseReason": "invalid close code 22687",
    "received": [
       [
          "timeout",
@@ -53,8 +53,8 @@
          "B"
       ]
    ],
-   "remoteCloseCode": 29493,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 22687,
+   "remoteCloseReason": "[\u001eJ\u001e@\rL\u001f\t\u000eG\b\\\u000bY\u0014[\u000fL\u001f\t\u0014Y\u0018F\u001fLA\tKQK\u0018",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -66,7 +66,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T03:47:41Z",
+   "started": "2014-02-26T23:02:11Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -80,9 +80,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -181,26 +181,26 @@
          "RO",
          [
             41,
-            "88a370df630d03ea02ba006819a9066950aa0d7e05af136202ab066950b0136e1fbb063750ef1b3d41"
+            "88a35b75720e03ea2910116b3203176a7b001c7d2e0502612901176a7b1a026d341117347b450a3e6a"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x733561b770b77aa476b633a77da166a263bd61a676b633bd63b17cb676e833e26be222"
+            "0x589f5b1e4a1e400d4c1f090e47085c0b59145b0f4c1f09145918461f4c41094b514b18"
          ],
          8,
          true,
          0,
          true,
-         "70df630d"
+         "5b75720e"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203239343933"
+            "0x03ea696e76616c696420636c6f736520636f6465203232363837"
          ],
          8,
          true,
@@ -214,7 +214,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203239343933"
+            "881a03ea696e76616c696420636c6f736520636f6465203232363837"
          ],
          false
       ]
