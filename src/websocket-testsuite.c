@@ -49,10 +49,10 @@ void autobahn_onmessage(void *websocket, cwebsocket_message *message) {
 	if(STATE & STATE_GET_CASE_COUNT) {
 		number_of_tests = atoi(message->payload);
 		STATE |= STATE_RUNNING_TESTS;
-		syslog(LOG_DEBUG, "autobahn_onmessage: STATE_GET_CASE_COUNT complete");
+		syslog(LOG_DEBUG, "autobahn_onmessage: fetched %i test cases", number_of_tests);
 	}
 	else if(STATE & STATE_RUNNING_TESTS) {
-		syslog(LOG_DEBUG, "autobahn_onmessage: STATE_RUNNING_TESTS");
+		syslog(LOG_DEBUG, "autobahn_onmessage: echoing data back to server");
 		cwebsocket_client_write_data(client, message->payload, message->payload_len, message->opcode);
 	}
 }
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
 	STATE = STATE_RUNNING_TESTS;
 	int i;
-	for(i=1; i<2; i++) {
+	for(i=1; i<number_of_tests; i++) {
 
 		syslog(LOG_DEBUG, "Running test %i", i);
 
