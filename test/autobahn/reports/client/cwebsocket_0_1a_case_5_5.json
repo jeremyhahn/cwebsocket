@@ -27,14 +27,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=49&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: UlpQVjVFOFlsZlliUERBQw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: L2J/vzi933/4psWNicfdd4W1tc0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=49&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: TDRKMUV0aGFvdlVpbG4xWA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=\r\n\r\n",
    "id": "5.5",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 56448",
+   "localCloseReason": "invalid close code 52028",
    "received": [],
-   "remoteCloseCode": 56448,
+   "remoteCloseCode": 52028,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -47,7 +47,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:02Z",
+   "started": "2014-02-27T23:01:42Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -219,26 +219,26 @@
          "RO",
          [
             41,
-            "88a3df6a720e03eaad0f116bb61c176aff1f1c7daa1a0261ad1e176aff05026db00e1734ff5a0a3eee"
+            "88a3c8d6c30f03eabab3a06aa1a0a66be8a3ad7cbda6b360baa2a66be8b9b36ca7b2a635e8e6bb3ff9"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xdc80df01ce01c412c8008d11c317d814dd0bdf10c8008d0bdd07c200c85e8d54d5549c"
+            "0xcb3c79bc68bc62af6ebd2bac65aa7ea97bb679ad6ebd2bb67bba64bd6ee32be973e93a"
          ],
          8,
          true,
          0,
          true,
-         "df6a720e"
+         "c8d6c30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203536343438"
+            "0x03ea696e76616c696420636c6f736520636f6465203532303238"
          ],
          8,
          true,

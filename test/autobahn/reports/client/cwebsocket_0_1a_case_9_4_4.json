@@ -8,7 +8,7 @@
    "createWirelog": false,
    "description": "Send fragmented binary message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 4k.",
    "droppedByMe": false,
-   "duration": 32,
+   "duration": 19,
    "expectation": "Receive echo'ed binary message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,14 +19,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=275&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eXo2UksyZ0wwUjZrcUxxUw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 0Yg5z0oprnnRkzEmbhx0v/PekuU=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=275&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: VHFYWWlCQXoweE5laHZvMQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: /FVxjW1ZP2ZWBc3zqUkitIWSPNE=\r\n\r\n",
    "id": "9.4.4",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 14197",
+   "localCloseReason": "invalid close code 13539",
    "received": [],
-   "remoteCloseCode": 14197,
+   "remoteCloseCode": 13539,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
@@ -39,7 +39,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-26T23:02:55Z",
+   "started": "2014-02-27T23:02:33Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1024,

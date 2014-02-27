@@ -19,14 +19,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=258&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Zk5OQlp6R1l4cUdNQlp5UA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: DwzTXFz9jSzw6NQD+/Uq3gezBqE=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=258&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: R0Zkbk1GSmNQbFpKbk03bg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: fPGIKZx7XqOcPzNWju1YiT95q9g=\r\n\r\n",
    "id": "9.2.2",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 11627",
+   "localCloseReason": "invalid close code 1015",
    "received": [],
-   "remoteCloseCode": 11627,
+   "remoteCloseCode": 1015,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
@@ -39,14 +39,14 @@
       "23": 1,
       "191": 1
    },
-   "started": "2014-02-26T23:02:50Z",
+   "started": "2014-02-27T23:02:30Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
       "8": 1
    },
    "txOctetStats": {
-      "28": 1,
+      "27": 1,
       "168": 1,
       "262154": 1
    },

@@ -1,14 +1,14 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behaviorClose": "UNCLEAN",
    "case": 63,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": true,
    "description": "A fragmented text message is sent in multiple frames. After\n   sending the first 2 frames of the text message, a Ping is sent. Then we wait 1s,\n   then we send 2 more text fragments, another Ping and then the final text fragment.\n   Everything is legal.",
-   "droppedByMe": true,
-   "duration": 2,
+   "droppedByMe": false,
+   "duration": 1,
    "expectation": "The peer immediately answers the first Ping before\n   it has received the last text message fragment. The peer pong's back the Ping's\n   payload exactly, and echo's the payload of the fragmented message back to us.",
    "expected": {
       "OK": [
@@ -35,19 +35,19 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=63&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: S0hlYlgxcXdsc1QxanFDTQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=63&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eUhGNTNlbXkwYVhQSFZybQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: +0fIrphc/gtyHAppOJKyDWym56A=\r\n\r\n",
    "id": "5.19",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 27290",
+   "localCloseReason": "invalid close code 45878",
    "received": [],
-   "remoteCloseCode": 27290,
-   "remoteCloseReason": "i\u001bx\u001br\b~\u001a;\u000bu\rn\u000ek\u0011i\n~\u001a;\u0011k\u001dt\u001a~D;NcN*",
+   "remoteCloseCode": 45878,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
-   "resultClose": "The close code should have been 1000 or empty",
+   "resultClose": "The spec requires the connection to be failed cleanly here",
    "rxFrameStats": {
       "8": 1
    },
@@ -55,7 +55,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:08Z",
+   "started": "2014-02-27T23:01:48Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -68,9 +68,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -164,26 +164,26 @@
          "RO",
          [
             41,
-            "88a36970720e03ea1b15116b0006176a49051c7d1c0002611b04176a491f026d0614173449400a3e58"
+            "88a3b0dcc30f03eac2b9a06ad9aaa66b90a9ad7cc5acb360c2a8a66b90b3b36cdfb8a63590ecbb3f81"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x6a9a691b781b72087e1a3b0b750d6e0e6b11690a7e1a3b116b1d741a7e443b4e634e2a"
+            "0xb33601b610b61aa516b753a61da006a303bc01a716b753bc03b01cb716e953e30be342"
          ],
          8,
          true,
          0,
          true,
-         "6970720e"
+         "b0dcc30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203237323930"
+            "0x03ea696e76616c696420636c6f736520636f6465203435383738"
          ],
          8,
          true,
@@ -197,7 +197,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203237323930"
+            "881a03ea696e76616c696420636c6f736520636f6465203435383738"
          ],
          false
       ]

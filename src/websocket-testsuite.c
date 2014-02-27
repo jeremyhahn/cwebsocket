@@ -43,8 +43,8 @@ void autobahn_onopen(void *websocket) {
 void autobahn_onmessage(void *websocket, cwebsocket_message *message) {
 
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "autobahn_onmessage: fd=%i, opcode=%#04x, payload_len=%zu, payload=%s\n",
-			client->fd, message->opcode, message->payload_len, message->payload);
+	syslog(LOG_DEBUG, "autobahn_onmessage: fd=%i, opcode=%#04x, payload_len=%zu, actual_payload_len=%zd, payload=%s\n",
+			client->fd, message->opcode, message->payload_len, strlen(message->payload), message->payload);
 
 	if(STATE & STATE_GET_CASE_COUNT) {
 		number_of_tests = atoi(message->payload);
@@ -108,10 +108,10 @@ int main(int argc, char **argv) {
 
 	STATE |= STATE_GET_CASE_COUNT;
 
+	// Hardcoding the protocol instead of relying on negotiation during handshake
 	websocket_client.subprotocol = autobahn_testsuite_new();
 
 	cwebsocket_client_init(&websocket_client, NULL, 0);
-
 	websocket_client.uri = "ws://localhost:9001/getCaseCount";
 	cwebsocket_client_connect(&websocket_client);
 	cwebsocket_client_read_data(&websocket_client);
@@ -120,14 +120,14 @@ int main(int argc, char **argv) {
 
 	STATE = STATE_RUNNING_TESTS;
 	int i;
-	for(i=1; i<number_of_tests; i++) {
+	for(i=1; i<number_of_tests+1; i++) {
 
 		syslog(LOG_DEBUG, "Running test %i", i);
 
-		char uribuf[255];
-		sprintf(uribuf, "ws://localhost:9001/runCase?case=%i&agent=%s", i, "cwebsocket/0.1a");
+		char uri[255];
+		sprintf(uri, "ws://localhost:9001/runCase?case=%i&agent=%s", i, "cwebsocket/0.1a");
 
-		websocket_client.uri = uribuf;
+		websocket_client.uri = uri;
 		if(cwebsocket_client_connect(&websocket_client) == -1) {
 			break;
 		}
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 		//cwebsocket_client_close(&websocket_client, 1000, "test complete");
 	}
 
-	//STATE |= STATE_GENERATNING_REPORT;
+	STATE |= STATE_GENERATNING_REPORT;
 	websocket_client.uri = "ws://localhost:9001/updateReports?agent=cwebsocket/0.1a";
 	if(cwebsocket_client_connect(&websocket_client) == -1) {
 		perror("unable to connect to server to run reports");

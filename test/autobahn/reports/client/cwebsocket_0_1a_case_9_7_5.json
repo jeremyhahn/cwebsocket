@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 1000 text messages of payload size 1024 to measure implementation/network RTT (round trip time) / latency.",
    "droppedByMe": true,
-   "duration": 8970,
+   "duration": 9136,
    "expectation": "Receive echo'ed text messages (with payload as sent). Timeout case after 240 secs.",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=297&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: b0htUkxnT0ZLenpwRlRUSg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: M48wc2dYdMl7StIa6JItmbhDaA0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=297&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Q0VrZHJ5SWJ0QndaSzdmNQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: dLshlcsFCnrDo12Ge0Rz8muPHvw=\r\n\r\n",
    "id": "9.7.5",
    "isServer": true,
    "localCloseCode": 1000,
@@ -41,7 +41,7 @@
       "191": 1,
       "1032": 1000
    },
-   "started": "2014-02-26T23:03:03Z",
+   "started": "2014-02-27T23:02:42Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1000,
@@ -111,7 +111,7 @@
          "RO",
          [
             6,
-            "8880ccb0720e"
+            "88806b000000"
          ]
       ],
       [
@@ -124,7 +124,7 @@
          true,
          0,
          true,
-         "ccb0720e"
+         "6b000000"
       ]
    ]
 }

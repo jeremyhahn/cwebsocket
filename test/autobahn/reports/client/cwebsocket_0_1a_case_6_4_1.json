@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send invalid UTF-8 text message in 3 fragments (frames).\nFirst frame payload is valid, then wait, then 2nd frame which contains the payload making the sequence invalid, then wait, then 3rd frame with rest.\nNote that PART1 and PART3 are valid UTF-8 in themselves, PART2 is a 0x110000 encoded as in the UTF-8 integer encoding scheme, but the codepoint is invalid (out of range).\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5<br>\nPART2 = f4908080<br>\nPART3 = 656469746564<br>\n",
-   "droppedByMe": true,
-   "duration": 1,
+   "droppedByMe": false,
+   "duration": 2,
    "expectation": "The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
       "NON-STRICT": [
@@ -37,15 +37,15 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=74&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WW9YNElOZ1RwbkU3NlY1UQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 6+MCILDL7Qq7oynzLJdLgWt3fCM=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=74&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bEdISE8xeEhQZ2JMeUpBbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: zQIlPrVKvRpH56e+LzTRBSuH6Oc=\r\n\r\n",
    "id": "6.4.1",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 12955",
+   "localCloseReason": "invalid close code 54839",
    "received": [],
-   "remoteCloseCode": 12955,
-   "remoteCloseReason": "1\u001a \u001a*\t&\u001bc\n-\f6\u000f3\u00101\u000b&\u001bc\u00103\u001c,\u001b&EcO;Or",
+   "remoteCloseCode": 54839,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
@@ -57,7 +57,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:09Z",
+   "started": "2014-02-27T23:01:49Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -68,9 +68,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -120,26 +120,26 @@
          "RO",
          [
             41,
-            "88a33171720e03ea4314116b5807176a11041c7d440102614305176a111e026d5e15173411410a3e00"
+            "88a3d5ddc30f03eaa7b8a06abcaba66bf5a8ad7ca0adb360a7a9a66bf5b2b36cbab9a635f5edbb3fe4"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x329b311a201a2a09261b630a2d0c360f3310310b261b6310331c2c1b2645634f3b4f72"
+            "0xd63764b775b77fa473b636a778a163a266bd64a673b636bd66b179b673e836e26ee227"
          ],
          8,
          true,
          0,
          true,
-         "3171720e"
+         "d5ddc30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203132393535"
+            "0x03ea696e76616c696420636c6f736520636f6465203534383339"
          ],
          8,
          true,
@@ -153,7 +153,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203132393535"
+            "881a03ea696e76616c696420636c6f736520636f6465203534383339"
          ],
          false
       ]

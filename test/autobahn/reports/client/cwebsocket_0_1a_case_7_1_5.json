@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send message fragment1 followed by close then fragment",
    "droppedByMe": false,
-   "duration": 2,
+   "duration": 1,
    "expectation": "Clean close with normal code.",
    "expected": {
       "OK": []
@@ -21,14 +21,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: d3N6aEU2a3R5UkFVSHZPRA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: vY5SFdEHipvQnb8m7B2T01KoR60=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Tk44bzZhYlQyUWNWQlhPdw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ADocdQmKbRM1Z98hMeFvrx4bFi0=\r\n\r\n",
    "id": "7.1.5",
    "isServer": true,
    "localCloseCode": 1000,
    "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": 49267,
+   "remoteCloseCode": 16623,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -41,7 +41,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-26T23:02:49Z",
+   "started": "2014-02-27T23:02:29Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -148,20 +148,20 @@
          "RO",
          [
             41,
-            "88a3c399720e03eab1fc116baaef176ae3ec1c7db6e90261b1ed176ae3f6026dacfd1734e3a90a3ef2"
+            "88a34305c40f03ea3160a76a2a73a16b6370aa7c3675b4603171a16b636ab46c2c61a1356335bc3f72"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xc073c3f2d2f2d8e1d4f391e2dfe4c4e7c1f8c3e3d4f391f8c1f4def3d4ad91a7c9a780"
+            "0x40eff56fe46fee7ce26ea77fe979f27af765f57ee26ea765f769e86ee230a73aff3ab6"
          ],
          8,
          true,
          0,
          true,
-         "c399720e"
+         "4305c40f"
       ]
    ]
 }

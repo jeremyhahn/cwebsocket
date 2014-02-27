@@ -310,6 +310,7 @@ int cwebsocket_server_send_handshake_response(cwebsocket_connection *connection,
 
 int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 
+	/*
 	ssize_t byte = 0;
 	int header_length = 6;                      // The size of the header (header = everything up until the start of the payload)
 	const int header_length_offset = 6;         // The byte which starts the 2 byte header
@@ -321,13 +322,26 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 	uint8_t data[CWS_DATA_BUFFER_MAX];          // Data stream buffer
 	cwebsocket_frame frame;                     // WebSocket Data Frame - RFC 6455 Section 5.2
 	memset(&frame, 0, sizeof(frame));
+	 */
 
-	while(bytes_read < header_length + payload_length) {
+	int header_length = 6, bytes_read = 0;
+	const int header_length_offset = 6;
+	const int extended_payload16_end_byte = 8;
+	const int extended_payload64_end_byte = 14;
+	uint64_t payload_length = 0;
 
-		if((connection->state & WEBSOCKET_STATE_OPEN) == 0) {
-			syslog(LOG_DEBUG, "cwebsocket_server_read_data: websocket closed");
-			return -1;
-		}
+	uint8_t *data = malloc(CWS_DATA_BUFFER_MAX);
+	if(data == NULL) {
+		perror("out of memory");
+		exit(-1);
+	}
+	memset(data, 0, CWS_DATA_BUFFER_MAX);
+
+	cwebsocket_frame frame;
+	memset(&frame, 0, sizeof(frame));
+
+	uint64_t frame_size = header_length;
+	while(bytes_read < frame_size && (connection->state & WEBSOCKET_STATE_OPEN)) {
 
 		if(bytes_read == CWS_DATA_BUFFER_MAX) {
 				syslog(LOG_ERR, "cwebsocket_server_read_data: frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i",
@@ -336,7 +350,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 				return -1;
 		}
 
-		byte = cwebsocket_server_read(connection, data+bytes_read, 1);
+		ssize_t byte = cwebsocket_server_read(connection, data+bytes_read, 1);
 
 		if(byte == 0) {
 		   char *errmsg = "client closed the connection";
@@ -366,9 +380,6 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			   cwebsocket_server_close_connection(connection, 1002, "received unmasked client frame");
 			   return -1;
 		   }
-
-		   payload_length = frame.payload_len;
-		   extended_payload_length = 0;
 		}
 
 		if(frame.payload_len <= 125) {
@@ -377,10 +388,13 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 			frame.masking_key[1] = data[3];
 			frame.masking_key[2] = data[4];
 			frame.masking_key[3] = data[5];
+
+		    payload_length = frame.payload_len;
+			frame_size = header_length + payload_length;
 		}
 		else if(frame.payload_len == 126 && bytes_read == extended_payload16_end_byte) {
 
-			extended_payload_length = 0;
+			uint16_t extended_payload_length = 0;
 			extended_payload_length |= ((uint8_t) data[2]) << 8;
 			extended_payload_length |= ((uint8_t) data[3]) << 0;
 
@@ -394,7 +408,9 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		}
 		else if(frame.payload_len == 127 && bytes_read == extended_payload64_end_byte) {
 
-			extended_payload_length = 0;
+			header_length += 6;
+
+			uint64_t extended_payload_length = 0;
 			extended_payload_length |= ((uint64_t) data[2]) << 56;
 			extended_payload_length |= ((uint64_t) data[3]) << 48;
 			extended_payload_length |= ((uint64_t) data[4]) << 40;
@@ -414,13 +430,16 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		}
 	}
 
-	cwebsocket_print_frame(&frame);
-
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
-		uint8_t payload[payload_length];
-		memcpy(payload, &data[header_length], payload_length * sizeof(uint8_t));
+		char *payload = malloc(sizeof(char) * payload_length);
+		if(payload == NULL) {
+			perror("out of memory");
+			exit(-1);
+		}
+		memcpy(payload, &data[header_length], payload_length);
 		payload[payload_length] = '\0';
+		free(data);
 
 		int i;
 		for(i=0; i<payload_length; i++) {
@@ -428,24 +447,37 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		}
 
 		size_t utf8_code_points = 0;
-		if(utf8_count_code_points(payload, &utf8_code_points)) {
-			syslog(LOG_ERR, "cwebsocket_server_read_data: received %i byte malformed utf-8 text payload: %s\n", payload_length, payload);
+		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
+			syslog(LOG_ERR, "cwebsocket_server_read_data: received %zu byte malformed utf-8 text payload: %s\n", payload_length, payload);
 			cwebsocket_server_onerror(connection, "received malformed utf-8 payload");
 			return -1;
 		}
 
-		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received %i byte text payload: %s", payload_length, payload);
+		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received %zu byte text payload: %s", payload_length, payload);
 
 		if(connection->subprotocol != NULL && connection->subprotocol->onmessage != NULL) {
 
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+			if(message == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			memset(message, 0, sizeof(cwebsocket_message));
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
 			message->payload = malloc(payload_length+1);
+			if(message->payload == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			strncpy(message->payload, (char *)payload, payload_length+1);
+			free(payload);
 
 			cwebsocket_server_thread_args *args = malloc(sizeof(cwebsocket_server_thread_args));
+			if(args == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 		    memset(args, 0, sizeof(cwebsocket_server_thread_args));
 		    args->connection = connection;
 		    args->message = message;
@@ -458,12 +490,13 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		    return bytes_read;
 		}
 
+		free(payload);
 		syslog(LOG_WARNING, "cwebsocket_server_read_data: onmessage callback not defined");
 		return bytes_read;
 	}
 	else if(frame.fin && frame.opcode == BINARY_FRAME) {
 
-		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received BINARY payload. bytes=%i", payload_length);
+		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received BINARY payload. bytes=%zu", payload_length);
 
 		char payload[payload_length];
 		memcpy(payload, &data[header_length], payload_length);
@@ -471,12 +504,24 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		if(connection->subprotocol->onmessage != NULL) {
 
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+			if(message == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
 			message->payload = malloc(sizeof(char) * payload_length);
+			if(message->payload == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			memcpy(message->payload, payload, payload_length);
 
 			cwebsocket_server_thread_args *args = malloc(sizeof(cwebsocket_server_thread_args));
+			if(args == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			args->connection = connection;
 			args->message = message;
 
@@ -519,7 +564,7 @@ int cwebsocket_server_read_data(cwebsocket_connection *connection) {
 		for(i=0; i<payload_length; i++) {
 			reason[i] = reason[i] ^ frame.masking_key[i%4];
 		}
-		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received CLOSE control frame. bytes=%i, code=%i, reason=%s", payload_length, code, reason);
+		syslog(LOG_DEBUG, "cwebsocket_server_read_data: received CLOSE control frame. payload_length=%zu, code=%i, reason=%s", payload_length, code, reason);
 		cwebsocket_server_close_connection(connection, (uint32_t)code, (const char *) reason);
 		return 0;
 	}

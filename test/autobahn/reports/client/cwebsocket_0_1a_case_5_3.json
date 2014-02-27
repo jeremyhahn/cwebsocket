@@ -1,13 +1,13 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behaviorClose": "UNCLEAN",
    "case": 47,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments.",
-   "droppedByMe": true,
+   "droppedByMe": false,
    "duration": 2,
    "expectation": "Message is processed and echo'ed back to us.",
    "expected": {
@@ -27,19 +27,19 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=47&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: UlpQVjVFOFlsZlliUERBQw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: L2J/vzi933/4psWNicfdd4W1tc0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=47&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: TDRKMUV0aGFvdlVpbG4xWA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=\r\n\r\n",
    "id": "5.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 26752",
+   "localCloseReason": "invalid close code 50492",
    "received": [],
-   "remoteCloseCode": 26752,
-   "remoteCloseReason": "k\u0001z\u0001p\u0012|\u00009\u0011w\u0017l\u0014i\u000bk\u0010|\u00009\u000bi\u0007v\u0000|^9TaT(",
+   "remoteCloseCode": 50492,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
-   "resultClose": "The close code should have been 1000 or empty",
+   "resultClose": "The spec requires the connection to be failed cleanly here",
    "rxFrameStats": {
       "8": 1
    },
@@ -47,7 +47,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:02Z",
+   "started": "2014-02-27T23:01:42Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -59,9 +59,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -132,26 +132,26 @@
          "RO",
          [
             41,
-            "88a36b6a720e03ea190f116b021c176a4b1f1c7d1e1a0261191e176a4b05026d040e17344b5a0a3e5a"
+            "88a3c6d6c30f03eab4b3a06aafa0a66be6a3ad7cb3a6b360b4a2a66be6b9b36ca9b2a635e6e6bb3ff7"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x68806b017a0170127c00391177176c14690b6b107c00390b690776007c5e3954615428"
+            "0xc53c77bc66bc6caf60bd25ac6baa70a975b677ad60bd25b675ba6abd60e325e97de934"
          ],
          8,
          true,
          0,
          true,
-         "6b6a720e"
+         "c6d6c30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203236373532"
+            "0x03ea696e76616c696420636c6f736520636f6465203530343932"
          ],
          8,
          true,
@@ -165,7 +165,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203236373532"
+            "881a03ea696e76616c696420636c6f736520636f6465203530343932"
          ],
          false
       ]

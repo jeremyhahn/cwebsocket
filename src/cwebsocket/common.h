@@ -45,6 +45,8 @@
 #include <openssl/buffer.h>
 #include "utf8.h"
 
+#include <limits.h>
+
 #ifdef USESSL
 	#include <openssl/rand.h>
 	#include <openssl/ssl.h>
@@ -120,7 +122,7 @@ typedef struct {
 	bool rsv3;
 	opcode opcode;
 	bool mask;
-	int payload_len;
+	uint64_t payload_len;
 	uint32_t masking_key[4];
 } cwebsocket_frame;
 

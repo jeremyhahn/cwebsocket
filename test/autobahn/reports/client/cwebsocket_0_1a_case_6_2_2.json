@@ -1,14 +1,14 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behaviorClose": "UNCLEAN",
    "case": 69,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": true,
    "description": "Send a valid UTF-8 text message in two fragments, fragmented on UTF-8 code point boundary.<br><br>MESSAGE FRAGMENT 1:<br>Hello-\u00b5@\u00df\u00f6\u00e4<br>48656c6c6f2dc2b540c39fc3b6c3a4<br><br>MESSAGE FRAGMENT 2:<br>\u00fc\u00e0\u00e1-UTF-8!!<br>c3bcc3a0c3a12d5554462d382121",
-   "droppedByMe": true,
-   "duration": 2,
+   "droppedByMe": false,
+   "duration": 1,
    "expectation": "The message is echo'ed back to us.",
    "expected": {
       "OK": [
@@ -27,19 +27,19 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=69&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: S0hlYlgxcXdsc1QxanFDTQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=69&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eUhGNTNlbXkwYVhQSFZybQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: +0fIrphc/gtyHAppOJKyDWym56A=\r\n\r\n",
    "id": "6.2.2",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 32410",
+   "localCloseReason": "invalid close code 7734",
    "received": [],
-   "remoteCloseCode": 32410,
-   "remoteCloseReason": "}\u001bl\u001bf\bj\u001a/\u000ba\rz\u000e\u007f\u0011}\nj\u001a/\u0011\u007f\u001d`\u001ajD/NwN>",
+   "remoteCloseCode": 7734,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events differ from any expected.",
-   "resultClose": "The close code should have been 1000 or empty",
+   "resultClose": "The spec requires the connection to be failed cleanly here",
    "rxFrameStats": {
       "8": 1
    },
@@ -47,7 +47,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:08Z",
+   "started": "2014-02-27T23:01:48Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -57,12 +57,12 @@
    "txOctetStats": {
       "16": 1,
       "17": 1,
-      "28": 1,
+      "27": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -133,26 +133,26 @@
          "RO",
          [
             41,
-            "88a37d70720e03ea0f15116b1406176a5d051c7d080002610f04176a5d1f026d121417345d400a3e4c"
+            "88a31ddcc30f03ea6fb9a06a74aaa66b3da9ad7c68acb3606fa8a66b3db3b36c72b8a6353decbb3f2c"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x7e9a7d1b6c1b66086a1a2f0b610d7a0e7f117d0a6a1a2f117f1d601a6a442f4e774e3e"
+            "0x1e36acb6bdb6b7a5bbb7fea6b0a0aba3aebcaca7bbb7febcaeb0b1b7bbe9fee3a6e3ef"
          ],
          8,
          true,
          0,
          true,
-         "7d70720e"
+         "1ddcc30f"
       ],
       [
          "TF",
          [
-            26,
-            "0x03ea696e76616c696420636c6f736520636f6465203332343130"
+            25,
+            "0x03ea696e76616c696420636c6f736520636f64652037373334"
          ],
          8,
          true,
@@ -165,8 +165,8 @@
       [
          "TO",
          [
-            28,
-            "881a03ea696e76616c696420636c6f736520636f6465203332343130"
+            27,
+            "881903ea696e76616c696420636c6f736520636f64652037373334"
          ],
          false
       ]

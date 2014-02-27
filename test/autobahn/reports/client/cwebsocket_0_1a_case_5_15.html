@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_non_strict">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.15</b></span> : Non-Strict - <span style="font-size: 0.9em;"><b>2</b> ms @ 2014-02-26T23:02:08Z</a></p>
+      <p class="case case_non_strict">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.15</b></span> : Non-Strict - <span style="font-size: 0.9em;"><b>2</b> ms @ 2014-02-27T23:01:48Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, then unfragmented Text Message, all sent in one chop.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The connection is failed immediately, since there is no message to continue.</p>
 
@@ -218,13 +218,13 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Key: S0hlYlgxcXdsc1QxanFDTQ==
+Sec-WebSocket-Key: eUhGNTNlbXkwYVhQSFZybQ==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnTestSuite/0.6.0-0.8.1
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=</pre>
+Sec-WebSocket-Accept: +0fIrphc/gtyHAppOJKyDWym56A=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -239,8 +239,8 @@ Sec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=</pre>
          <tr class="stats_row"><td>wasOpenHandshakeTimeout</td><td class="left">False</td><td class="left">When performing the opening handshake, but the peer did not finish in time, this gets True.</td></tr>
          <tr class="stats_row"><td>wasCloseHandshakeTimeout</td><td class="left">False</td><td class="left">When we initiated a closing handshake, but the peer did not respond in time, this gets True.</td></tr>
          <tr class="stats_row"><td>localCloseCode</td><td class="left">1002</td><td class="left">The close code I sent in close frame (if any).</td></tr>
-         <tr class="stats_row"><td>localCloseReason</td><td class="left">invalid close code 58010</td><td class="left">The close reason I sent in close frame (if any).</td></tr>
-         <tr class="stats_row"><td>remoteCloseCode</td><td class="left">58010</td><td class="left">The close code the peer sent me in close frame (if any).</td></tr>
+         <tr class="stats_row"><td>localCloseReason</td><td class="left">invalid close code 16694</td><td class="left">The close reason I sent in close frame (if any).</td></tr>
+         <tr class="stats_row"><td>remoteCloseCode</td><td class="left">16694</td><td class="left">The close code the peer sent me in close frame (if any).</td></tr>
          <tr class="stats_row"><td>remoteCloseReason</td><td class="left">None</td><td class="left">The close reason the peer sent me in close frame (if any).</td></tr>
       </table>      <br/><hr/>
       <h2>Wire Statistics</h2>
@@ -293,12 +293,12 @@ Sec-WebSocket-Accept: wpc08It2j27CkXu6fMYdBxZ6lDc=</pre>
          <pre class="wirelog_tx_frame">               fragment4</pre>
          <pre class="wirelog_tx_octets">009 TX OCTETS: 8109667261676d656e7434</pre>
          <pre class="wirelog_kill_after">010 FAIL CONNECTION AFTER 1.000000 sec</pre>
-         <pre class="wirelog_rx_octets">011 RX OCTETS: 88a3e170720e03ea9315116b8806176ac1051c7d940002619304176ac11f026d8e141734c1400a3ed0</pre>
-         <pre class="wirelog_rx_frame">012 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=35, MASKED=True, MASK=6531373037323065</pre>
-         <pre class="wirelog_rx_frame">               0xe29ae11bf01bfa08f61ab30bfd0de60ee311e10af61ab311e31dfc1af644b34eeb4ea2</pre>
+         <pre class="wirelog_rx_octets">011 RX OCTETS: 88a342dcc30f03ea30b9a06a2baaa66b62a9ad7c37acb36030a8a66b62b3b36c2db8a63562ecbb3f73</pre>
+         <pre class="wirelog_rx_frame">012 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=35, MASKED=True, MASK=3432646363333066</pre>
+         <pre class="wirelog_rx_frame">               0x4136f3b6e2b6e8a5e4b7a1a6efa0f4a3f1bcf3a7e4b7a1bcf1b0eeb7e4e9a1e3f9e3b0</pre>
          <pre class="wirelog_tx_frame">013 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=26, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
-         <pre class="wirelog_tx_frame">               0x03ea696e76616c696420636c6f736520636f6465203538303130</pre>
-         <pre class="wirelog_tx_octets">014 TX OCTETS: 881a03ea696e76616c696420636c6f736520636f6465203538303130</pre>
+         <pre class="wirelog_tx_frame">               0x03ea696e76616c696420636c6f736520636f6465203136363934</pre>
+         <pre class="wirelog_tx_octets">014 TX OCTETS: 881a03ea696e76616c696420636c6f736520636f6465203136363934</pre>
          <pre class="wirelog_tcp_closed_by_peer">015 TCP DROPPED BY PEER</pre>
       </div>
       <br/><hr/>

@@ -19,14 +19,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=287&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: UTAwZU1lenhNN2lHeGVjaA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: KTWzIHaZcE3HlFd8hdKeCeKN/d0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=287&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eGFGd29qWFpkNHZmZ3FneQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: iKuWMizPijTlCqgNnYzz8Uws/WA=\r\n\r\n",
    "id": "9.6.1",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 2384",
+   "localCloseReason": "invalid close code 32762",
    "received": [],
-   "remoteCloseCode": 2384,
+   "remoteCloseCode": 32762,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
@@ -39,14 +39,14 @@
       "23": 1,
       "191": 1
    },
-   "started": "2014-02-26T23:02:56Z",
+   "started": "2014-02-27T23:02:35Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
       "8": 1
    },
    "txOctetStats": {
-      "64": 1026,
+      "64": 1027,
       "168": 1
    },
    "wasClean": false,

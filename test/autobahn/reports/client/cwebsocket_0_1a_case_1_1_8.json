@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text message message with payload of length 65536. Sent out data in chops of 997 octets.",
    "droppedByMe": false,
-   "duration": 16,
+   "duration": 19,
    "expectation": "Receive echo'ed text message (with payload as sent). Clean close with normal code.",
    "expected": {
       "OK": [
@@ -27,14 +27,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=8&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=8&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
    "id": "1.1.8",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 64153",
+   "localCloseReason": "invalid close code 24869",
    "received": [],
-   "remoteCloseCode": 64153,
+   "remoteCloseCode": 24869,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -47,7 +47,7 @@
       "23": 1,
       "189": 1
    },
-   "started": "2014-02-26T23:02:00Z",
+   "started": "2014-02-27T23:01:40Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -630,26 +630,26 @@
          "RO",
          [
             23,
-            "8891f968720e03f19f1a13639c48066196481e6f8b0f17"
+            "889162d4c30f03f104a6a26207f4b7600df4af6e10b3a6"
          ]
       ],
       [
          "RF",
          [
             17,
-            "0xfa99ed14ea0bee46ff09e446e707f901ee"
+            "0x6125c7a9c0b6c4fbd5b4cefbcdbad3bcc4"
          ],
          8,
          true,
          0,
          true,
-         "f968720e"
+         "62d4c30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203634313533"
+            "0x03ea696e76616c696420636c6f736520636f6465203234383639"
          ],
          8,
          true,
@@ -663,7 +663,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203634313533"
+            "881a03ea696e76616c696420636c6f736520636f6465203234383639"
          ],
          false
       ]

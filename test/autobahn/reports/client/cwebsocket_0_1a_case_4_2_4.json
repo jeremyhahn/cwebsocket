@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved control <b>Opcode = 14</b> and non-empty payload, then send Ping.",
-   "droppedByMe": true,
-   "duration": 1,
+   "droppedByMe": false,
+   "duration": 2,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=43&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=43&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
    "id": "4.2.4",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 29314",
+   "localCloseReason": "invalid close code 34110",
    "received": [
       [
          "message",
@@ -41,8 +41,8 @@
          false
       ]
    ],
-   "remoteCloseCode": 29314,
-   "remoteCloseReason": "q\u0003`\u0003j\u0010f\u0002#\u0013m\u0015v\u0016s\tq\u0012f\u0002#\ts\u0005l\u0002f\\#V{Vf",
+   "remoteCloseCode": 34110,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:00Z",
+   "started": "2014-02-27T23:01:40Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -70,9 +70,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -165,7 +165,7 @@
          "RO",
          [
             19,
-            "818d6e68720e260d1e6201445279011a1e6a4f"
+            "818dbbd4c30ff3b1af63d4f8e378d4a6af6b9a"
          ]
       ],
       [
@@ -178,32 +178,32 @@
          true,
          0,
          true,
-         "6e68720e"
+         "bbd4c30f"
       ],
       [
          "RO",
          [
             41,
-            "88a37168720e03ea030d116b181e176a511d1c7d04180261031c176a5107026d1e0c173451580a3e14"
+            "88a386d4c30f03eaf4b1a06aefa2a66ba6a1ad7cf3a4b360f4a0a66ba6bbb36ce9b0a635a6e4bb3fe3"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x7282710360036a10660223136d157616730971126602230973056c02665c23567b5666"
+            "0x853e37be26be2cad20bf65ae2ba830ab35b437af20bf65b435b82abf20e165eb3deb20"
          ],
          8,
          true,
          0,
          true,
-         "7168720e"
+         "86d4c30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203239333134"
+            "0x03ea696e76616c696420636c6f736520636f6465203334313130"
          ],
          8,
          true,
@@ -217,7 +217,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203239333134"
+            "881a03ea696e76616c696420636c6f736520636f6465203334313130"
          ],
          false
       ]

@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Same as Case 6.4.1, but we send message not in 3 frames, but in 3 chops of the same message frame.\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5<br>\nPART2 = f4908080<br>\nPART3 = 656469746564<br>\n",
-   "droppedByMe": true,
-   "duration": 2002,
+   "droppedByMe": false,
+   "duration": 2003,
    "expectation": "The first chop is accepted, we expect to timeout on the first wait. The 2nd chop should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
       "NON-STRICT": [
@@ -37,12 +37,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=76&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WW9YNElOZ1RwbkU3NlY1UQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 6+MCILDL7Qq7oynzLJdLgWt3fCM=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=76&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bEdISE8xeEhQZ2JMeUpBbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: zQIlPrVKvRpH56e+LzTRBSuH6Oc=\r\n\r\n",
    "id": "6.4.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 6041",
+   "localCloseReason": "invalid close code 61749",
    "received": [
       [
          "timeout",
@@ -53,8 +53,8 @@
          "B"
       ]
    ],
-   "remoteCloseCode": 6041,
-   "remoteCloseReason": "\u0014\u0018\u0005\u0018\u000f\u000b\u0003\u0019F\b\b\u000e\u0013\r\u0016\u0012\u0014\t\u0003\u0019F\u0012\u0016\u001e\t\u0019\u0003GFM\u001eMW",
+   "remoteCloseCode": 61749,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -66,7 +66,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:09Z",
+   "started": "2014-02-27T23:01:49Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -77,12 +77,12 @@
       "4": 1,
       "6": 1,
       "11": 1,
-      "27": 1,
+      "28": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -181,26 +181,26 @@
          "RO",
          [
             41,
-            "88a31473720e03ea6616116b7d05176a34061c7d610302616607176a341c026d7b17173434430a3e25"
+            "88a3f2dfc30f03ea80baa06a9ba9a66bd2aaad7c87afb36080aba66bd2b0b36c9dbba635d2efbb3fc3"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x1799141805180f0b03194608080e130d1612140903194612161e09190347464d1e4d57"
+            "0xf13543b552b558a654b411a55fa344a041bf43a454b411bf41b35eb454ea11e049e000"
          ],
          8,
          true,
          0,
          true,
-         "1473720e"
+         "f2dfc30f"
       ],
       [
          "TF",
          [
-            25,
-            "0x03ea696e76616c696420636c6f736520636f64652036303431"
+            26,
+            "0x03ea696e76616c696420636c6f736520636f6465203631373439"
          ],
          8,
          true,
@@ -213,8 +213,8 @@
       [
          "TO",
          [
-            27,
-            "881903ea696e76616c696420636c6f736520636f64652036303431"
+            28,
+            "881a03ea696e76616c696420636c6f736520636f6465203631373439"
          ],
          false
       ]

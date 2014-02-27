@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved control <b>Opcode = 15</b> and non-empty payload, then send Ping.",
    "droppedByMe": false,
-   "duration": 3,
+   "duration": 7,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=44&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: bnJVRjBhWWluU0lGdE1oYg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Kk+wjYxMRsktnfNE+jK6Yh9Ruus=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=44&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
    "id": "4.2.5",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 53378",
+   "localCloseReason": "invalid close code 55614",
    "received": [
       [
          "message",
@@ -41,7 +41,7 @@
          false
       ]
    ],
-   "remoteCloseCode": 53378,
+   "remoteCloseCode": 55614,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-26T23:02:00Z",
+   "started": "2014-02-27T23:01:40Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -276,7 +276,7 @@
          "RO",
          [
             19,
-            "818d2c68720e640d1e6243445279431a1e6a0d"
+            "818dc2d4c30f8ab1af63adf8e378ada6af6be3"
          ]
       ],
       [
@@ -289,7 +289,7 @@
          true,
          0,
          true,
-         "2c68720e"
+         "c2d4c30f"
       ],
       [
          "TO",
@@ -415,26 +415,26 @@
          "RO",
          [
             41,
-            "88a3d368720e03eaa10d116bba1e176af31d1c7da6180261a11c176af307026dbc0c1734f3580a3eb5"
+            "88a3dad4c30f03eaa8b1a06ab3a2a66bfaa1ad7cafa4b360a8a0a66bfabbb36cb5b0a635fae4bb3fbc"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xd082d303c203c810c4028113cf15d416d109d312c4028109d105ce02c45c8156d956c7"
+            "0xd93e6bbe7abe70ad7cbf39ae77a86cab69b46baf7cbf39b469b876bf7ce139eb61eb7f"
          ],
          8,
          true,
          0,
          true,
-         "d368720e"
+         "dad4c30f"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203533333738"
+            "0x03ea696e76616c696420636c6f736520636f6465203535363134"
          ],
          8,
          true,
@@ -448,7 +448,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203533333738"
+            "881a03ea696e76616c696420636c6f736520636f6465203535363134"
          ],
          false
       ]
