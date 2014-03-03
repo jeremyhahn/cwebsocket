@@ -6,6 +6,9 @@ AC_INIT([cwebsocket], [0.01], [root@localhost])
 AM_INIT_AUTOMAKE([1.9 foreign])
 AC_CONFIG_SRCDIR([src/websocket-client.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
+AC_ENABLE_SHARED
+LT_INIT
 
 if test -z $CFLAGS; then
     CFLAGS=''
@@ -13,8 +16,8 @@ fi
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_LIBTOOL(libtool)
 
 # Remember externally set CFLAGS
 EXTERNAL_CFLAGS="$CFLAGS"
