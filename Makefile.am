@@ -9,6 +9,10 @@ websocket_client_SOURCES = $(ECHO_CLIENT) $(COMMON) src/cwebsocket/client.h src/
 websocket_server_SOURCES = $(ECHO_SERVER) $(COMMON) src/cwebsocket/server.h src/cwebsocket/server.c src/websocket-server.c
 websocket_testsuite_SOURCES = $(COMMON) src/cwebsocket/client.h src/cwebsocket/client.c src/websocket-testsuite.c
 
+noinst_LIBRARIES = libwsclient.a libwsserver.a
+libwsclient_a_SOURCES = $(ECHO_CLIENT) $(COMMON) src/cwebsocket/client.h src/cwebsocket/client.c
+libwsserver_a_SOURCES = $(ECHO_SERVER) $(COMMON) src/cwebsocket/server.h src/cwebsocket/server.c
+
 AM_CFLAGS= -Wall
 
 if DEBUG
@@ -18,4 +22,4 @@ else
 endif
 
 clean:
-	rm -rf .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ websocket-client websocket-server websocket-testsuite
+	rm -rf libwsclient.a libwsserver.a .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ websocket-client websocket-server websocket-testsuite
