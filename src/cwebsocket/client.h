@@ -44,11 +44,11 @@ typedef struct _cwebsocket {
 	char *uri;
 	uint8_t flags;
 	uint8_t state;
-#ifdef USESSL
+#ifdef ENABLE_SSL
 	SSL_CTX *sslctx;
 	SSL *ssl;
 #endif
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	pthread_t thread;
 	pthread_mutex_t lock;
 	pthread_mutex_t write_lock;
@@ -61,7 +61,7 @@ typedef struct _cwebsocket {
 typedef struct {
 	cwebsocket_client *socket;
 	cwebsocket_message *message;
-} cwebsocket_thread_args;
+} cwebsocket_client_thread_args;
 
 // "public"
 void cwebsocket_client_init(cwebsocket_client *websocket, cwebsocket_subprotocol *subprotocols[], int subprotocol_len);

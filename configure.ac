@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([cwebsocket], [0.01], [root@localhost])
-AM_INIT_AUTOMAKE([1.9 foreign])
+AM_INIT_AUTOMAKE([cwebsocket], [0.01])
 AC_CONFIG_SRCDIR([src/websocket-client.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -56,50 +56,42 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memset socket strcasecmp strchr strerror strstr])
 
 AC_CONFIG_FILES([Makefile])
-AC_OUTPUT
 
 # Conditionals
 AC_ARG_ENABLE(debug,
-  AS_HELP_STRING(
-    [--enable-debug],
-    [Include debug symbols and enable verbose logging - default: yes]),
-    [case "${enableval}" in
-      yes) debug=true ;;
-      no)  debug=false ;;
-      *)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
-    esac],
-    [debug=true])
-AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
-AM_COND_IF(DEBUG,
-    AC_DEFINE(DEBUG, 1, [Define to 0 if this is a release build]),
-    AC_DEFINE(DEBUG, 0, [Define to 1 or higher if this is a debug build]))
+[--enable-debug    Turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac],[debug=true])
+AM_CONDITIONAL([DEBUG], [test "$debug" = true])
 
 AC_ARG_ENABLE(ssl,
   AS_HELP_STRING(
     [--enable-ssl],
-    [WebSocket SSL support - default: yes]),
+    [enable ssl, default: enabled]),
     [case "${enableval}" in
       yes) ssl=true ;;
       no)  ssl=false ;;
       *)   AC_MSG_ERROR([bad value ${enableval} for --enable-ssl]) ;;
     esac],
     [ssl=true])
-AM_CONDITIONAL(USESSL, test x"$ssl" = x"true")
-AM_COND_IF(USESSL,
-    AC_DEFINE(USESSL, 1, [Set to 1 to enable SSL support]),
-    AC_DEFINE(USESSL, 0, [Set to 0 to disable SSL support]))
+#AM_CONDITIONAL(USESSL, test x"$ssl" = x"true")
+if test "$ssl" = true; then
+    AC_DEFINE(ENABLE_SSL, [1], ["Compile with SSL support"])
+fi
 
 AC_ARG_ENABLE(threads,
-  AS_HELP_STRING(
-    [--enable-threads],
-    [Enable multi-threading - default: yes]),
-    [case "${enableval}" in
-      yes) threads=true ;;
-      no)  threads=false ;;
-      *)   AC_MSG_ERROR([bad value ${enableval} for --enable-threads]) ;;
-    esac],
-    [threads=true])
-AM_CONDITIONAL(THREADED, test x"$threads" = x"true")
-AM_COND_IF(THREADED,
-    AC_DEFINE(THREADED, 1, [Set to 1 to enable pthread support]),
-    AC_DEFINE(THREADED, 0, [Set to 0 to disable pthread support]))
+[--enable-threads    Enable multi-threading],
+[case "${enableval}" in
+  yes) threads=true ;;
+  no)  threads=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-threads) ;;
+esac],[threads=true])
+#AM_CONDITIONAL([THREADED], [test "x$threads" = "xtrue"])
+if test "$threads" = true; then
+    AC_DEFINE(ENABLE_THREADS, [1], ["Compile with client multi-threading support"])
+fi
+
+AC_OUTPUT

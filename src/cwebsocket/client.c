@@ -80,7 +80,7 @@ void cwebsocket_client_parse_uri(cwebsocket_client *websocket, const char *uri,
 		strcpy(querystring, "");
 		return;
 	}
-#ifdef USESSL
+#ifdef ENABLE_SSL
 	else if(sscanf(uri, "wss://%[^:]:%[^/]%[^?]%s", hostname, port, resource, querystring) == 4) {
 		websocket->flags |= WEBSOCKET_FLAG_SSL;
 		return;
@@ -137,7 +137,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		return -1;
 	}
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	if(pthread_mutex_init(&websocket->lock, NULL) != 0) {
 		syslog(LOG_ERR, "cwebsocket_client_connect: unable to initialize websocket mutex: %s\n", strerror(errno));
 		cwebsocket_client_onerror(websocket, strerror(errno));
@@ -239,7 +239,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		return -1;
     }
 
-#ifdef USESSL
+#ifdef ENABLE_SSL
 
     websocket->ssl = NULL;
     websocket->sslctx = NULL;
@@ -275,7 +275,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 	}
 #endif
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CONNECTED;
 	pthread_mutex_unlock(&websocket->lock);
@@ -295,7 +295,7 @@ int cwebsocket_client_connect(cwebsocket_client *websocket) {
 		return -1;
 	}
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_OPEN;
 	pthread_mutex_unlock(&websocket->lock);
@@ -426,9 +426,9 @@ void cwebsocket_client_listen(cwebsocket_client *websocket) {
 	syslog(LOG_DEBUG, "cwebsocket_client_listen: shutting down");
 }
 
-#ifdef THREADED
-void *cwebsocket_onmessage_thread(void *ptr) {
-	cwebsocket_thread_args *args = (cwebsocket_thread_args *)ptr;
+#ifdef ENABLE_THREADS
+void *cwebsocket_client_onmessage_thread(void *ptr) {
+	cwebsocket_client_thread_args *args = (cwebsocket_client_thread_args *)ptr;
 	cwebsocket_client_onmessage(args->socket, args->message);
 	free(args->message->payload);
 	free(args->message);
@@ -617,7 +617,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 		if(websocket->subprotocol != NULL && websocket->subprotocol->onmessage != NULL) {
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
 			if(message == NULL) {
 				perror("out of memory");
@@ -634,12 +634,12 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 			strncpy(message->payload, payload, payload_length+1);
 			free(payload);
 
-		    cwebsocket_client_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
+		    cwebsocket_client_thread_args *args = malloc(sizeof(cwebsocket_client_thread_args));
 		    if(args == NULL) {
 				perror("out of memory");
 				exit(-1);
 			}
-		    memset(args, 0, sizeof(cwebsocket_thread_args));
+		    memset(args, 0, sizeof(cwebsocket_client_thread_args));
 		    args->socket = websocket;
 		    args->message = message;
 
@@ -679,14 +679,14 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 		if(websocket->subprotocol->onmessage != NULL) {
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
 			message->payload = malloc(sizeof(char) * payload_length);
 			memcpy(message->payload, payload, payload_length);
 
-			cwebsocket_thread_args *args = malloc(sizeof(cwebsocket_thread_args));
+			cwebsocket_client_thread_args *args = malloc(sizeof(cwebsocket_client_thread_args));
 			args->socket = websocket;
 			args->message = message;
 
@@ -848,7 +848,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 		return;
 	}
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSING;
 	pthread_mutex_unlock(&websocket->lock);
@@ -876,7 +876,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 		cwebsocket_client_send_control_frame(websocket, CLOSE, "CLOSE", NULL, 0);
 	}
 
-#ifdef USESSL
+#ifdef ENABLE_SSL
 	if(websocket->ssl != NULL) {
        SSL_shutdown(websocket->ssl);
 	   SSL_free(websocket->ssl);
@@ -899,7 +899,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 
 	cwebsocket_client_onclose(websocket, code32, message);
 
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	pthread_mutex_lock(&websocket->lock);
 	websocket->state = WEBSOCKET_STATE_CLOSED;
 	pthread_mutex_unlock(&websocket->lock);
@@ -917,7 +917,7 @@ void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const 
 }
 
 ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len) {
-#ifdef USESSL
+#ifdef ENABLE_SSL
 	return (websocket->flags & WEBSOCKET_FLAG_SSL) ?
 			SSL_read(websocket->ssl, buf, len) :
 			read(websocket->fd, buf, len);
@@ -927,7 +927,7 @@ ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, i
 }
 
 ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len) {
-#ifdef THREADED
+#ifdef ENABLE_THREADS
 	ssize_t bytes_written;
 	pthread_mutex_lock(&websocket->write_lock);
 	#ifdef USESSL
@@ -940,7 +940,7 @@ ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, 
 	pthread_mutex_unlock(&websocket->write_lock);
 	return bytes_written;
 #else
-	#ifdef USESSL
+	#ifdef ENABLE_SSL
 		return (websocket->flags & WEBSOCKET_FLAG_SSL) ?
 				SSL_write(websocket->ssl, buf, len) :
 				write(websocket->fd, buf, len);

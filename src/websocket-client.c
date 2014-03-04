@@ -109,17 +109,11 @@ int main(int argc, char **argv) {
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
-
-	//cwebsocket_client_init(&websocket_client, NULL, 0);
-
-
-	cwebsocket_subprotocol *subprotocols[1];
-	subprotocols[0] = cwebsocket_subprotocol_echo_client_new();
-    cwebsocket_client_init(&websocket_client, subprotocols, 1);
-
+	cwebsocket_client_init(&websocket_client, NULL, 0);
+	websocket_client.subprotocol = cwebsocket_subprotocol_echo_client_new();   // Hardcoding instead of negotiating
 	websocket_client.uri = argv[1];
-	//websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;  // OPTIONAL - retry failed connections
-	//websocket_client.retry = 5;                              // OPTIONAL - seconds to wait before retrying
+	//websocket_client.flags |= WEBSOCKET_FLAG_AUTORECONNECT;                  // OPTIONAL - retry failed connections
+	//websocket_client.retry = 5;                                              // OPTIONAL - seconds to wait before retrying
 	if(cwebsocket_client_connect(&websocket_client) == -1) {
 		return main_exit(EXIT_FAILURE);
 	}
@@ -127,6 +121,5 @@ int main(int argc, char **argv) {
 	run_websocket_org_echo_test(&websocket_client);
 
 	cwebsocket_client_close(&websocket_client, 1000, "main: run loop complete");
-	//free(subprotocols[0]);
 	return main_exit(EXIT_SUCCESS);
 }

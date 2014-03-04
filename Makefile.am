@@ -17,11 +17,12 @@ libwsclient_a_SOURCES = $(ECHO_CLIENT) $(COMMON) $(WEBSOCKET_CLIENT)
 libwsserver_a_SOURCES = $(ECHO_SERVER) $(COMMON) $(WEBSOCKET_SERVER)
 
 AM_CFLAGS = -Wall
+AM_LDFLAGS = 
 
 if DEBUG
-  AM_CFLAGS += -g3
+AM_CFLAGS += -g3
 else
-  AM_CFLAGS += -O3
+AM_CFLAGS += -O3
 endif
 
 so:
