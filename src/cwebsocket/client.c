@@ -411,7 +411,6 @@ int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey)
 
 	tmplen = bytes_read - 3;
 	char buf[tmplen+1];
-	memset(buf, 0, tmplen+1);
 	memcpy(buf, data, tmplen);
 	buf[tmplen+1] = '\0';
 
@@ -452,7 +451,7 @@ int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode co
 	control_frame[3] = masking_key[1];
 	control_frame[4] = masking_key[2];
 	control_frame[5] = masking_key[3];
-	if(strcmp(frame_type, "CLOSE") == 0) {
+	if(code & CLOSE) {
 		uint16_t close_code = 0;
 		if(payload_len >= 2) {
 		   control_frame[6] = payload[0];
