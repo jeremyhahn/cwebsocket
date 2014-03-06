@@ -20,6 +20,14 @@ cwebsocket is compliant with the following standards:
 2. [POSIX](http://en.wikipedia.org/wiki/C_POSIX_library)
 3. [RFC 6455](http://tools.ietf.org/html/rfc6455)
 
+### Dependencies
+
+1. autoconf
+2. automake
+3. libtool
+4. libssl-dev
+5. libev-dev
+
 ### Build
 
 By defaults, cwebsocket is built with multi-threading and SSL support. 

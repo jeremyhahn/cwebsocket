@@ -16,15 +16,6 @@ noinst_LIBRARIES = libwsclient.a libwsserver.a
 libwsclient_a_SOURCES = $(ECHO_CLIENT) $(COMMON) $(WEBSOCKET_CLIENT)
 libwsserver_a_SOURCES = $(ECHO_SERVER) $(COMMON) $(WEBSOCKET_SERVER)
 
-AM_CFLAGS = -Wall
-AM_LDFLAGS = 
-
-if DEBUG
-AM_CFLAGS += -g3
-else
-AM_CFLAGS += -O3
-endif
-
 so:
 	gcc -shared -fPIC $(ECHO_CLIENT) $(WEBSOCKET_CLIENT) -o libwsclient.so
 	gcc -shared -fPIC $(ECHO_SERVER) $(WEBSOCKET_SERVER) -o libwsserver.so

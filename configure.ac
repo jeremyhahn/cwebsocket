@@ -10,17 +10,17 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_ENABLE_SHARED
 LT_INIT
 
-if test -z $CFLAGS; then
-    CFLAGS=''
-fi
+# Remember externally set CFLAGS
+#EXTERNAL_CFLAGS="$CFLAGS"
+
+#if test -z $CFLAGS; then
+#    CFLAGS=''
+#fi
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL(libtool)
-
-# Remember externally set CFLAGS
-EXTERNAL_CFLAGS="$CFLAGS"
 
 # Checks for libraries.
 AC_CHECK_LIB([crypto], [main],, AC_MSG_ERROR($missing_library))
@@ -64,8 +64,8 @@ AC_ARG_ENABLE(debug,
   yes) debug=true ;;
   no)  debug=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac],[debug=true])
-AM_CONDITIONAL([DEBUG], [test "$debug" = true])
+esac],[debug=false])
+AM_CONDITIONAL([ENABLE_DEBUG], [test "$debug" = true])
 
 AC_ARG_ENABLE(ssl,
   AS_HELP_STRING(
