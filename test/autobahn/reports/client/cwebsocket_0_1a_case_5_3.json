@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 2,
    "expectation": "Message is processed and echo'ed back to us.",
    "expected": {
@@ -27,14 +27,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=47&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: TDRKMUV0aGFvdlVpbG4xWA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=47&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Y2EyZk1Ha1pkaGhLNHYxdQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: N2aqrnggU78hewCP00Tz1KI2CYk=\r\n\r\n",
    "id": "5.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 50492",
+   "localCloseReason": "invalid close code 17543",
    "received": [],
-   "remoteCloseCode": 50492,
+   "remoteCloseCode": 17543,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -47,7 +47,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:42Z",
+   "started": "2014-03-31T00:40:13Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -61,7 +61,7 @@
    },
    "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -132,26 +132,26 @@
          "RO",
          [
             41,
-            "88a3c6d6c30f03eab4b3a06aafa0a66be6a3ad7cb3a6b360b4a2a66be6b9b36ca9b2a635e6e6bb3ff7"
+            "88a3476db93803ea3508da5d2e1bdc5c6718d74b321dc9573519dc5c6702c95b2809dc02675dc10876"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xc53c77bc66bc6caf60bd25ac6baa70a975b677ad60bd25b675ba6abd60e325e97de934"
+            "0x44878c309d3097239b31de2090268b258e3a8c219b31de3a8e3691319b6fde658665cf"
          ],
          8,
          true,
          0,
          true,
-         "c6d6c30f"
+         "476db938"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203530343932"
+            "0x03ea696e76616c696420636c6f736520636f6465203137353433"
          ],
          8,
          true,
@@ -165,7 +165,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203530343932"
+            "881a03ea696e76616c696420636c6f736520636f6465203137353433"
          ],
          false
       ]

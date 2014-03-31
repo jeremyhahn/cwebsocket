@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_failed">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.8</b></span> : Fail - <span style="font-size: 0.9em;"><b>3</b> ms @ 2014-02-27T23:01:42Z</a></p>
+      <p class="case case_failed">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.8</b></span> : Fail - <span style="font-size: 0.9em;"><b>3</b> ms @ 2014-03-31T00:40:13Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send text Message fragmented into 2 fragments, one ping with payload in-between. Octets are sent in octet-wise chops.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>A pong is received, then the message is echo'ed back to us.</p>
 
@@ -218,13 +218,13 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Key: TDRKMUV0aGFvdlVpbG4xWA==
+Sec-WebSocket-Key: Y2EyZk1Ha1pkaGhLNHYxdQ==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
-Server: AutobahnTestSuite/0.6.0-0.8.1
+Server: AutobahnTestSuite/0.6.1-0.8.6
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=</pre>
+Sec-WebSocket-Accept: N2aqrnggU78hewCP00Tz1KI2CYk=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -232,15 +232,15 @@ Sec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=</pre>
          <tr class="stats_row"><td>isServer</td><td class="left">True</td><td class="left">True, iff I (the fuzzer) am a server, and the peer is a client.</td></tr>
          <tr class="stats_row"><td>closedByMe</td><td class="left">True</td><td class="left">True, iff I have initiated closing handshake (that is, did send close first).</td></tr>
          <tr class="stats_row"><td>failedByMe</td><td class="left">True</td><td class="left">True, iff I have failed the WS connection (i.e. due to protocol error). Failing can be either by initiating closing handshake or brutal drop TCP.</td></tr>
-         <tr class="stats_row"><td>droppedByMe</td><td class="left">False</td><td class="left">True, iff I dropped the TCP connection.</td></tr>
+         <tr class="stats_row"><td>droppedByMe</td><td class="left">True</td><td class="left">True, iff I dropped the TCP connection.</td></tr>
          <tr class="stats_row"><td>wasClean</td><td class="left">False</td><td class="left">True, iff full WebSockets closing handshake was performed (close frame sent and received) _and_ the server dropped the TCP (which is its responsibility).</td></tr>
-         <tr class="stats_row"><td>wasNotCleanReason</td><td class="left">peer dropped the TCP connection without previous WebSocket closing handshake</td><td class="left">When wasClean == False, the reason what happened.</td></tr>
+         <tr class="stats_row"><td>wasNotCleanReason</td><td class="left">None</td><td class="left">When wasClean == False, the reason what happened.</td></tr>
          <tr class="stats_row"><td>wasServerConnectionDropTimeout</td><td class="left">False</td><td class="left">When we are a client, and we expected the server to drop the TCP, but that didn't happen in time, this gets True.</td></tr>
          <tr class="stats_row"><td>wasOpenHandshakeTimeout</td><td class="left">False</td><td class="left">When performing the opening handshake, but the peer did not finish in time, this gets True.</td></tr>
          <tr class="stats_row"><td>wasCloseHandshakeTimeout</td><td class="left">False</td><td class="left">When we initiated a closing handshake, but the peer did not respond in time, this gets True.</td></tr>
          <tr class="stats_row"><td>localCloseCode</td><td class="left">1002</td><td class="left">The close code I sent in close frame (if any).</td></tr>
-         <tr class="stats_row"><td>localCloseReason</td><td class="left">invalid close code 43836</td><td class="left">The close reason I sent in close frame (if any).</td></tr>
-         <tr class="stats_row"><td>remoteCloseCode</td><td class="left">43836</td><td class="left">The close code the peer sent me in close frame (if any).</td></tr>
+         <tr class="stats_row"><td>localCloseReason</td><td class="left">invalid close code 31623</td><td class="left">The close reason I sent in close frame (if any).</td></tr>
+         <tr class="stats_row"><td>remoteCloseCode</td><td class="left">31623</td><td class="left">The close code the peer sent me in close frame (if any).</td></tr>
          <tr class="stats_row"><td>remoteCloseReason</td><td class="left">None</td><td class="left">The close reason the peer sent me in close frame (if any).</td></tr>
       </table>      <br/><hr/>
       <h2>Wire Statistics</h2>
@@ -254,9 +254,9 @@ Sec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=</pre>
       <h3>Octets Transmitted by Chop Size</h3>
       <table>
          <tr class="stats_header"><td>Chop Size</td><td>Count</td><td>Octets</td></tr>
-         <tr class="stats_row"><td>1</td><td>13</td><td>13</td></tr>
+         <tr class="stats_row"><td>1</td><td>14</td><td>14</td></tr>
          <tr class="stats_row"><td>168</td><td>1</td><td>168</td></tr>
-         <tr class="stats_total"><td>Total</td><td>14</td><td>181</td></tr>
+         <tr class="stats_total"><td>Total</td><td>15</td><td>182</td></tr>
       </table>
       <h3>Frames Received by Opcode</h3>
       <table>
@@ -300,12 +300,13 @@ Sec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=</pre>
          <pre class="wirelog_tx_octets_sync">016 TX OCTETS: 31</pre>
          <pre class="wirelog_tx_octets_sync">017 TX OCTETS: 89</pre>
          <pre class="wirelog_tx_octets_sync">018 TX OCTETS: 0c</pre>
-         <pre class="wirelog_rx_octets">019 RX OCTETS: 88a3a8d6c30f03eadab3a06ac1a0a66b88a3ad7cdda6b360daa2a66b88b9b36cc7b2a63588e6bb3f99</pre>
-         <pre class="wirelog_rx_frame">020 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=35, MASKED=True, MASK=6138643663333066</pre>
-         <pre class="wirelog_rx_frame">               0xab3c19bc08bc02af0ebd4bac05aa1ea91bb619ad0ebd4bb61bba04bd0ee34be913e95a</pre>
-         <pre class="wirelog_tx_frame">021 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=26, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
-         <pre class="wirelog_tx_frame">               0x03ea696e76616c696420636c6f736520636f6465203433383336</pre>
-         <pre class="wirelog_tcp_closed_by_peer">022 TCP DROPPED BY PEER</pre>
+         <pre class="wirelog_tx_octets_sync">019 TX OCTETS: 70</pre>
+         <pre class="wirelog_rx_octets">020 RX OCTETS: 88a3786db93803ea0a08da5d111bdc5c5818d74b0d1dc9570a19dc5c5802c95b1709dc02585dc10849</pre>
+         <pre class="wirelog_rx_frame">021 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=35, MASKED=True, MASK=3738366462393338</pre>
+         <pre class="wirelog_rx_frame">               0x7b87b330a230a823a431e120af26b425b13ab321a431e13ab136ae31a46fe165b965f0</pre>
+         <pre class="wirelog_tx_frame">022 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=26, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
+         <pre class="wirelog_tx_frame">               0x03ea696e76616c696420636c6f736520636f6465203331363233</pre>
+         <pre class="wirelog_tcp_closed_by_me">023 TCP DROPPED BY ME</pre>
       </div>
       <br/><hr/>
    </body>

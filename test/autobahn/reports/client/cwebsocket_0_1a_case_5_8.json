@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments, one ping with payload in-between. Octets are sent in octet-wise chops.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 3,
    "expectation": "A pong is received, then the message is echo'ed back to us.",
    "expected": {
@@ -31,14 +31,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: TDRKMUV0aGFvdlVpbG4xWA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: XQ7SWHqrL/zOHb9+cTcAndZX7yU=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Y2EyZk1Ha1pkaGhLNHYxdQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: N2aqrnggU78hewCP00Tz1KI2CYk=\r\n\r\n",
    "id": "5.8",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 43836",
+   "localCloseReason": "invalid close code 31623",
    "received": [],
-   "remoteCloseCode": 43836,
+   "remoteCloseCode": 31623,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -51,7 +51,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:42Z",
+   "started": "2014-03-31T00:40:13Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -60,12 +60,12 @@
       "9": 1
    },
    "txOctetStats": {
-      "1": 13,
+      "1": 14,
       "168": 1
    },
    "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -235,29 +235,37 @@
          true
       ],
       [
+         "TO",
+         [
+            1,
+            "70"
+         ],
+         true
+      ],
+      [
          "RO",
          [
             41,
-            "88a3a8d6c30f03eadab3a06ac1a0a66b88a3ad7cdda6b360daa2a66b88b9b36cc7b2a63588e6bb3f99"
+            "88a3786db93803ea0a08da5d111bdc5c5818d74b0d1dc9570a19dc5c5802c95b1709dc02585dc10849"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xab3c19bc08bc02af0ebd4bac05aa1ea91bb619ad0ebd4bb61bba04bd0ee34be913e95a"
+            "0x7b87b330a230a823a431e120af26b425b13ab321a431e13ab136ae31a46fe165b965f0"
          ],
          8,
          true,
          0,
          true,
-         "a8d6c30f"
+         "786db938"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203433383336"
+            "0x03ea696e76616c696420636c6f736520636f6465203331363233"
          ],
          8,
          true,

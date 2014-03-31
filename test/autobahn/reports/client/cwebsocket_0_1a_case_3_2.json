@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send again with <b>RSV = 2</b>, then send Ping.",
-   "droppedByMe": false,
-   "duration": 1,
+   "droppedByMe": true,
+   "duration": 38,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since RSV must be 0, when no extension defining RSV meaning has been negoiated. The Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=29&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=29&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eEFQOVMzMVNvT01UaTR4RA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: J9OK5CQClLnJXupzLunn1ac/DC4=\r\n\r\n",
    "id": "3.2",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 2622",
+   "localCloseReason": "invalid close code 41345",
    "received": [
       [
          "message",
@@ -41,8 +41,8 @@
          false
       ]
    ],
-   "remoteCloseCode": 2622,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 41345,
+   "remoteCloseReason": "i6x6r%~7;&u n#k<i'~7;<k0t7~i;cca*",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:11Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 2,
@@ -66,12 +66,12 @@
    "txOctetStats": {
       "2": 1,
       "15": 2,
-      "27": 1,
+      "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -164,7 +164,7 @@
          "RO",
          [
             19,
-            "818d1bd4c30f53b1af6374f8e37874a6af6b3a"
+            "818dee6bb938a60ed5548147994f8119d55ccf"
          ]
       ],
       [
@@ -177,32 +177,32 @@
          true,
          0,
          true,
-         "1bd4c30f"
+         "ee6bb938"
       ],
       [
          "RO",
          [
             41,
-            "88a309d4c30f03ea7bb1a06a60a2a66b29a1ad7c7ca4b3607ba0a66b29bbb36c66b0a63529e4bb3d38"
+            "88a3a26bb93803ead00eda5dcb1ddc5c821ed74bd71bc957d01fdc5c8204c95bcd0fdc02825bc10a93"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x0a3eb8bea9bea3adafbfeaaea4a8bfabbab4b8afafbfeab4bab8a5bfafe1eaebb2e9fb"
+            "0xa1816936783672257e373b2675206e236b3c69277e373b3c6b3074377e693b6363612a"
          ],
          8,
          true,
          0,
          true,
-         "09d4c30f"
+         "a26bb938"
       ],
       [
          "TF",
          [
-            25,
-            "0x03ea696e76616c696420636c6f736520636f64652032363232"
+            26,
+            "0x03ea696e76616c696420636c6f736520636f6465203431333435"
          ],
          8,
          true,
@@ -215,8 +215,8 @@
       [
          "TO",
          [
-            27,
-            "881903ea696e76616c696420636c6f736520636f64652032363232"
+            28,
+            "881a03ea696e76616c696420636c6f736520636f6465203431333435"
          ],
          false
       ]

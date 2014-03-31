@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": false,
    "description": "Send text message message with payload of length 1 * 2**20 (1M). Sent out data in chops of 2048 octets.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 24,
    "expectation": "Receive echo'ed text message (with payload as sent).",
    "expected": {},
@@ -19,14 +19,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=286&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eGFGd29qWFpkNHZmZ3FneQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: iKuWMizPijTlCqgNnYzz8Uws/WA=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=286&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: OGlZaUVEc2gySUp4dmlJcg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: rIL5HK302uCn9d5R384T9Pmrjxs=\r\n\r\n",
    "id": "9.5.6",
    "isServer": true,
-   "localCloseCode": 1007,
-   "localCloseReason": "invalid close reason (non-UTF-8 payload)",
+   "localCloseCode": 1002,
+   "localCloseReason": "invalid close code 21358",
    "received": [],
-   "remoteCloseCode": 4346,
+   "remoteCloseCode": 21358,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
@@ -39,7 +39,7 @@
       "23": 1,
       "191": 1
    },
-   "started": "2014-02-27T23:02:35Z",
+   "started": "2014-03-31T00:41:02Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -47,11 +47,11 @@
    },
    "txOctetStats": {
       "168": 1,
-      "2048": 176
+      "2048": 177
    },
    "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [

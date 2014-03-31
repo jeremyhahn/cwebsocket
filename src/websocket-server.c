@@ -26,7 +26,7 @@
 #include "cwebsocket/server.h"
 #include "cwebsocket/subprotocol/echo/echo_server.h"
 
-void signal_handler(int sig) {
+void server_signal_handler(int sig) {
 	switch(sig) {
 		case SIGHUP:
 			syslog(LOG_DEBUG, "Received SIGHUP signal");
@@ -44,7 +44,7 @@ void signal_handler(int sig) {
 	}
 }
 
-void print_program_header() {
+void server_print_program_header() {
 	printf("\n");
 	printf("                      ______                    ______      _____ \n");
     printf(" _________      _________  /_______________________  /________  /_\n");
@@ -58,14 +58,14 @@ void print_program_header() {
 	printf("\n");
 }
 
-void print_program_usage(const char *progname) {
+void server_print_program_usage(const char *progname) {
 	fprintf(stderr, "usage: %s -p 8080\n\n", progname);
 	exit(0);
 }
 
-int main(int argc, char **argv) {
+int server_main(int argc, char **argv) {
 
-	print_program_header();
+	server_print_program_header();
 
 	int cores = 1;
 	int port = 8080;
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
 	sigprocmask(SIG_BLOCK, &newSigSet, NULL);   /* Block the above specified signals */
 
 	// Set up a signal handler
-	newSigAction.sa_handler = signal_handler;
+	newSigAction.sa_handler = server_signal_handler;
 	sigemptyset(&newSigAction.sa_mask);
 	newSigAction.sa_flags = 0;
 

@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send message fragment1 followed by close then fragment",
-   "droppedByMe": false,
-   "duration": 1,
+   "droppedByMe": true,
+   "duration": 2,
    "expectation": "Clean close with normal code.",
    "expected": {
       "OK": []
@@ -21,14 +21,14 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Tk44bzZhYlQyUWNWQlhPdw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ADocdQmKbRM1Z98hMeFvrx4bFi0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=214&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: QjNjWktDNVRxSGhuTlRQRg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: P/T6u46HA2HaGn5BYknmpjBf1B0=\r\n\r\n",
    "id": "7.1.5",
    "isServer": true,
    "localCloseCode": 1000,
    "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": 16623,
+   "remoteCloseCode": 46193,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
@@ -41,7 +41,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-27T23:02:29Z",
+   "started": "2014-03-31T00:40:59Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -55,7 +55,7 @@
    },
    "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -148,20 +148,20 @@
          "RO",
          [
             41,
-            "88a34305c40f03ea3160a76a2a73a16b6370aa7c3675b4603171a16b636ab46c2c61a1356335bc3f72"
+            "88a3b79bb93803eac5feda5ddeeddc5c97eed74bc2ebc957c5efdc5c97f4c95bd8ffdc0297abc10886"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x40eff56fe46fee7ce26ea77fe979f27af765f57ee26ea765f769e86ee230a73aff3ab6"
+            "0xb4717cc66dc667d56bc72ed660d07bd37ecc7cd76bc72ecc7ec061c76b992e9376933f"
          ],
          8,
          true,
          0,
          true,
-         "4305c40f"
+         "b79bb938"
       ]
    ]
 }

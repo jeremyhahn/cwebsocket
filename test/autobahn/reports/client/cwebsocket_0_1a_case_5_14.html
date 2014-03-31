@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="http://autobahn.ws/testsuite" title="Autobahn WebSockets Testsuite"><img src="http://autobahn.ws/static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSockets Testsuite Report"></img></a></center>
       <center><a href="http://autobahn.ws"           title="Autobahn WebSockets">          <img src="http://autobahn.ws/static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSockets">                 </img></a></center>
       <br/>
-      <p class="case case_failed">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.14</b></span> : Fail - <span style="font-size: 0.9em;"><b>1002</b> ms @ 2014-02-27T23:01:47Z</a></p>
+      <p class="case case_failed">cwebsocket/0.1a - <span style="font-size: 1.3em;"><b>Case 5.14</b></span> : Fail - <span style="font-size: 0.9em;"><b>1002</b> ms @ 2014-03-31T00:40:18Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send unfragmented Text Message after Continuation Frame with FIN = false, where there is nothing to continue, sent in octet-wise chops.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The connection is failed immediately, since there is no message to continue.</p>
 
@@ -218,13 +218,13 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: localhost:9001
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Key: MHRUNjJvVUZjaElSWE9JUQ==
+Sec-WebSocket-Key: anhRRG5TdWpyOWFPWGhmMQ==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
-Server: AutobahnTestSuite/0.6.0-0.8.1
+Server: AutobahnTestSuite/0.6.1-0.8.6
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: AF2i3S17OPdRQQx73YLcUzISTfs=</pre>
+Sec-WebSocket-Accept: aNoiyYwI+Fa43feu7QK3bC1PMos=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -328,15 +328,15 @@ Sec-WebSocket-Accept: AF2i3S17OPdRQQx73YLcUzISTfs=</pre>
          <pre class="wirelog_tx_octets_sync">043 TX OCTETS: 6c</pre>
          <pre class="wirelog_tx_octets_sync">044 TX OCTETS: 64</pre>
          <pre class="wirelog_tx_octets_sync">045 TX OCTETS: 21</pre>
-         <pre class="wirelog_rx_octets">046 RX OCTETS: 818d5ddbc30f15beaf6332f7e37832a9af6b7c</pre>
-         <pre class="wirelog_rx_frame">047 RX FRAME : OPCODE=1, FIN=True, RSV=0, PAYLOAD-LEN=13, MASKED=True, MASK=3564646263333066</pre>
+         <pre class="wirelog_rx_octets">046 RX OCTETS: 818d9372b938db17d554fc5e994ffc00d55cb2</pre>
+         <pre class="wirelog_rx_frame">047 RX FRAME : OPCODE=1, FIN=True, RSV=0, PAYLOAD-LEN=13, MASKED=True, MASK=3933373262393338</pre>
          <pre class="wirelog_rx_frame">               Hello, world!</pre>
          <pre class="wirelog_kill_after">048 FAILING CONNECTION</pre>
          <pre class="wirelog_tx_frame">049 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=12, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               0x03e9476f696e672041776179</pre>
          <pre class="wirelog_tx_octets">050 TX OCTETS: 880c03e9476f696e672041776179</pre>
-         <pre class="wirelog_rx_octets">051 RX OCTETS: 888022dcc30f</pre>
-         <pre class="wirelog_rx_frame">052 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=0, MASKED=True, MASK=3232646363333066</pre>
+         <pre class="wirelog_rx_octets">051 RX OCTETS: 88803e73b938</pre>
+         <pre class="wirelog_rx_frame">052 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=0, MASKED=True, MASK=3365373362393338</pre>
          <pre class="wirelog_tcp_closed_by_me">053 TCP DROPPED BY ME</pre>
       </div>
       <br/><hr/>

@@ -1,6 +1,6 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "OK",
+   "behavior": "FAILED",
    "behaviorClose": "OK",
    "case": 26,
    "closedByMe": true,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 10 Pings with payload.",
    "droppedByMe": true,
-   "duration": 43,
+   "duration": 3003,
    "expectation": "Pongs for our Pings with all the payloads. Note: This is not required by the Spec .. but we check for this behaviour anyway. Clean close with normal code.",
    "expected": {
       "OK": [
@@ -62,59 +62,59 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=26&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=26&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: MjZxZlJQYWF6SG1tZmpsMQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: DHz59THX+eFPs+qZawqTgzn6HCo=\r\n\r\n",
    "id": "2.10",
    "isServer": true,
-   "localCloseCode": 1000,
+   "localCloseCode": null,
    "localCloseReason": null,
    "received": [
       [
          "pong",
-         "payload-0"
+         "0x6304d331c53cce709a"
       ],
       [
          "pong",
-         "payload-1"
+         "0xf4044431523c59700c"
       ],
       [
          "pong",
-         "payload-2"
+         "0x7104c131d73cdc708a"
       ],
       [
          "pong",
-         "payload-3"
+         "0x5204e231f43cff70a8"
       ],
       [
          "pong",
-         "payload-4"
+         "0x30048031963c9d70cd"
       ],
       [
          "pong",
-         "payload-5"
+         "0x1e04ae31b83cb370e2"
       ],
       [
          "pong",
-         "payload-6"
+         "0x1d04ad31bb3cb070e2"
       ],
       [
          "pong",
-         "payload-7"
+         "0x0304b331a53cae70fd"
       ],
       [
          "pong",
-         "payload-8"
+         "0x81043131273c2c7070"
       ],
       [
          "pong",
-         "payload-9"
+         "0x8f043f31293c22707f"
       ]
    ],
    "remoteCloseCode": null,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "Actual events match at least one expected.",
+   "result": "Actual events differ from any expected.",
    "resultClose": "Connection was properly closed",
    "rxFrameStats": {
       "8": 1,
@@ -126,14 +126,14 @@
       "135": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:05Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1,
       "9": 10
    },
    "txOctetStats": {
-      "4": 1,
+      "2": 1,
       "11": 10,
       "168": 1
    },
@@ -386,141 +386,144 @@
          "RO",
          [
             15,
-            "8a89e5d4c30f95b5ba638ab5a722d5"
+            "8a891365b93870616a09d659774889"
          ]
       ],
       [
          "RF",
          [
             9,
-            "payload-0"
+            "0x6304d331c53cce709a"
          ],
          10,
          true,
          0,
          true,
-         "e5d4c30f"
+         "1365b938"
       ],
       [
          "RO",
          [
             135,
-            "8a8950d4c30f20b5ba633fb5a722618a89e0d4c30f90b5ba638fb5a722d28a89afd4c30fdfb5ba63c0b5a7229c8a8927d4c30f57b5ba6348b5a722138a8956d4 ..."
+            "8a898465b9387061fd09d659e048888a890165b93870617809d65965488b8a892265b93870615b09d65946488a8a894065b93870613909d65924488d8a896e65 ..."
          ]
       ],
       [
          "RF",
          [
             9,
-            "payload-1"
+            "0xf4044431523c59700c"
          ],
          10,
          true,
          0,
          true,
-         "50d4c30f"
+         "8465b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-2"
+            "0x7104c131d73cdc708a"
          ],
          10,
          true,
          0,
          true,
-         "e0d4c30f"
+         "0165b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-3"
+            "0x5204e231f43cff70a8"
          ],
          10,
          true,
          0,
          true,
-         "afd4c30f"
+         "2265b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-4"
+            "0x30048031963c9d70cd"
          ],
          10,
          true,
          0,
          true,
-         "27d4c30f"
+         "4065b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-5"
+            "0x1e04ae31b83cb370e2"
          ],
          10,
          true,
          0,
          true,
-         "56d4c30f"
+         "6e65b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-6"
+            "0x1d04ad31bb3cb070e2"
          ],
          10,
          true,
          0,
          true,
-         "ddd4c30f"
+         "6d65b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-7"
+            "0x0304b331a53cae70fd"
          ],
          10,
          true,
          0,
          true,
-         "c8d4c30f"
+         "7365b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-8"
+            "0x81043131273c2c7070"
          ],
          10,
          true,
          0,
          true,
-         "ead4c30f"
+         "f165b938"
       ],
       [
          "RF",
          [
             9,
-            "payload-9"
+            "0x8f043f31293c22707f"
          ],
          10,
          true,
          0,
          true,
-         "a6d4c30f"
+         "ff65b938"
+      ],
+      [
+         "TIE"
       ],
       [
          "TF",
          [
-            2,
-            "0x03e8"
+            0,
+            ""
          ],
          8,
          true,
@@ -533,8 +536,8 @@
       [
          "TO",
          [
-            4,
-            "880203e8"
+            2,
+            "8800"
          ],
          false
       ],
@@ -542,7 +545,7 @@
          "RO",
          [
             6,
-            "888015000000"
+            "8880f268b938"
          ]
       ],
       [
@@ -555,7 +558,7 @@
          true,
          0,
          true,
-         "15000000"
+         "f268b938"
       ]
    ]
 }

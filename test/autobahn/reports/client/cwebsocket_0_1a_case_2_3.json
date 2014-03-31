@@ -1,6 +1,6 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "OK",
+   "behavior": "FAILED",
    "behaviorClose": "OK",
    "case": 19,
    "closedByMe": true,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send ping with small binary (non UTF-8) payload.",
    "droppedByMe": true,
-   "duration": 2,
+   "duration": 1002,
    "expectation": "Pong with payload echo'ed is sent in reply to Ping. Clean close with normal code.",
    "expected": {
       "OK": [
@@ -26,23 +26,23 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=19&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=19&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: ZExZYUpENk1NUUN4UzhjTQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: OXgXtOtPKRU3T0zKdE1E7jYB6vk=\r\n\r\n",
    "id": "2.3",
    "isServer": true,
-   "localCloseCode": 1000,
+   "localCloseCode": null,
    "localCloseReason": null,
    "received": [
       [
          "pong",
-         "0x00fffefdfcfb00ff"
+         "0x009f47a545a3b9a7"
       ]
    ],
    "remoteCloseCode": null,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "Actual events match at least one expected.",
+   "result": "Actual events differ from any expected.",
    "resultClose": "Connection was properly closed",
    "rxFrameStats": {
       "8": 1,
@@ -53,14 +53,14 @@
       "14": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:00Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1,
       "9": 1
    },
    "txOctetStats": {
-      "4": 1,
+      "2": 1,
       "10": 1,
       "168": 1
    },
@@ -115,26 +115,29 @@
          "RO",
          [
             14,
-            "8a8864d4c30f642b3df2982fc3f0"
+            "8a880060b93800fffe9d45c3009f"
          ]
       ],
       [
          "RF",
          [
             8,
-            "0x00fffefdfcfb00ff"
+            "0x009f47a545a3b9a7"
          ],
          10,
          true,
          0,
          true,
-         "64d4c30f"
+         "0060b938"
+      ],
+      [
+         "TIE"
       ],
       [
          "TF",
          [
-            2,
-            "0x03e8"
+            0,
+            ""
          ],
          8,
          true,
@@ -147,8 +150,8 @@
       [
          "TO",
          [
-            4,
-            "880203e8"
+            2,
+            "8800"
          ],
          false
       ],
@@ -156,7 +159,7 @@
          "RO",
          [
             6,
-            "8880cb000000"
+            "8880c461b938"
          ]
       ],
       [
@@ -169,7 +172,7 @@
          true,
          0,
          true,
-         "cb000000"
+         "c461b938"
       ]
    ]
 }

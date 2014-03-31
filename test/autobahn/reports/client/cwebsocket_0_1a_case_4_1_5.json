@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved non-control <b>Opcode = 7</b> and non-empty payload, then send Ping.",
-   "droppedByMe": false,
-   "duration": 2,
+   "droppedByMe": true,
+   "duration": 6,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=39&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=39&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eEFQOVMzMVNvT01UaTR4RA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: J9OK5CQClLnJXupzLunn1ac/DC4=\r\n\r\n",
    "id": "4.1.5",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 42302",
+   "localCloseReason": "invalid close code 50561",
    "received": [
       [
          "message",
@@ -41,8 +41,8 @@
          false
       ]
    ],
-   "remoteCloseCode": 42302,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 50561,
+   "remoteCloseReason": "\r6\u001c6\u0016%\u001a7_&\u0011 \n#\u000f<\r'\u001a7_<\u000f0\u00107\u001ai_c\u0007cH",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:11Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -69,9 +69,9 @@
       "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -276,7 +276,7 @@
          "RO",
          [
             19,
-            "818d17d4c30f5fb1af6378f8e37878a6af6b36"
+            "818de06bb938a80ed5548f47994f8f19d55cc1"
          ]
       ],
       [
@@ -289,7 +289,7 @@
          true,
          0,
          true,
-         "17d4c30f"
+         "e06bb938"
       ],
       [
          "TO",
@@ -415,26 +415,26 @@
          "RO",
          [
             41,
-            "88a3a6d4c30f03ead4b1a06acfa2a66b86a1ad7cd3a4b360d4a0a66b86bbb36cc9b0a63586e4bb3f91"
+            "88a3c66bb93803eab40eda5daf1ddc5ce61ed74bb31bc957b41fdc5ce604c95ba90fdc02e65bc108f1"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0xa53e17be06be0cad00bf45ae0ba810ab15b417af00bf45b415b80abf00e145eb1deb52"
+            "\u0141\r6\u001c6\u0016%\u001a7_&\u0011 \n#\u000f<\r'\u001a7_<\u000f0\u00107\u001ai_c\u0007cH"
          ],
          8,
          true,
          0,
          true,
-         "a6d4c30f"
+         "c66bb938"
       ],
       [
          "TF",
          [
             26,
-            "0x03ea696e76616c696420636c6f736520636f6465203432333032"
+            "0x03ea696e76616c696420636c6f736520636f6465203530353631"
          ],
          8,
          true,
@@ -448,7 +448,7 @@
          "TO",
          [
             28,
-            "881a03ea696e76616c696420636c6f736520636f6465203432333032"
+            "881a03ea696e76616c696420636c6f736520636f6465203530353631"
          ],
          false
       ]

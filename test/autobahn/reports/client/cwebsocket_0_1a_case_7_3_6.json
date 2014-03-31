@@ -21,15 +21,15 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=221&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Tk44bzZhYlQyUWNWQlhPdw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ADocdQmKbRM1Z98hMeFvrx4bFi0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=221&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: QjNjWktDNVRxSGhuTlRQRg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: P/T6u46HA2HaGn5BYknmpjBf1B0=\r\n\r\n",
    "id": "7.3.6",
    "isServer": true,
    "localCloseCode": 1000,
    "localCloseReason": "****************************************************************************************************************************",
    "received": [],
-   "remoteCloseCode": 33519,
-   "remoteCloseReason": "&e+~7e)*#x$g yeg0y1*+e1* r&o ne;w?eh<~ y",
+   "remoteCloseCode": 21617,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "The close code should have been 1002 or empty",
@@ -41,7 +41,7 @@
       "48": 1,
       "191": 1
    },
-   "started": "2014-02-27T23:02:29Z",
+   "started": "2014-03-31T00:40:59Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1
@@ -50,7 +50,7 @@
       "130": 1,
       "168": 1
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
    "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
@@ -101,20 +101,20 @@
          "RO",
          [
             48,
-            "88aa8105c40f03eae26aaa7bf36aa82fe777a562e476e462f476b02fef6ab02fe47da76ae461e43eb330e46df871a17c"
+            "88aa579bb93803ea34f4d74c25f4d51831e9d85532e8995522e8cd1839f4cd1832e3da5d32ff990965ae995a2eefdc4b"
          ]
       ],
       [
          "RF",
          [
             42,
-            "0x82ef26652b7e3765292a23782467207965673079312a2b65312a2072266f206e653b773f65683c7e2079"
+            "0x54718dcc80d79ccc828388d18fce8bd0cece9bd09a8380cc9a838bdb8dc68bc7ce92dc96cec197d78bd0"
          ],
          8,
          true,
          0,
          true,
-         "8105c40f"
+         "579bb938"
       ]
    ]
 }

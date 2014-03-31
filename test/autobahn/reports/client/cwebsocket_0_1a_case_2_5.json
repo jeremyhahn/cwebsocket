@@ -7,7 +7,7 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send ping with binary payload of 126 octets.",
-   "droppedByMe": false,
+   "droppedByMe": true,
    "duration": 2,
    "expectation": "Connection is failed immediately (1002/Protocol Error), since control frames are only allowed to have payload up to and including 125 octets..",
    "expected": {
@@ -21,15 +21,15 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=21&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=21&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: SjQ4Q3dnSDlkS0NLNUU5Tg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: eDf9XYiNpNfqjIWqWJSwhTKXjOY=\r\n\r\n",
    "id": "2.5",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 318",
+   "localCloseReason": "invalid close code 41096",
    "received": [],
-   "remoteCloseCode": 318,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 41096,
+   "remoteCloseReason": "y5t.h5vz|({7\u007f):7o)nzt5nz\u007f\"y?\u007f>:k(o:8c.\u007f)",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -41,20 +41,20 @@
       "48": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:02Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1,
       "9": 1
    },
    "txOctetStats": {
-      "26": 1,
+      "28": 1,
       "130": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -103,26 +103,26 @@
          "RO",
          [
             48,
-            "88aa02d4c30f03ea61bbad7b70bbaf2f64a6a26267a7e36277a7b72f6cbbb72f67aca06a67b0e33e30e1e36d7ba0a67c"
+            "88aaa362b93803eac00dd74cd10dd518c510d855c6119955d611cd18cd0dcd18c61ada5dc60699099157995ada16dc4b"
          ]
       ],
       [
          "RF",
          [
             42,
-            "0x013ea2b4afafb3b4adfba7a9a0b6a4a8e1b6b4a8b5fbafb4b5fba4a3a2bea4bfe1eaf3eee1b9b8afa4a8"
+            "0xa0887935742e6835767a7c287b377f293a376f296e7a74356e7a7f22793f7f3e3a6b286f3a38632e7f29"
          ],
          8,
          true,
          0,
          true,
-         "02d4c30f"
+         "a362b938"
       ],
       [
          "TF",
          [
-            24,
-            "0x03ea696e76616c696420636c6f736520636f646520333138"
+            26,
+            "0x03ea696e76616c696420636c6f736520636f6465203431303936"
          ],
          8,
          true,
@@ -135,8 +135,8 @@
       [
          "TO",
          [
-            26,
-            "881803ea696e76616c696420636c6f736520636f646520333138"
+            28,
+            "881a03ea696e76616c696420636c6f736520636f6465203431303936"
          ],
          false
       ]

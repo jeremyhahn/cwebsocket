@@ -429,7 +429,7 @@ void cwebsocket_client_listen(cwebsocket_client *websocket) {
 void *cwebsocket_client_onmessage_thread(void *ptr) {
 	cwebsocket_client_thread_args *args = (cwebsocket_client_thread_args *)ptr;
 	cwebsocket_client_onmessage(args->socket, args->message);
-	free(args->message->payload);
+	//free(args->message->payload);
 	free(args->message);
 	free(ptr);
 	return NULL;
@@ -452,18 +452,16 @@ int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode co
 	control_frame[4] = masking_key[2];
 	control_frame[5] = masking_key[3];
 	if(code & CLOSE) {
-		uint16_t close_code = 0;
+		uint16_t close_code = 1000;
 		if(payload_len >= 2) {
-		   control_frame[6] = payload[0];
-		   control_frame[7] = payload[1];
-		   close_code = (control_frame[6] << 8) + control_frame[7];
 		   if(payload_len > 2) {
-			  char parsed_payload[payload_len-2];
-			  memcpy(parsed_payload, &payload[2], payload_len-2);
-			  parsed_payload[payload_len-2] = '\0';
+			  char parsed_payload[payload_len];
+			  memcpy(parsed_payload, &payload[0], payload_len);
+			  parsed_payload[payload_len] = '\0';
+			  close_code = (control_frame[6] << 8) + control_frame[7];
 			  int i;
 			  for(i=0; i<payload_len; i++) {
-				  control_frame[8+i] = (parsed_payload[i] ^ masking_key[i % 4]) & 0xff;
+				  control_frame[6+i] = (parsed_payload[i] ^ masking_key[i % 4]) & 0xff;
 			  }
 			  syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: opcode=%#04x, frame_type=%s, payload_len=%i, code=%i, payload=%s",
 					  code, frame_type, payload_len, close_code, parsed_payload);
@@ -471,7 +469,7 @@ int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode co
 		   else {
 				syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: opcode=%#04x, frame_type=%s, payload_len=%i, code=%i, payload=(null)",
 						code, frame_type, payload_len, close_code);
-			}
+		   }
 		}
 		else {
 			syslog(LOG_DEBUG, "cwebsocket_client_send_control_frame: opcode=%#04x, frame_type=%s, payload_len=%i, code=%i, payload=(null)",
@@ -522,10 +520,10 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	while(bytes_read < frame_size && (websocket->state & WEBSOCKET_STATE_OPEN)) {
 
 		if(bytes_read >= CWS_DATA_BUFFER_MAX) {
-				syslog(LOG_ERR, "cwebsocket_client_read_data: frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i",
-						CWS_DATA_BUFFER_MAX, bytes_read, header_length);
-				cwebsocket_client_close(websocket, 1009, "frame too large");
-				return -1;
+			syslog(LOG_ERR, "cwebsocket_client_read_data: frame too large. RECEIVE_BUFFER_MAX = %i bytes. bytes_read=%i, header_length=%i",
+					CWS_DATA_BUFFER_MAX, bytes_read, header_length);
+			cwebsocket_client_close(websocket, 1009, "frame too large");
+			return -1;
 		}
 
 		ssize_t byte = cwebsocket_client_read(websocket, data+bytes_read, 1);
@@ -596,7 +594,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 	if(frame.fin && frame.opcode == TEXT_FRAME) {
 
-		char *payload = malloc(sizeof(char) * payload_length);
+		char *payload = malloc(sizeof(char) * payload_length+1);
 		if(payload == NULL) {
 			perror("out of memory");
 			exit(-1);
@@ -625,13 +623,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 			memset(message, 0, sizeof(cwebsocket_message));
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
-			message->payload = malloc(sizeof(char) * (payload_length+1));
-			if(message->payload == NULL) {
-				perror("out of memory");
-				exit(-1);
-			}
-			strncpy(message->payload, payload, payload_length+1);
-			free(payload);
+			message->payload = payload;
 
 		    cwebsocket_client_thread_args *args = malloc(sizeof(cwebsocket_client_thread_args));
 		    if(args == NULL) {
@@ -652,15 +644,9 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		    cwebsocket_message message = {0};
 			message.opcode = frame.opcode;
 			message.payload_len = frame.payload_len;
-			message.payload = malloc(sizeof(char) * (payload_length+1));
-			if(message.payload == NULL) {
-				perror("out of memory");
-				exit(-1);
-			}
-			strncpy(message.payload, payload, payload_length+1);
+			message.payload = payload;
 		    cwebsocket_client_onmessage(websocket, &message);
-			free(payload);
-		    free(message.payload);
+			//free(payload);
 		    return bytes_read;
 #endif
 		}
@@ -672,7 +658,11 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received BINARY payload. bytes=%zu", payload_length);
 
-		char payload[payload_length];
+		char *payload = malloc(sizeof(char) * payload_length);
+		if(payload == NULL) {
+			perror("out of memory");
+			exit(-1);
+		}
 		memcpy(payload, &data[header_length], payload_length);
 		free(data);
 
@@ -680,10 +670,13 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 #ifdef ENABLE_THREADS
 			cwebsocket_message *message = malloc(sizeof(cwebsocket_message));
+			if(message == NULL) {
+				perror("out of memory");
+				exit(-1);
+			}
 			message->opcode = frame.opcode;
 			message->payload_len = frame.payload_len;
-			message->payload = malloc(sizeof(char) * payload_length);
-			memcpy(message->payload, payload, payload_length);
+			message->payload = payload;
 
 			cwebsocket_client_thread_args *args = malloc(sizeof(cwebsocket_client_thread_args));
 			args->socket = websocket;
@@ -701,6 +694,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 			message.payload_len = frame.payload_len;
 			message.payload = payload;
 			websocket->subprotocol->onmessage(websocket, &message);
+			free(payload);
 			return bytes_read;
 #endif
 		}

@@ -7,8 +7,8 @@
    "createStats": true,
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved non-control <b>Opcode = 6</b> and non-empty payload, then send Ping.",
-   "droppedByMe": false,
-   "duration": 1,
+   "droppedByMe": true,
+   "duration": 39,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,12 +28,12 @@
       "requireClean": false
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=38&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=38&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: eEFQOVMzMVNvT01UaTR4RA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: J9OK5CQClLnJXupzLunn1ac/DC4=\r\n\r\n",
    "id": "4.1.4",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 8766",
+   "localCloseReason": "invalid close code 55681",
    "received": [
       [
          "message",
@@ -41,8 +41,8 @@
          false
       ]
    ],
-   "remoteCloseCode": 8766,
-   "remoteCloseReason": null,
+   "remoteCloseCode": 55681,
+   "remoteCloseReason": "\u00116\u00006\n%\u00067C&\r \u0016#\u0013<\u0011'\u00067C<\u00130\f7\u0006iCc\u001bcU",
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
@@ -56,7 +56,7 @@
       "41": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:11Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -67,12 +67,12 @@
    "txOctetStats": {
       "2": 1,
       "15": 2,
-      "27": 1,
+      "28": 1,
       "168": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
+   "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -165,7 +165,7 @@
          "RO",
          [
             19,
-            "818ddbd4c30f93b1af63b4f8e378b4a6af6bfa"
+            "818d256bb9386d0ed5544a47994f4a19d55c04"
          ]
       ],
       [
@@ -178,32 +178,32 @@
          true,
          0,
          true,
-         "dbd4c30f"
+         "256bb938"
       ],
       [
          "RO",
          [
             41,
-            "88a321d4c30f03ea53b1a06a48a2a66b01a1ad7c54a4b36053a0a66b01bbb36c4eb0a63501e4bb3f17"
+            "88a3da6bb93803eaa80eda5db31ddc5cfa1ed74baf1bc957a81fdc5cfa04c95bb50fdc02fa5bc108ec"
          ]
       ],
       [
          "RF",
          [
             35,
-            "0x223e90be81be8bad87bfc2ae8ca897ab92b490af87bfc2b492b88dbf87e1c2eb9aebd4"
+            "\u0641\u00116\u00006\n%\u00067C&\r \u0016#\u0013<\u0011'\u00067C<\u00130\f7\u0006iCc\u001bcU"
          ],
          8,
          true,
          0,
          true,
-         "21d4c30f"
+         "da6bb938"
       ],
       [
          "TF",
          [
-            25,
-            "0x03ea696e76616c696420636c6f736520636f64652038373636"
+            26,
+            "0x03ea696e76616c696420636c6f736520636f6465203535363831"
          ],
          8,
          true,
@@ -216,8 +216,8 @@
       [
          "TO",
          [
-            27,
-            "881903ea696e76616c696420636c6f736520636f64652038373636"
+            28,
+            "881a03ea696e76616c696420636c6f736520636f6465203535363831"
          ],
          false
       ]

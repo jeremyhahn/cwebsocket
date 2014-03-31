@@ -1,6 +1,6 @@
 {
    "agent": "cwebsocket/0.1a",
-   "behavior": "OK",
+   "behavior": "FAILED",
    "behaviorClose": "OK",
    "case": 25,
    "closedByMe": true,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send unsolicited pong with payload. Send ping with payload. Verify pong for ping is received.",
    "droppedByMe": true,
-   "duration": 1,
+   "duration": 1002,
    "expectation": "Nothing in reply to own Pong, but Pong with payload echo'ed in reply to Ping. Clean close with normal code.",
    "expected": {
       "OK": [
@@ -26,23 +26,23 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=25&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Z0dEZkc2Y214U0dSWGhDbw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: v2BWRoXl5Sd2CHzb26wcpgf+cy0=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=25&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: alEzYklGYmY1Q1QzeWtJUw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: u1ptkWxusHPPw8j/E/4K05wwK/I=\r\n\r\n",
    "id": "2.9",
    "isServer": true,
-   "localCloseCode": 1000,
+   "localCloseCode": null,
    "localCloseReason": null,
    "received": [
       [
          "pong",
-         "ping payload"
+         "0xa60d013b4f2c0e2503330e38"
       ]
    ],
    "remoteCloseCode": null,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "Actual events match at least one expected.",
+   "result": "Actual events differ from any expected.",
    "resultClose": "Connection was properly closed",
    "rxFrameStats": {
       "8": 1,
@@ -53,7 +53,7 @@
       "18": 1,
       "190": 1
    },
-   "started": "2014-02-27T23:01:40Z",
+   "started": "2014-03-31T00:40:04Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1,
@@ -61,7 +61,7 @@
       "10": 1
    },
    "txOctetStats": {
-      "4": 1,
+      "2": 1,
       "14": 1,
       "26": 1,
       "168": 1
@@ -139,26 +139,29 @@
          "RO",
          [
             18,
-            "8a8c5fd4c30f2fbdad687fa4a27633bba26b"
+            "8a8cd664b9387069b8039948b71dd557b700"
          ]
       ],
       [
          "RF",
          [
             12,
-            "ping payload"
+            "0xa60d013b4f2c0e2503330e38"
          ],
          10,
          true,
          0,
          true,
-         "5fd4c30f"
+         "d664b938"
+      ],
+      [
+         "TIE"
       ],
       [
          "TF",
          [
-            2,
-            "0x03e8"
+            0,
+            ""
          ],
          8,
          true,
@@ -171,8 +174,8 @@
       [
          "TO",
          [
-            4,
-            "880203e8"
+            2,
+            "8800"
          ],
          false
       ],
@@ -180,7 +183,7 @@
          "RO",
          [
             6,
-            "888054000000"
+            "8880a565b938"
          ]
       ],
       [
@@ -193,7 +196,7 @@
          true,
          0,
          true,
-         "54000000"
+         "a565b938"
       ]
    ]
 }

@@ -1,14 +1,14 @@
 {
    "agent": "cwebsocket/0.1a",
    "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behaviorClose": "UNCLEAN",
    "case": 274,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": false,
    "description": "Send fragmented binary message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 1k.",
    "droppedByMe": true,
-   "duration": 49,
+   "duration": 45,
    "expectation": "Receive echo'ed binary message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,19 +19,19 @@
       "requireClean": true
    },
    "failedByMe": true,
-   "httpRequest": "GET /runCase?case=274&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: VHFYWWlCQXoweE5laHZvMQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.0-0.8.1\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: /FVxjW1ZP2ZWBc3zqUkitIWSPNE=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=274&agent=cwebsocket/0.1a HTTP/1.1\r\nHost: localhost:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: OGlZaUVEc2gySUp4dmlJcg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/0.6.1-0.8.6\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: rIL5HK302uCn9d5R384T9Pmrjxs=\r\n\r\n",
    "id": "9.4.3",
    "isServer": true,
    "localCloseCode": 1002,
-   "localCloseReason": "invalid close code 57315",
+   "localCloseReason": "invalid close code 45172",
    "received": [],
-   "remoteCloseCode": 57315,
-   "remoteCloseReason": "jc{cqp}b8svumvhijr}b8ihewb}<86`6*",
+   "remoteCloseCode": 45172,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": true,
    "result": "Did not receive message within 100 seconds.",
-   "resultClose": "The close code should have been 1000 or empty",
+   "resultClose": "The spec requires the connection to be failed cleanly here",
    "rxFrameStats": {
       "8": 1
    },
@@ -39,7 +39,7 @@
       "41": 1,
       "191": 1
    },
-   "started": "2014-02-27T23:02:33Z",
+   "started": "2014-03-31T00:41:02Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 4096,
@@ -52,7 +52,7 @@
       "168": 1,
       "1028": 4096
    },
-   "wasClean": true,
+   "wasClean": false,
    "wasCloseHandshakeTimeout": false,
    "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
