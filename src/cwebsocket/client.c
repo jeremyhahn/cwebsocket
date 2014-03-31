@@ -703,9 +703,12 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	}
 	else if(frame.opcode == CONTINUATION) {
 		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received CONTINUATION opcode");
-		return -1; // continuations are accounted for in read loop
+		return 0;
 	}
 	else if(frame.opcode == PING) {
+		if(frame.fin == 0) {
+			cwebsocket_client_close(websocket, 1002, "control message must not be fragmented");
+		}
 		if(frame.payload_len > 125) {
 			cwebsocket_client_close(websocket, 1002, "control frames must not exceed 125 bytes");
 			return -1;

@@ -78,13 +78,13 @@ cwebsocket_subprotocol* autobahn_testsuite_new() {
 	return protocol;
 }
 
-int testsuite_main_exit(int exit_status) {
+int main_exit(int exit_status) {
 	syslog(LOG_DEBUG, "exiting cwebsocket");
 	closelog();
 	return exit_status;
 }
 
-void testsuite_print_program_header() {
+void print_program_header() {
 	printf("\n");
 	printf("                      ______                    ______      _____ \n");
     printf(" _________      _________  /_______________________  /________  /_\n");
@@ -98,9 +98,9 @@ void testsuite_print_program_header() {
 	printf("\n");
 }
 
-int testsuite_main(int argc, char **argv) {
+int main(int argc, char **argv) {
 
-	testsuite_print_program_header();
+	print_program_header();
 
 	setlogmask(LOG_UPTO(LOG_DEBUG));
 	openlog("cwebsocket", LOG_CONS | LOG_PERROR, LOG_USER);

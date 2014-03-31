@@ -63,7 +63,7 @@ void server_print_program_usage(const char *progname) {
 	exit(0);
 }
 
-int server_main(int argc, char **argv) {
+int main(int argc, char **argv) {
 
 	server_print_program_header();
 
