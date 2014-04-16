@@ -65,19 +65,18 @@ AC_ARG_ENABLE(debug,
   no)  debug=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
 esac],[debug=false])
-AM_CONDITIONAL([ENABLE_DEBUG], [test "$debug" = true])
+if test "$debug" = true; then
+    AC_DEFINE(ENABLE_DEBUG, [1], ["Compile with GDB support"])
+    CFLAGS='-g'
+fi
 
 AC_ARG_ENABLE(ssl,
-  AS_HELP_STRING(
-    [--enable-ssl],
-    [enable ssl, default: enabled]),
-    [case "${enableval}" in
-      yes) ssl=true ;;
-      no)  ssl=false ;;
-      *)   AC_MSG_ERROR([bad value ${enableval} for --enable-ssl]) ;;
-    esac],
-    [ssl=true])
-#AM_CONDITIONAL(USESSL, test x"$ssl" = x"true")
+[--enable-ssl Enable ssl, default: enabled],
+[case "${enableval}" in
+  yes) ssl=true ;;
+  no)  ssl=false ;;
+  *)   AC_MSG_ERROR([bad value ${enableval} for --enable-ssl]) ;;
+esac], [ssl=true])
 if test "$ssl" = true; then
     AC_DEFINE(ENABLE_SSL, [1], ["Compile with SSL support"])
 fi
@@ -89,7 +88,6 @@ AC_ARG_ENABLE(threads,
   no)  threads=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-threads) ;;
 esac],[threads=true])
-#AM_CONDITIONAL([THREADED], [test "x$threads" = "xtrue"])
 if test "$threads" = true; then
     AC_DEFINE(ENABLE_THREADS, [1], ["Compile with client multi-threading support"])
 fi
