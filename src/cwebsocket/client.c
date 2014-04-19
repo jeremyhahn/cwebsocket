@@ -605,12 +605,12 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 
 		size_t utf8_code_points = 0;
 		if(utf8_count_code_points((uint8_t *)payload, &utf8_code_points)) {
-			syslog(LOG_ERR, "cwebsocket_client_read_data: received %zu byte malformed utf8 text payload: %s", payload_length, payload);
+			syslog(LOG_ERR, "cwebsocket_client_read_data: received %lld byte malformed utf8 text payload: %s", payload_length, payload);
 			cwebsocket_client_onerror(websocket, "received malformed utf8 payload");
 			return -1;
 		}
 
-		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received %zu byte text payload: %s", payload_length, payload);
+		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received %lld byte text payload: %s", payload_length, payload);
 
 		if(websocket->subprotocol != NULL && websocket->subprotocol->onmessage != NULL) {
 
@@ -656,7 +656,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 	}
 	else if(frame.fin && frame.opcode == BINARY_FRAME) {
 
-		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received BINARY payload. bytes=%zu", payload_length);
+		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received BINARY payload. bytes=%lld", payload_length);
 
 		char *payload = malloc(sizeof(char) * payload_length);
 		if(payload == NULL) {
@@ -739,7 +739,7 @@ int cwebsocket_client_read_data(cwebsocket_client *websocket) {
 		memcpy(payload, &data[header_length], (payload_length) * sizeof(uint8_t));
 		payload[payload_length] = '\0';
 		free(data);
-		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received CLOSE control frame. payload_length=%zu, code=%i, reason=%s", payload_length, code, payload);
+		syslog(LOG_DEBUG, "cwebsocket_client_read_data: received CLOSE control frame. payload_length=%lld, code=%i, reason=%s", payload_length, code, payload);
 		cwebsocket_client_close(websocket, code, NULL);
 		return 0;
 	}

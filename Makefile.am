@@ -21,4 +21,4 @@ so:
 	gcc -shared -fPIC $(ECHO_SERVER) $(WEBSOCKET_SERVER) -o libwsserver.so
 
 clean:
-	rm -rf ltmain.sh libtool config.sub config.guess libwsclient.* libwsserver.* .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ websocket-client websocket-server websocket-testsuite
+	rm -rf ltmain.sh libtool config.sub config.guess libwsclient.* libwsserver.* .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ RPI\ Debug Release depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ websocket-client websocket-server websocket-testsuite
