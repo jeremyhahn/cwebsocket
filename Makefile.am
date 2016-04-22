@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 
 COMMON = src/cwebsocket/utf8.h src/cwebsocket/utf8.c src/cwebsocket/common.h src/cwebsocket/common.c
@@ -21,4 +21,4 @@ so:
 	gcc -shared -fPIC $(ECHO_SERVER) $(WEBSOCKET_SERVER) -o libwsserver.so
 
 clean:
-	rm -rf ltmain.sh libtool config.sub config.guess libwsclient.* libwsserver.* .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ RPI\ Debug Release depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ websocket-client websocket-server websocket-testsuite
+	rm -rf compile ltmain.sh libtool config.sub config.guess libwsclient.* libwsserver.* .gitignore vgcore.* autoscan.log config.h.in config.h config.cache configure install-sh aclocal.m4 autom4te.cache/ config.log config.status Debug/ RPI\ Debug Release depcomp .deps/ m4/ Makefile Makefile.in missing stamp-h1 *.o src/*.o *~ src/.deps/ src/.dirstamp src/cwebsocket/.deps/ src/cwebsocket/.dirstamp src/cwebsocket/client.o src/cwebsocket/common.o src/cwebsocket/server.o src/cwebsocket/subprotocol/echo/.deps/ src/cwebsocket/subprotocol/echo/.dirstamp src/cwebsocket/subprotocol/echo/echo_client.o src/cwebsocket/subprotocol/echo/echo_server.o src/cwebsocket/utf8.o websocket-client websocket-server websocket-testsuite
