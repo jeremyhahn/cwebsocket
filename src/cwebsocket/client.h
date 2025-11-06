@@ -30,6 +30,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/resource.h>
+#include <zlib.h>
 #include "common.h"
 
 #define WEBSOCKET_FLAG_AUTORECONNECT (1 << 1)
@@ -55,6 +56,25 @@ typedef struct _cwebsocket {
 #endif
 	size_t subprotocol_len;
 	cwebsocket_subprotocol *subprotocol;
+	uint8_t *fragment_buffer;
+	size_t fragment_length;
+	size_t fragment_capacity;
+	opcode fragment_opcode;
+	int fragment_in_progress;
+	int close_sent;
+	int close_received;
+	// UTF-8 validation state for fragmented text messages
+	uint32_t utf8_state;
+	uint32_t utf8_codepoint;
+	int protocol_error;
+    // permessage-deflate extension flags/state
+    int ext_pmdeflate_enabled;
+    int pmdeflate_in_progress;
+    z_stream zin;
+    z_stream zout;
+	int pmdeflate_opcode; // opcode of current compressed message (TEXT or BINARY)
+	int pmdeflate_client_window_bits; // Negotiated client window bits (8-15, default 15)
+	int pmdeflate_server_window_bits; // Negotiated server window bits (8-15, default 15)
 	cwebsocket_subprotocol *subprotocols[];
 } cwebsocket_client;
 
@@ -78,8 +98,8 @@ int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char
 int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey);
 int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, uint8_t *payload, int payload_len);
 void cwebsocket_client_create_masking_key(uint8_t *masking_key);
-ssize_t inline cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
-ssize_t inline cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);
+ssize_t cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
+ssize_t cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);
 void cwebsocket_client_onopen(cwebsocket_client *websocket);
 void cwebsocket_client_onmessage(cwebsocket_client *websocket, cwebsocket_message *message);
 void cwebsocket_client_onclose(cwebsocket_client *websocket, int code, const char *message);

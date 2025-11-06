@@ -1,11 +1,9 @@
 {
    "url": "ws://127.0.0.1:9001",
-
-   "options": {"failByDrop": false},
-   "outdir": "./reports/client",
    "webport": 8080,
-
-   "cases": ["5.3"],
+   "options": {"failByDrop": false},
+   "outdir": "/config/reports/clients",
+   "cases": ["*"],
    "exclude-cases": [],
    "exclude-agent-cases": {}
 }

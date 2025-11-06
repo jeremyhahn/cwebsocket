@@ -28,21 +28,43 @@ char* cwebsocket_base64_encode(const unsigned char *input, int length) {
 	BIO *bmem, *b64;
 	BUF_MEM *bptr;
 	b64 = BIO_new(BIO_f_base64());
+	if(b64 == NULL) {
+		return NULL;
+	}
+	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 	bmem = BIO_new(BIO_s_mem());
+	if(bmem == NULL) {
+		BIO_free_all(b64);
+		return NULL;
+	}
 	b64 = BIO_push(b64, bmem);
-	BIO_write(b64, input, length);
-	BIO_flush(b64);
+	if(BIO_write(b64, input, length) <= 0) {
+		BIO_free_all(b64);
+		return NULL;
+	}
+	if(BIO_flush(b64) != 1) {
+		BIO_free_all(b64);
+		return NULL;
+	}
 	BIO_get_mem_ptr(b64, &bptr);
-	char *buff = (char *)malloc(bptr->length);
-	memcpy(buff, bptr->data, bptr->length-1);
-	buff[bptr->length-1] = '\0';
+	if(bptr == NULL || bptr->length <= 0) {
+		BIO_free_all(b64);
+		return NULL;
+	}
+	char *buff = (char *)malloc(bptr->length + 1);
+	if(buff == NULL) {
+		BIO_free_all(b64);
+		return NULL;
+	}
+	memcpy(buff, bptr->data, bptr->length);
+	buff[bptr->length] = '\0';
 	BIO_free_all(b64);
 	return buff;
 }
 
 void cwebsocket_print_frame(cwebsocket_frame *frame) {
-	syslog(LOG_DEBUG, "cwebsocket_print_frame: fin=%i, rsv1=%i, rsv2=%i, rsv3=%i, opcode=%#04x, mask=%i, payload_len=%lld\n",
-			frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
+    syslog(LOG_DEBUG, "cwebsocket_print_frame: fin=%i, rsv1=%i, rsv2=%i, rsv3=%i, opcode=%#04x, mask=%i, payload_len=%llu\n",
+            frame->fin, frame->rsv1, frame->rsv2, frame->rsv3, frame->opcode, frame->mask, frame->payload_len);
 }
 
 char* cwebsocket_create_key_challenge_response(const char *seckey) {

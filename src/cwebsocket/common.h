@@ -25,6 +25,9 @@
 #ifndef CWEBSOCKET_H_
 #define CWEBSOCKET_H_
 
+// Define GNU_SOURCE for strcasestr and other GNU extensions
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -38,6 +41,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <openssl/evp.h>
@@ -66,17 +70,18 @@
 #endif
 
 #define htonl64(p) {\
-	(char)(((p & ((uint64_t)0xff <<  0)) >>  0) & 0xff), (char)(((p & ((uint64_t)0xff <<  8)) >>  8) & 0xff), \
-	(char)(((p & ((uint64_t)0xff << 16)) >> 16) & 0xff), (char)(((p & ((uint64_t)0xff << 24)) >> 24) & 0xff), \
-	(char)(((p & ((uint64_t)0xff << 32)) >> 32) & 0xff), (char)(((p & ((uint64_t)0xff << 40)) >> 40) & 0xff), \
-	(char)(((p & ((uint64_t)0xff << 48)) >> 48) & 0xff), (char)(((p & ((uint64_t)0xff << 56)) >> 56) & 0xff) }
+	(char)(((p) >> 56) & 0xff), (char)(((p) >> 48) & 0xff), \
+	(char)(((p) >> 40) & 0xff), (char)(((p) >> 32) & 0xff), \
+	(char)(((p) >> 24) & 0xff), (char)(((p) >> 16) & 0xff), \
+	(char)(((p) >> 8) & 0xff),  (char)((p) & 0xff) }
 
 #ifndef CWS_HANDSHAKE_BUFFER_MAX
-	#define CWS_HANDSHAKE_BUFFER_MAX 256  // bytes
+    #define CWS_HANDSHAKE_BUFFER_MAX 4096  // bytes
 #endif
 
 #ifndef CWS_DATA_BUFFER_MAX
-	#define CWS_DATA_BUFFER_MAX 65543     // bytes
+    // Allow large Autobahn test payloads and fragmented assemblies (32 MiB)
+    #define CWS_DATA_BUFFER_MAX (32 * 1024 * 1024)     // bytes
 #endif
 
 #ifndef CWS_STACK_SIZE_MIN

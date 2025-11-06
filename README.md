@@ -54,6 +54,28 @@ The websocket client is able to connect and exchange data with any RFC 6455 comp
 	./websocket-client ws://echo.websocket.org
 	./websocket-client wss://echo.websocket.org
 
+### Dockerized Tests
+
+All tests run inside a Docker container — nothing is installed on the host.
+
+- Build the test image:
+
+	make docker-build
+
+- Run unit tests inside the container:
+
+	make test
+
+- Run the Autobahn integration suite (reports in `test/autobahn/reports/clients` on the host):
+
+	make integration-test
+
+- Open a shell in the container (optional):
+
+	make docker-shell
+
+Note: Integration tests start the Autobahn fuzzing server inside the container and run `websocket-testsuite` against it. Reports are written to the mounted host directory `test/autobahn/reports/clients`.
+
 ### TODO
 
 1. More testing on various embedded devices

@@ -3,11 +3,11 @@
 
 AC_PREREQ([2.69])
 AC_INIT([cwebsocket], [0.01], [root@localhost])
+AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([cwebsocket], [0.01])
 AC_CONFIG_SRCDIR([src/websocket-client.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AC_ENABLE_SHARED
 LT_INIT
 
 # Remember externally set CFLAGS
@@ -19,25 +19,30 @@ LT_INIT
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL(libtool)
 
 # Checks for libraries.
-AC_CHECK_LIB([crypto], [main],, AC_MSG_ERROR($missing_library))
 PKG_CHECK_MODULES([crypto], [libcrypto], [have_libcrypto=yes], [have_libcrypto=no])
 AM_CONDITIONAL([CRYPTO],  [test "$have_libcrypto" = "yes"])
 
-AC_CHECK_LIB([ssl], [main],, AC_MSG_ERROR($missing_library))
 PKG_CHECK_MODULES([ssl], [libssl], [have_libssl=yes], [have_libssl=no])
 AM_CONDITIONAL([SSL],  [test "$have_libssl" = "yes"])
 
-AC_CHECK_LIB([pthread], [main],, AC_MSG_ERROR($missing_library))
 PKG_CHECK_MODULES([pthread], [pthread], [have_libpthread=yes], [have_libpthread=no])
 AM_CONDITIONAL([PTHREAD],  [test "$have_libpthread" = "yes"])
 
-AC_CHECK_LIB([ev], [main],, AC_MSG_ERROR($missing_library))
 PKG_CHECK_MODULES([ev], [ev], [have_libev=yes], [have_libev=no])
 AM_CONDITIONAL([EV],  [test "$have_libev" = "yes"])
+
+AS_IF([test "$have_libcrypto" != "yes" -o "$have_libssl" != "yes" -o "$have_libpthread" != "yes" -o "$have_libev" != "yes"], [
+  AC_MSG_WARN([Required libraries missing: 
+    libcrypto: $have_libcrypto
+    libssl:    $have_libssl
+    pthread:   $have_libpthread
+    libev:     $have_libev
+  The build may fail. Install missing -dev packages and re-run configure.])
+])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h sys/time.h syslog.h unistd.h])

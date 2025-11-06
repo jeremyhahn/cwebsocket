@@ -31,8 +31,22 @@ void cwebsocket_subprotocol_echo_client_onopen(void *websocket) {
 
 void cwebsocket_subprotocol_echo_client_onmessage(void *websocket, cwebsocket_message *message) {
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
-	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onmessage: fd=%i, opcode=%#04x, payload_len=%lld, payload=%s\n",
-			client->fd, message->opcode, message->payload_len, message->payload);
+    syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onmessage: fd=%i, opcode=%#04x, payload_len=%llu, payload=%s\n",
+            client->fd, message->opcode, message->payload_len, message->payload);
+
+	// Echo back exactly what we received (text or binary)
+	if(client->state & WEBSOCKET_STATE_OPEN) {
+		opcode op = message->opcode;
+		if(op == TEXT_FRAME || op == BINARY_FRAME) {
+			uint64_t len = message->payload_len;
+			if(len > 0 && message->payload != NULL) {
+				cwebsocket_client_write_data(client, message->payload, len, op);
+			} else {
+				// Echo empty payload frame of same type
+				cwebsocket_client_write_data(client, "", 0, op);
+			}
+		}
+	}
 }
 
 void cwebsocket_subprotocol_echo_client_onclose(void *websocket, int code, const char *reason) {
