@@ -31,7 +31,17 @@ void cwebsocket_subprotocol_echo_client_onopen(void *websocket) {
 
 void cwebsocket_subprotocol_echo_client_onmessage(void *websocket, cwebsocket_message *message) {
 	cwebsocket_client *client = (cwebsocket_client *)websocket;
-    syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onmessage: fd=%i, opcode=%#04x, payload_len=%llu, payload=%s\n",
+
+	// Print received message to stdout
+	if(message->opcode == TEXT_FRAME) {
+		printf("<<< RECEIVED: \"%.*s\"\n", (int)message->payload_len, (char*)message->payload);
+		fflush(stdout);
+	} else if(message->opcode == BINARY_FRAME) {
+		printf("<<< RECEIVED: %lu bytes of binary data\n", (unsigned long)message->payload_len);
+		fflush(stdout);
+	}
+
+	syslog(LOG_DEBUG, "cwebsocket_subprotocol_echo_client_onmessage: fd=%i, opcode=%#04x, payload_len=%llu, payload=%s\n",
             client->fd, message->opcode, message->payload_len, message->payload);
 
 	// Echo back exactly what we received (text or binary)

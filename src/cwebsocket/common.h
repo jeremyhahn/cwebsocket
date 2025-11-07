@@ -88,7 +88,7 @@
 	#define CWS_STACK_SIZE_MIN 8          // MB
 #endif
 
-#define CWS_VERSION "0.1a"
+#define CWS_VERSION "1.0"
 
 #define WEBSOCKET_STATE_CONNECTING   (1 << 0)
 #define WEBSOCKET_STATE_CONNECTED    (1 << 1)

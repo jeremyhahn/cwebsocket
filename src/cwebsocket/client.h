@@ -35,11 +35,66 @@
 
 #define WEBSOCKET_FLAG_AUTORECONNECT (1 << 1)
 
+// Performance optimization: buffer pooling
+#define BUFFER_POOL_SIZE 64
+#define BUFFER_POOL_SMALL 4096      // 4KB buffers
+#define BUFFER_POOL_MEDIUM 65536    // 64KB buffers
+#define BUFFER_POOL_LARGE 1048576   // 1MB buffers
+
+// Thread pool for parallel message processing
+// Note: Thread pool size is now dynamically determined at runtime based on CPU cores
+// Allocation strategy:
+//   - Multi-core (2+): 1 core for event loop, remaining cores for workers
+//   - Single-core: 2 threads (1 for main, 1 for worker)
+//   - No thread support: Falls back to synchronous processing
+#define MESSAGE_QUEUE_SIZE 256      // Pending message queue
+
+// Zero-copy API flag
+#define WEBSOCKET_MSG_ZEROCOPY (1 << 0)
+
+typedef struct {
+	uint8_t *buffer;
+	size_t capacity;
+	uint8_t in_use;
+	uint8_t size_class; // 0=small, 1=medium, 2=large
+} buffer_pool_entry;
+
+typedef struct {
+	buffer_pool_entry entries[BUFFER_POOL_SIZE];
+#ifdef ENABLE_THREADS
+	pthread_mutex_t lock;
+#endif
+} buffer_pool;
+
+// Forward declaration
+typedef struct _cwebsocket cwebsocket_client;
+
+#ifdef ENABLE_THREADS
+// Thread pool for message processing
+typedef struct {
+	cwebsocket_client *socket;
+	cwebsocket_message *message;
+} thread_pool_task;
+
+typedef struct {
+	pthread_t *threads;         // Dynamically allocated based on CPU cores
+	int num_threads;            // Actual number of worker threads
+	thread_pool_task queue[MESSAGE_QUEUE_SIZE];
+	size_t queue_head;
+	size_t queue_tail;
+	size_t queue_size;
+	pthread_mutex_t queue_lock;
+	pthread_cond_t queue_not_empty;
+	pthread_cond_t queue_not_full;
+	int shutdown;
+} thread_pool;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _cwebsocket {
+struct _cwebsocket {
 	int fd;
 	int retry;
 	char *uri;
@@ -75,8 +130,15 @@ typedef struct _cwebsocket {
 	int pmdeflate_opcode; // opcode of current compressed message (TEXT or BINARY)
 	int pmdeflate_client_window_bits; // Negotiated client window bits (8-15, default 15)
 	int pmdeflate_server_window_bits; // Negotiated server window bits (8-15, default 15)
+	// Performance optimizations
+	buffer_pool *msg_buffer_pool;
+#ifdef ENABLE_THREADS
+	thread_pool *msg_thread_pool;
+#endif
+	uint8_t *user_buffer; // Zero-copy: user-provided buffer
+	size_t user_buffer_size;
 	cwebsocket_subprotocol *subprotocols[];
-} cwebsocket_client;
+};
 
 typedef struct {
 	cwebsocket_client *socket;
@@ -92,11 +154,27 @@ void cwebsocket_client_run(cwebsocket_client *websocket);
 void cwebsocket_client_close(cwebsocket_client *websocket, uint16_t code, const char *reason);
 void cwebsocket_client_listen(cwebsocket_client *websocket);
 
+// Zero-copy API
+void cwebsocket_client_set_user_buffer(cwebsocket_client *websocket, uint8_t *buffer, size_t size);
+
+// Buffer pool management
+buffer_pool* cwebsocket_buffer_pool_create(void);
+void cwebsocket_buffer_pool_destroy(buffer_pool *pool);
+uint8_t* cwebsocket_buffer_pool_acquire(buffer_pool *pool, size_t size);
+void cwebsocket_buffer_pool_release(buffer_pool *pool, uint8_t *buffer);
+
+#ifdef ENABLE_THREADS
+// Thread pool management
+thread_pool* cwebsocket_thread_pool_create(void);
+void cwebsocket_thread_pool_destroy(thread_pool *pool);
+int cwebsocket_thread_pool_submit(thread_pool *pool, cwebsocket_client *socket, cwebsocket_message *message);
+#endif
+
 // "private"
 void cwebsocket_client_parse_uri(cwebsocket_client *websocket, const char *uri, char *hostname, char *port, char *resource, char *querystring);
 int cwebsocket_client_handshake_handler(cwebsocket_client *websocket, const char *handshake_response, char *seckey);
 int cwebsocket_client_read_handshake(cwebsocket_client *websocket, char *seckey);
-int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, uint8_t *payload, int payload_len);
+int cwebsocket_client_send_control_frame(cwebsocket_client *websocket, opcode opcode, const char *frame_type, const uint8_t *payload, int payload_len);
 void cwebsocket_client_create_masking_key(uint8_t *masking_key);
 ssize_t cwebsocket_client_read(cwebsocket_client *websocket, void *buf, int len);
 ssize_t cwebsocket_client_write(cwebsocket_client *websocket, void *buf, int len);

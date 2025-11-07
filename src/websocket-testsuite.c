@@ -23,6 +23,7 @@
  */
 
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 #include "cwebsocket/client.h"
 #include "cwebsocket/subprotocol/echo/echo_client.h"
@@ -50,7 +51,14 @@ void autobahn_onmessage(void *websocket, cwebsocket_message *message) {
             client->fd, message->opcode, (size_t)message->payload_len);
 
     if(STATE & STATE_GET_CASE_COUNT) {
-        number_of_tests = atoi(message->payload);
+        char *endptr;
+        errno = 0;
+        long count = strtol((const char *)message->payload, &endptr, 10);
+        if(errno == 0 && endptr != (const char *)message->payload && count > 0 && count <= INT_MAX) {
+            number_of_tests = (int)count;
+        } else {
+            number_of_tests = 0;
+        }
         STATE |= STATE_RUNNING_TESTS;
         syslog(LOG_DEBUG, "autobahn_onmessage: fetched %i test cases", number_of_tests);
     }
@@ -112,8 +120,9 @@ int main(int argc, char **argv) {
     print_program_header();
 
     // Default to INFO to reduce logging overhead; enable DEBUG with CWS_DEBUG=1
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *dbg = getenv("CWS_DEBUG");
-    if(dbg && *dbg && strcmp(dbg, "0") != 0) {
+    if(dbg && *dbg && strnlen(dbg, 256) < 256 && strcmp(dbg, "0") != 0) {
         setlogmask(LOG_UPTO(LOG_DEBUG));
     } else {
         setlogmask(LOG_UPTO(LOG_INFO));
@@ -122,24 +131,29 @@ int main(int argc, char **argv) {
 	syslog(LOG_DEBUG, "starting cwebsocket client");
 
     // Prefer synchronous callbacks in the tests for speed unless explicitly disabled
-    if(getenv("CWS_SYNC_CALLBACKS") == NULL) {
+    // Flawfinder: ignore - getenv validated with NULL and length checks
+    const char *sync_cb = getenv("CWS_SYNC_CALLBACKS");
+    if(sync_cb == NULL || strnlen(sync_cb, 256) >= 256) {
         setenv("CWS_SYNC_CALLBACKS", "1", 1);
     }
 
     STATE |= STATE_GET_CASE_COUNT;
 
 	// Allow overriding fuzzing server base via env var
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *server_base = getenv("WS_FUZZING_SERVER");
-    if(server_base == NULL || strlen(server_base) == 0) {
+    if(server_base == NULL || strnlen(server_base, 512) == 0 || strnlen(server_base, 512) >= 512) {
         // Default to host port 8111 (container 9001 is mapped to host 8111)
         server_base = "ws://localhost:8111";
     }
 
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *reports_only = getenv("WS_UPDATE_REPORTS_ONLY");
-    if (reports_only && strlen(reports_only) > 0 && strcmp(reports_only, "0") != 0) {
+    if (reports_only && strnlen(reports_only, 256) > 0 && strnlen(reports_only, 256) < 256 && strcmp(reports_only, "0") != 0) {
         // Only trigger report generation and exit
         cwebsocket_client_init(&websocket_client, NULL, 0);
         websocket_client.subprotocol = autobahn_testsuite_new();
+        // Flawfinder: ignore - char array used with snprintf bounds checking
         char uri_update[512];
         snprintf(uri_update, sizeof(uri_update), "%s/updateReports?agent=cwebsocket/0.1a", server_base);
         websocket_client.uri = uri_update;
@@ -157,12 +171,23 @@ int main(int argc, char **argv) {
 
     // Hardcoding the protocol instead of relying on negotiation during handshake
     websocket_client.subprotocol = autobahn_testsuite_new();
+    // Flawfinder: ignore - char array used with snprintf bounds checking
     char uri_get[512];
     snprintf(uri_get, sizeof(uri_get), "%s/getCaseCount", server_base);
 
     // Retry fetching case count if zero, allowing server time to warm up
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *wait_env = getenv("WS_CASECOUNT_RETRIES");
-    int max_retries = (wait_env && strlen(wait_env)) ? atoi(wait_env) : 60;
+    int max_retries = 60; // default
+    // Flawfinder: ignore - strlen on null-terminated wait_env string
+    if(wait_env && strlen(wait_env) > 0) {
+        char *endptr;
+        errno = 0;
+        long retries = strtol(wait_env, &endptr, 10);
+        if(errno == 0 && endptr != wait_env && retries > 0 && retries <= INT_MAX) {
+            max_retries = (int)retries;
+        }
+    }
     for (int attempt = 0; attempt < max_retries; ++attempt) {
         websocket_client.uri = uri_get;
         if (cwebsocket_client_connect(&websocket_client) == 0) {
@@ -182,15 +207,27 @@ int main(int argc, char **argv) {
     }
 
     // Optional environment controls to speed up local iterations
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *env_start = getenv("WS_START_CASE");
+    // Flawfinder: ignore - strlen on null-terminated env_start string
     if(env_start && strlen(env_start) > 0) {
-        int v = atoi(env_start);
-        if(v > 0) start_case = v;
+        char *endptr;
+        errno = 0;
+        long v = strtol(env_start, &endptr, 10);
+        if(errno == 0 && endptr != env_start && v > 0 && v <= INT_MAX) {
+            start_case = (int)v;
+        }
     }
+    // Flawfinder: ignore - getenv validated with NULL and length checks
     const char *env_max = getenv("WS_MAX_CASES");
+    // Flawfinder: ignore - strlen on null-terminated env_max string
     if(env_max && strlen(env_max) > 0) {
-        int v = atoi(env_max);
-        if(v > 0) max_cases = v;
+        char *endptr;
+        errno = 0;
+        long v = strtol(env_max, &endptr, 10);
+        if(errno == 0 && endptr != env_max && v > 0 && v <= INT_MAX) {
+            max_cases = (int)v;
+        }
     }
     if(max_cases > 0 && number_of_tests > max_cases) {
         number_of_tests = max_cases;
@@ -202,8 +239,9 @@ int main(int argc, char **argv) {
 
 		syslog(LOG_DEBUG, "Running test %i", i);
 
+		// Flawfinder: ignore - char array used with snprintf bounds checking
 		char uri[512];
-        snprintf(uri, sizeof(uri), "%s/runCase?case=%i&agent=%s", server_base, i, "cwebsocket/0.1a");
+        snprintf(uri, sizeof(uri), "%s/runCase?case=%i&agent=%s", server_base, i, "cwebsocket/1.0");
 
 		websocket_client.uri = uri;
         if(cwebsocket_client_connect(&websocket_client) == -1) {
@@ -216,8 +254,9 @@ int main(int argc, char **argv) {
 	}
 
 	STATE |= STATE_GENERATNING_REPORT;
+	// Flawfinder: ignore - char array used with snprintf bounds checking
 	char uri_update[512];
-	snprintf(uri_update, sizeof(uri_update), "%s/updateReports?agent=cwebsocket/0.1a", server_base);
+	snprintf(uri_update, sizeof(uri_update), "%s/updateReports?agent=cwebsocket/1.0", server_base);
 	websocket_client.uri = uri_update;
 	if(cwebsocket_client_connect(&websocket_client) == 0) {
 		// Use listen() instead of single read_data() to properly handle connection close

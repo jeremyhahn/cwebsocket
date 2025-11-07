@@ -174,6 +174,7 @@ static void test_utf8_validation() {
 static void test_uri_parsing_ws() {
     TEST(test_uri_parsing_ws);
 
+    // Flawfinder: ignore - char arrays used with bounds-checked parse_uri function
     char hostname[100], port[6], resource[256], querystring[256];
     cwebsocket_client websocket;
     memset(&websocket, 0, sizeof(websocket));
@@ -221,6 +222,7 @@ static void test_uri_parsing_wss() {
     TEST(test_uri_parsing_wss);
 
 #ifdef ENABLE_SSL
+    // Flawfinder: ignore - char arrays used with bounds-checked parse_uri function
     char hostname[100], port[6], resource[256], querystring[256];
     cwebsocket_client websocket;
     memset(&websocket, 0, sizeof(websocket));
@@ -424,6 +426,7 @@ static void test_base64_edge_cases() {
     char* encoded = cwebsocket_base64_encode(binary, 256);
     assert(encoded != NULL);
     // Just verify it doesn't crash and returns something
+    // Flawfinder: ignore - strlen on null-terminated encoded string
     if(strlen(encoded) == 0) {
         FAIL("binary encoding returned empty string");
         free(encoded);
@@ -903,6 +906,7 @@ static void test_event_callbacks() {
 static void test_uri_parsing_edge_cases() {
     TEST(test_uri_parsing_edge_cases);
 
+    // Flawfinder: ignore - char arrays used with bounds-checked parse_uri function
     char hostname[100], port[6], resource[256], querystring[256];
     cwebsocket_client websocket;
 
@@ -1017,6 +1021,7 @@ static void test_close_code_edge_cases() {
 static void test_uri_parsing_error_cases() {
     TEST(test_uri_parsing_error_cases);
 
+    // Flawfinder: ignore - char arrays used with bounds-checked parse_uri function
     char hostname[100], port[6], resource[256], querystring[256];
     cwebsocket_client websocket;
 

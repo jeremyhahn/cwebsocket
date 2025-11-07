@@ -2,17 +2,7 @@
 
 # ![alt text][logo] cwebsocket
 
-###### High performance websocket client/server
-
-The goal of cwebsocket is to provide a portable, high performance websocket client/server, especially on low power embedded systems.
-
-cwebsocket is currently in a development state. You may encounter bugs. Report them for a timely fix.
-
-Successful tests have been conducted on the following architectures:
-
-1. [x86](http://en.wikipedia.org/wiki/X86)
-2. [x86_64](http://en.wikipedia.org/wiki/X86-64)
-3. [ARM](http://en.wikipedia.org/wiki/ARM_architecture)
+cwebsocket is a portable, high performance websocket client library, intended for use on low power embedded systems. 
 
 cwebsocket is compliant with the following standards:
 
@@ -27,6 +17,7 @@ cwebsocket is compliant with the following standards:
 3. libtool
 4. libssl-dev
 5. libev-dev
+6. docker (for qa testing)
 
 ### Build
 
@@ -51,7 +42,6 @@ To build without SSL:
 
 The websocket client is able to connect and exchange data with any RFC 6455 compliant server.
 
-	./websocket-client ws://echo.websocket.org
 	./websocket-client wss://echo.websocket.org
 
 ### Dockerized Tests
@@ -76,12 +66,31 @@ All tests run inside a Docker container — nothing is installed on the host.
 
 Note: Integration tests start the Autobahn fuzzing server inside the container and run `websocket-testsuite` against it. Reports are written to the mounted host directory `test/autobahn/reports/clients`.
 
-### TODO
+### Docker-based QA Tools
 
-1. More testing on various embedded devices
-2. Implement pluggable sub-protocols (socketio, WAMP, custom)
-3. Implement pluggable extensions on the client per RFC (section 9)
-4. Get a basic websocket server developed
+All quality assurance tools (valgrind, cppcheck, flawfinder, clang-tools, lcov) are bundled in the Docker image — no installation on the host required.
+
+- Run the complete QA suite:
+
+	make docker-qa
+
+- Memory leak detection with Valgrind:
+
+	make docker-valgrind
+	make docker-memcheck
+
+- Static code analysis with cppcheck:
+
+	make docker-cppcheck
+
+- Security vulnerability scanning:
+
+	make docker-flawfinder
+	make docker-security
+
+- Deep static analysis with Clang analyzer:
+
+	make docker-clang-analyze
 
 
 ## Support
