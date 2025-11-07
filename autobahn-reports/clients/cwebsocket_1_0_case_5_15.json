@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text Message fragmented into 2 fragments, then Continuation Frame with FIN = false where there is nothing to continue, then unfragmented Text Message, all sent in one chop.",
    "droppedByMe": false,
-   "duration": 0,
+   "duration": 1,
    "expectation": "The connection is failed immediately, since there is no message to continue.",
    "expected": {
       "NON-STRICT": [],
@@ -28,8 +28,8 @@
       "requireClean": false
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=59&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: Y0siy82trFdVRtJQ9SgcBA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 3F/USg+YVoAf6M+n53tB9x0pVHA=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=59&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 7Uwh1bvmfiMtkrZa/UQKXA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: dMrwwUQ9QU2U2ne5YknkEFHuF8Y=\r\n\r\n",
    "id": "5.15",
    "isServer": true,
    "localCloseCode": null,
@@ -54,7 +54,7 @@
       "24": 1,
       "352": 1
    },
-   "started": "2025-11-07T04:42:19.363Z",
+   "started": "2025-11-07T08:15:37.100Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 2,
@@ -181,7 +181,7 @@
          "RO",
          [
             24,
-            "819244b59a7722c7fb1029d0f40375d3e81623d8ff193087"
+            "81923e2358695851390e5346361d0f452a08594e3d074a11"
          ]
       ],
       [
@@ -194,7 +194,7 @@
          true,
          0,
          true,
-         "44b59a77"
+         "3e235869"
       ]
    ]
 }

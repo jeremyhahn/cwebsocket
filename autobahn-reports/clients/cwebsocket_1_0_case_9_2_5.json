@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send binary message message with payload of length 8 * 2**20 (16M).",
    "droppedByMe": true,
-   "duration": 83,
+   "duration": 88,
    "expectation": "Receive echo'ed binary message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=257&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: qqt8dIclXM/rjWAUwNVbNA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 8Lt5/dJC+X5+pTa2rO1LNZpYgp8=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=257&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: M/uGf3DKHn002+hSlWd1OQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ZxmAljfOqZOjs/uuWq2uOBKcaOs=\r\n\r\n",
    "id": "9.2.5",
    "isServer": true,
    "localCloseCode": 1000,
@@ -41,27 +41,11 @@
       "8": 1,
       "353": 1,
       "3924": 1,
-      "5232": 1,
-      "6540": 8,
-      "7276": 1,
-      "7848": 10,
-      "9156": 6,
-      "9236": 1,
-      "14388": 1,
-      "17004": 2,
-      "18312": 1,
-      "19620": 2,
-      "20928": 2,
-      "23544": 1,
-      "27468": 1,
-      "35316": 1,
-      "41336": 1,
-      "47088": 1,
-      "57552": 2,
-      "57920": 1,
-      "65536": 118
+      "15000": 1,
+      "32700": 1,
+      "65536": 128
    },
-   "started": "2025-11-07T04:42:28.931Z",
+   "started": "2025-11-07T08:15:46.088Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
@@ -123,7 +107,7 @@
          "RO",
          [
             8,
-            "88823413651237fb"
+            "8882e9208b38eac8"
          ]
       ],
       [
@@ -136,7 +120,7 @@
          true,
          0,
          true,
-         "34136512"
+         "e9208b38"
       ]
    ]
 }

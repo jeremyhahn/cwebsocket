@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://autobahn-testsuite.readthedocs.io/" title="Autobahn WebSocket Testsuite"><img src="https://autobahn-testsuite.readthedocs.io/en/latest/_static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://autobahn-testsuite.readthedocs.io/"           title="Autobahn WebSocket">          <img src="https://autobahn-testsuite.readthedocs.io/en/latest/_static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_ok">cwebsocket/1.0 - <span style="font-size: 1.3em;"><b>Case 9.1.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>212</b> ms @ 2025-11-07T04:42:28.304Z</a></p>
+      <p class="case case_ok">cwebsocket/1.0 - <span style="font-size: 1.3em;"><b>Case 9.1.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>143</b> ms @ 2025-11-07T08:15:45.652Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send text message message with payload of length 8 * 2**20 (8M).</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Receive echo'ed text message (with payload as sent).</p>
 
@@ -218,7 +218,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: cwebsocket-autobahn:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: vcXQ7+14WNnCGDB6ShtT1Q==
+Sec-WebSocket-Key: 2h6UJzodU1icZj/XtgTFsw==
 Sec-WebSocket-Version: 13
 Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
@@ -226,7 +226,7 @@ Server: AutobahnTestSuite/25.10.1-0.10.9
 X-Powered-By: AutobahnPython/0.10.9
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: AieNVsJnKJO7k3ww7FjLdXw52+Q=</pre>
+Sec-WebSocket-Accept: eRFwN5drikRfx8GUbifh9YAPXhk=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -252,9 +252,8 @@ Sec-WebSocket-Accept: AieNVsJnKJO7k3ww7FjLdXw52+Q=</pre>
          <tr class="stats_row"><td>8</td><td>1</td><td>8</td></tr>
          <tr class="stats_row"><td>353</td><td>1</td><td>353</td></tr>
          <tr class="stats_row"><td>18312</td><td>1</td><td>18312</td></tr>
-         <tr class="stats_row"><td>40928</td><td>1</td><td>40928</td></tr>
-         <tr class="stats_row"><td>57920</td><td>1</td><td>57920</td></tr>
-         <tr class="stats_row"><td>65536</td><td>127</td><td>8323072</td></tr>
+         <tr class="stats_row"><td>33312</td><td>1</td><td>33312</td></tr>
+         <tr class="stats_row"><td>65536</td><td>128</td><td>8388608</td></tr>
          <tr class="stats_total"><td>Total</td><td>132</td><td>8440593</td></tr>
       </table>
       <h3>Octets Transmitted by Chop Size</h3>
@@ -291,8 +290,8 @@ Sec-WebSocket-Accept: AieNVsJnKJO7k3ww7FjLdXw52+Q=</pre>
          <pre class="wirelog_tx_frame">003 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               0x03e8</pre>
          <pre class="wirelog_tx_octets">004 TX OCTETS: 880203e8</pre>
-         <pre class="wirelog_rx_octets">005 RX OCTETS: 8882d63cc869d5d4</pre>
-         <pre class="wirelog_rx_frame">006 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASKED=True, MASK=6436336363383639</pre>
+         <pre class="wirelog_rx_octets">005 RX OCTETS: 8882f2a0ef9df148</pre>
+         <pre class="wirelog_rx_frame">006 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASKED=True, MASK=6632613065663964</pre>
          <pre class="wirelog_rx_frame">               0x03e8</pre>
          <pre class="wirelog_tcp_closed_by_me">007 TCP DROPPED BY ME</pre>
       </div>

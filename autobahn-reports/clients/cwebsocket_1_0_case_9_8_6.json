@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 1000 binary messages of payload size 4096 to measure implementation/network RTT (round trip time) / latency.",
    "droppedByMe": true,
-   "duration": 157,
+   "duration": 88,
    "expectation": "Receive echo'ed binary messages (with payload as sent). Timeout case after 480 secs.",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=300&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: mFi2DA/yiDHpiE0A1i281A==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: MCJJDLB/01wZUU3NdTSCi/IoI28=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=300&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 5h0QWlzvr6+I9A8oeUlQvQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: aLLFDj3bqwAyw7WUB2g3dPdkPZo=\r\n\r\n",
    "id": "9.8.6",
    "isServer": true,
    "localCloseCode": 1000,
@@ -39,16 +39,16 @@
    },
    "rxOctetStats": {
       "8": 1,
-      "204": 35,
+      "204": 52,
       "353": 1,
-      "1308": 265,
-      "1512": 182,
-      "2616": 202,
-      "2820": 218,
-      "3924": 6,
-      "4128": 565
+      "1308": 168,
+      "1512": 651,
+      "2616": 661,
+      "2820": 89,
+      "3924": 19,
+      "4128": 208
    },
-   "started": "2025-11-07T04:42:32.241Z",
+   "started": "2025-11-07T08:15:49.330Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1000,
@@ -118,7 +118,7 @@
          "RO",
          [
             8,
-            "888247c3506e442b"
+            "8882e9e4994fea0c"
          ]
       ],
       [
@@ -131,7 +131,7 @@
          true,
          0,
          true,
-         "47c3506e"
+         "e9e4994f"
       ]
    ]
 }

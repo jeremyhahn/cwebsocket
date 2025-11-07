@@ -21,7 +21,7 @@ cwebsocket is compliant with the following standards:
 
 ### Build
 
-By defaults, cwebsocket is built with multi-threading and SSL support. 
+cwebsocket is built with multi-threading and SSL support by default.
 
 To build, run:
 

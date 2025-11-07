@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send binary message message with payload of length 4 * 2**20 (4M).",
    "droppedByMe": true,
-   "duration": 66,
+   "duration": 25,
    "expectation": "Receive echo'ed binary message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=256&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: kiKKFQ3DKaw33WK3ZC+Xmw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: atbnYdniQOn+edYAAIDQKqyaTO4=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=256&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: RGknknU/fn5E4IyQpOGqPw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: m/Ct61x9KYaGWcaRpy+MZXwS2WY=\r\n\r\n",
    "id": "9.2.4",
    "isServer": true,
    "localCloseCode": 1000,
@@ -40,41 +40,12 @@
    "rxOctetStats": {
       "8": 1,
       "353": 1,
-      "2616": 4,
-      "3924": 32,
-      "5232": 46,
-      "6540": 31,
-      "7848": 21,
-      "9156": 8,
-      "10464": 4,
-      "11772": 4,
-      "13080": 2,
-      "13132": 1,
-      "14388": 2,
-      "15696": 2,
-      "17004": 3,
-      "18312": 2,
-      "20928": 3,
-      "22236": 1,
-      "23544": 2,
-      "24852": 2,
-      "26160": 1,
-      "27468": 2,
-      "28776": 1,
-      "31392": 1,
-      "34008": 1,
-      "44472": 1,
-      "47088": 1,
-      "49704": 1,
-      "50144": 1,
-      "53628": 1,
-      "56244": 2,
-      "58316": 1,
-      "61340": 1,
-      "64092": 1,
-      "65536": 34
+      "3924": 1,
+      "7504": 1,
+      "14388": 1,
+      "65536": 64
    },
-   "started": "2025-11-07T04:42:28.864Z",
+   "started": "2025-11-07T08:15:46.061Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
@@ -136,7 +107,7 @@
          "RO",
          [
             8,
-            "8882092632ec0ace"
+            "8882e2a62347e14e"
          ]
       ],
       [
@@ -149,7 +120,7 @@
          true,
          0,
          true,
-         "092632ec"
+         "e2a62347"
       ]
    ]
 }

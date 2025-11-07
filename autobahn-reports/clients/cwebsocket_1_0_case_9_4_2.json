@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send fragmented binary message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 256.",
    "droppedByMe": true,
-   "duration": 68,
+   "duration": 43,
    "expectation": "Receive echo'ed binary message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=269&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: xmLjx5kKrUeDwVwSOVHLaQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: QEnHVf6PEXA1ClUPTUVfqmQx0Zw=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=269&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: qei99jNQ5bcQQ5E5+TPIZg==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: nW8vNzdNaJrBjVWEKB5ASnHZdzI=\r\n\r\n",
    "id": "9.4.2",
    "isServer": true,
    "localCloseCode": 1000,
@@ -44,7 +44,7 @@
       "18312": 1,
       "65536": 64
    },
-   "started": "2025-11-07T04:42:29.996Z",
+   "started": "2025-11-07T08:15:47.067Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 16384,
@@ -108,7 +108,7 @@
          "RO",
          [
             8,
-            "88823f4feac13ca7"
+            "8882e4adcebae745"
          ]
       ],
       [
@@ -121,7 +121,7 @@
          true,
          0,
          true,
-         "3f4feac1"
+         "e4adceba"
       ]
    ]
 }

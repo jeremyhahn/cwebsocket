@@ -299,10 +299,13 @@ static void test_client_init() {
     if(websocket->pmdeflate_client_window_bits != 15 ||
        websocket->pmdeflate_server_window_bits != 15) {
         FAIL("default window bits incorrect");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
+    // Clean up buffer pool before freeing websocket
+    cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
     free(websocket);
     PASS();
 }
@@ -679,6 +682,7 @@ static void test_fragment_management() {
     // Initially no buffer
     if(websocket->fragment_buffer != NULL) {
         FAIL("fragment buffer should be NULL initially");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -686,12 +690,14 @@ static void test_fragment_management() {
     // Allocate small buffer
     if(cwebsocket_client_ensure_fragment_capacity(websocket, 100) != 0) {
         FAIL("should allocate fragment buffer");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
     if(websocket->fragment_capacity < 100) {
         FAIL("fragment capacity should be at least 100");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -700,12 +706,14 @@ static void test_fragment_management() {
     if(cwebsocket_client_ensure_fragment_capacity(websocket, 1000) != 0) {
         FAIL("should expand fragment buffer");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
     if(websocket->fragment_capacity < 1000) {
         FAIL("fragment capacity should be at least 1000");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -715,12 +723,14 @@ static void test_fragment_management() {
     if(cwebsocket_client_ensure_fragment_capacity(websocket, 500) != 0) {
         FAIL("should succeed for smaller request");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
     if(websocket->fragment_capacity != old_capacity) {
         FAIL("should not shrink buffer");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -732,11 +742,13 @@ static void test_fragment_management() {
     if(websocket->fragment_length != 0 || websocket->fragment_in_progress != 0) {
         FAIL("should reset fragment state");
         free(websocket->fragment_buffer);
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
     free(websocket->fragment_buffer);
+    cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
     free(websocket);
     PASS();
 }
@@ -775,22 +787,26 @@ static void test_client_init_with_subprotocols() {
     // Check subprotocols were stored
     if(websocket->subprotocol_len != 2) {
         FAIL("subprotocol_len should be 2");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
     if(websocket->subprotocols[0] != &proto1) {
         FAIL("subprotocols[0] should be proto1");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
     if(websocket->subprotocols[1] != &proto2) {
         FAIL("subprotocols[1] should be proto2");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
+    cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
     free(websocket);
     PASS();
 }
@@ -869,6 +885,7 @@ static void test_event_callbacks() {
     cwebsocket_client_onopen(websocket);
     if(callback_invoked != 1) {
         FAIL("onopen callback not invoked");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -878,6 +895,7 @@ static void test_event_callbacks() {
     cwebsocket_client_onmessage(websocket, &msg);
     if(callback_invoked != 2) {
         FAIL("onmessage callback not invoked");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -886,6 +904,7 @@ static void test_event_callbacks() {
     cwebsocket_client_onclose(websocket, 1000, "normal");
     if(callback_invoked != 3) {
         FAIL("onclose callback not invoked");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
@@ -894,10 +913,12 @@ static void test_event_callbacks() {
     cwebsocket_client_onerror(websocket, "test error");
     if(callback_invoked != 4) {
         FAIL("onerror callback not invoked");
+        cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
         free(websocket);
         return;
     }
 
+    cwebsocket_buffer_pool_destroy(websocket->msg_buffer_pool);
     free(websocket);
     PASS();
 }
@@ -1084,6 +1105,7 @@ static void test_client_state_management() {
     // Check initial state
     if(client->state != WEBSOCKET_STATE_CLOSED) {
         FAIL("initial state should be CLOSED");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
@@ -1091,6 +1113,7 @@ static void test_client_state_management() {
     // Verify initial flags
     if(client->protocol_error != 0) {
         FAIL("initial protocol_error should be 0");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
@@ -1098,22 +1121,26 @@ static void test_client_state_management() {
     // Verify buffer initialization
     if(client->fragment_buffer != NULL) {
         FAIL("fragment_buffer should be NULL initially");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
     if(client->fragment_length != 0) {
         FAIL("fragment_length should be 0 initially");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
     if(client->fragment_capacity != 0) {
         FAIL("fragment_capacity should be 0 initially");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
+    cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
     free(client);
     PASS();
 }
@@ -1152,6 +1179,7 @@ static void test_subprotocol_matching() {
     // Verify subprotocols were set
     if(client->subprotocol_len != 2) {
         FAIL("should have 2 subprotocols");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
@@ -1159,12 +1187,14 @@ static void test_subprotocol_matching() {
     // Verify the protocol pointers are correct
     if(client->subprotocols[0] != &proto1) {
         FAIL("subprotocols[0] should be proto1");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
     if(client->subprotocols[1] != &proto2) {
         FAIL("subprotocols[1] should be proto2");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
@@ -1172,16 +1202,19 @@ static void test_subprotocol_matching() {
     // Verify the names
     if(strcmp(client->subprotocols[0]->name, "chat") != 0) {
         FAIL("subprotocols[0] name should be 'chat'");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
     if(strcmp(client->subprotocols[1]->name, "superchat") != 0) {
         FAIL("subprotocols[1] name should be 'superchat'");
+        cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
         free(client);
         return;
     }
 
+    cwebsocket_buffer_pool_destroy(client->msg_buffer_pool);
     free(client);
     PASS();
 }

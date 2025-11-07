@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: stomp-broker
+    ports:
+      - "15674:15674"  # STOMP over WebSocket
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    command: >
+      bash -c "
+        rabbitmq-plugins enable rabbitmq_web_stomp &&
+        rabbitmq-plugins enable rabbitmq_management &&
+        rabbitmq-server
+      "
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - stomp-test
+
+networks:
+  stomp-test:
+    driver: bridge

@@ -31,8 +31,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: MAroOwz/dDACMERIv55Rkw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: AWllpY1dYe7XjtzXs9G/1xcAniM=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=52&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: SNfLK70FDba0amSIGNKNNA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Qu2Tuw9BTzK55lZj4Ikl+gS6rFA=\r\n\r\n",
    "id": "5.8",
    "isServer": true,
    "localCloseCode": 1000,
@@ -65,7 +65,7 @@
       "24": 1,
       "352": 1
    },
-   "started": "2025-11-07T04:42:19.347Z",
+   "started": "2025-11-07T08:15:37.090Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -354,25 +354,6 @@
          true
       ],
       [
-         "RO",
-         [
-            18,
-            "8a8c1d4e5ad76d2734b03d3e3bae71213bb3"
-         ]
-      ],
-      [
-         "RF",
-         [
-            12,
-            "ping payload"
-         ],
-         10,
-         true,
-         0,
-         true,
-         "1d4e5ad7"
-      ],
-      [
          "TO",
          [
             1,
@@ -387,6 +368,25 @@
             "66"
          ],
          true
+      ],
+      [
+         "RO",
+         [
+            18,
+            "8a8cf94dc1ed8924af8ad93da0949522a089"
+         ]
+      ],
+      [
+         "RF",
+         [
+            12,
+            "ping payload"
+         ],
+         10,
+         true,
+         0,
+         true,
+         "f94dc1ed"
       ],
       [
          "TO",
@@ -456,7 +456,7 @@
          "RO",
          [
             24,
-            "81929e69202cf81b414bf30c4e58af0f524df9044542ea5b"
+            "8192fb8d3bfc9dff5a9b96e85588caeb499d9ce05e928fbf"
          ]
       ],
       [
@@ -469,7 +469,7 @@
          true,
          0,
          true,
-         "9e69202c"
+         "fb8d3bfc"
       ],
       [
          "TF",
@@ -497,7 +497,7 @@
          "RO",
          [
             8,
-            "888278e89dd77b00"
+            "88821b06a17618ee"
          ]
       ],
       [
@@ -510,7 +510,7 @@
          true,
          0,
          true,
-         "78e89dd7"
+         "1b06a176"
       ]
    ]
 }
