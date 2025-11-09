@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send a text message with payload which is not valid UTF-8 in one fragment.<br><br>Payload: 0xe080af",
    "droppedByMe": true,
-   "duration": 0,
+   "duration": 1,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
       "OK": []
@@ -22,8 +22,8 @@
       "requireClean": false
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=140&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 03JHoM1xmEoo9XEUuu+a+g==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: VIuVlmSCXmh9ivpKpa22nRTaVoc=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=140&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: wRl/u6o6WT9qE2NYOoFHTA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Fr8DINUPDK9Lr2O1zL8s5OxLs6E=\r\n\r\n",
    "id": "6.17.2",
    "isServer": true,
    "localCloseCode": 1000,
@@ -42,7 +42,7 @@
       "39": 1,
       "353": 1
    },
-   "started": "2025-11-07T08:15:45.274Z",
+   "started": "2025-11-08T00:12:46.801Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -104,7 +104,7 @@
          "RO",
          [
             39,
-            "88a1992488e79acbfa82fa41e191fc40a88af848ee88eb49ed83b951fc81a104f886e048e786fd"
+            "88a1ea47df70e9a8ad158922b6068f23ff1d8b2bb91f982aba14ca32ab16d267af11932bb0118e"
          ]
       ],
       [
@@ -117,7 +117,7 @@
          true,
          0,
          true,
-         "992488e7"
+         "ea47df70"
       ],
       [
          "TF",

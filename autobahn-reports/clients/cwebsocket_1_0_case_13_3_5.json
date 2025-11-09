@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 1000 compressed messages each of payload size 4096, auto-fragment to 0 octets. Use permessage-deflate client offers (requestNoContextTakeover, requestMaxWindowBits): [(False, 9)]",
    "droppedByMe": true,
-   "duration": 331,
+   "duration": 299,
    "expectation": "Receive echo'ed messages (with payload as sent). Timeout case after 480 secs.",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=432&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: WscVrvLRdpjH6AQT7mOg4w==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: qpW94kccejtxtJ8bSKCR20aEH8U=\r\nSec-WebSocket-Extensions: permessage-deflate; server_no_context_takeover; server_max_window_bits=15; client_max_window_bits=9\r\n\r\n",
+   "httpRequest": "GET /runCase?case=432&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: lBZHv09apQMU/Vl7fvjfEQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: I07kY/mlrfGO3CQSWo6J316udOI=\r\nSec-WebSocket-Extensions: permessage-deflate; server_no_context_takeover; server_max_window_bits=15; client_max_window_bits=9\r\n\r\n",
    "id": "13.3.5",
    "isServer": true,
    "localCloseCode": 1000,
@@ -156,7 +156,7 @@
       "393": 1,
       "394": 1
    },
-   "started": "2025-11-07T08:20:50.631Z",
+   "started": "2025-11-08T00:17:33.484Z",
    "trafficStats": {
       "incomingCompressionRatio": 0.073437255859375,
       "incomingOctetsAppLevel": 4096000,
@@ -358,7 +358,7 @@
          "RO",
          [
             8,
-            "8882d16c4967d284"
+            "8882b9e2ef4eba0a"
          ]
       ],
       [
@@ -371,7 +371,7 @@
          true,
          0,
          true,
-         "d16c4967"
+         "b9e2ef4e"
       ]
    ]
 }

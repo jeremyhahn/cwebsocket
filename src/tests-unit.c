@@ -438,7 +438,7 @@ static void test_base64_edge_cases() {
     free(encoded);
 
     // Test with all zeros
-    uint8_t zeros[16] = {0};
+    const uint8_t zeros[16] = {0};
     char* encoded_zeros = cwebsocket_base64_encode(zeros, 16);
     assert(encoded_zeros != NULL);
     if(strcmp(encoded_zeros, "AAAAAAAAAAAAAAAAAAAAAA==") != 0) {

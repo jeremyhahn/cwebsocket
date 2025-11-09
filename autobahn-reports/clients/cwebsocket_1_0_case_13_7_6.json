@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send 1000 compressed messages each of payload size 8192, auto-fragment to 0 octets. Use permessage-deflate client offers (requestNoContextTakeover, requestMaxWindowBits): [(True, 9), (True, 0), (False, 0)]",
    "droppedByMe": true,
-   "duration": 436,
+   "duration": 459,
    "expectation": "Receive echo'ed messages (with payload as sent). Timeout case after 480 secs.",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=505&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: H3lxxbQv3ZYayExrJXZpUw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Nal77MiCky9gxqx4gUpiNXHo2Ps=\r\nSec-WebSocket-Extensions: permessage-deflate; server_no_context_takeover; server_max_window_bits=15; client_no_context_takeover; client_max_window_bits=9\r\n\r\n",
+   "httpRequest": "GET /runCase?case=505&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: pEPNoGIEOokHZUAWq5uUIQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: DK83BigutqonFYiWOTw5nNs+Bno=\r\nSec-WebSocket-Extensions: permessage-deflate; server_no_context_takeover; server_max_window_bits=15; client_no_context_takeover; client_max_window_bits=9\r\n\r\n",
    "id": "13.7.6",
    "isServer": true,
    "localCloseCode": 1000,
@@ -215,7 +215,7 @@
       "601": 1,
       "602": 1
    },
-   "started": "2025-11-07T08:22:35.144Z",
+   "started": "2025-11-08T00:19:17.002Z",
    "trafficStats": {
       "incomingCompressionRatio": 0.0558089599609375,
       "incomingOctetsAppLevel": 8192000,
@@ -482,7 +482,7 @@
          "RO",
          [
             8,
-            "8882c3bf12dfc057"
+            "888271c84d1f7220"
          ]
       ],
       [
@@ -495,7 +495,7 @@
          true,
          0,
          true,
-         "c3bf12df"
+         "71c84d1f"
       ]
    ]
 }

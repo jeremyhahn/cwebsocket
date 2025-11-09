@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Build and test environment
+  cwebsocket-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cwebsocket/test:latest
+    container_name: cwebsocket-builder
+    volumes:
+      - .:/app
+      - ./test/autobahn:/app/test/autobahn
+      - ./autobahn-reports:/app/autobahn-reports
+    networks:
+      - cwsnet
+    command: bash -c "make tests-unit && ./tests-unit"
+
+  # Autobahn WebSocket Test Suite Server
+  autobahn-server:
+    image: crossbario/autobahn-testsuite:latest
+    container_name: cwebsocket-autobahn
+    volumes:
+      - ./test/autobahn:/config
+    ports:
+      - "9001:9001"
+    networks:
+      - cwsnet
+    command: wstest -m fuzzingserver -s /config/fuzzingserver.json
+
+  # STOMP Broker for STOMP tests
+  stomp-broker:
+    image: rmohr/activemq:latest
+    container_name: stomp-broker
+    ports:
+      - "61613:61613"
+      - "8161:8161"
+    networks:
+      - stomp-test
+    environment:
+      - ACTIVEMQ_MIN_MEMORY=512
+      - ACTIVEMQ_MAX_MEMORY=2048
+
+  # MQTT Broker for MQTT tests
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt-broker
+    volumes:
+      - ./test/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+      - "9001:9001"
+    networks:
+      - mqtt-test
+
+  # Code coverage service
+  coverage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cwebsocket/test:latest
+    container_name: cwebsocket-coverage
+    volumes:
+      - .:/app
+      - ./coverage-html:/app/coverage-html
+    networks:
+      - cwsnet
+    command: bash -c "./scripts/coverage.sh"
+
+  # Static analysis service
+  static-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cwebsocket/test:latest
+    container_name: cwebsocket-analysis
+    volumes:
+      - .:/app
+    networks:
+      - cwsnet
+    command: bash -c "make cppcheck && make flawfinder"
+
+  # Valgrind memory testing service
+  valgrind:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cwebsocket/test:latest
+    container_name: cwebsocket-valgrind
+    volumes:
+      - .:/app
+    networks:
+      - cwsnet
+    command: bash -c "valgrind --leak-check=full --error-exitcode=1 ./tests-unit"
+
+networks:
+  cwsnet:
+    driver: bridge
+  stomp-test:
+    driver: bridge
+  mqtt-test:
+    driver: bridge
+
+volumes:
+  autobahn-reports:
+  coverage-html:

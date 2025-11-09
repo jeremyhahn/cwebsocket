@@ -2,96 +2,116 @@
 
 # ![alt text][logo] cwebsocket
 
-cwebsocket is a portable, high performance websocket client library, intended for use on low power embedded systems. 
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/jeremyhahn/cwebsocket/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![WebSocket](https://img.shields.io/badge/RFC%206455-compliant-brightgreen.svg)](https://datatracker.ietf.org/doc/html/rfc6455)
 
-cwebsocket is compliant with the following standards:
+A portable, high-performance WebSocket client library written in C, designed for embedded systems and production environments.
 
-1. [ANSI C](http://en.wikipedia.org/wiki/ANSI_C)
-2. [POSIX](http://en.wikipedia.org/wiki/C_POSIX_library)
-3. [RFC 6455](http://tools.ietf.org/html/rfc6455)
+## Features
 
-### Dependencies
+### WebSocket Protocol (RFC 6455)
 
-1. autoconf
-2. automake
-3. libtool
-4. libssl-dev
-5. libev-dev
-6. docker (for qa testing)
+Complete implementation of the WebSocket protocol with 100% Autobahn test suite compliance.
 
-### Build
+- Binary and text frame support
+- Fragmentation and control frames (ping/pong/close)
+- SSL/TLS support (wss://)
+- Permessage-deflate compression
+- Multi-threaded client support
+- UTF-8 validation with overlong encoding detection
 
-cwebsocket is built with multi-threading and SSL support by default.
+### Subprotocols
 
-To build, run:
+**Echo** - Simple echo subprotocol for testing and examples
 
-	./autogen.sh
-	./configure
-	make
-	sudo make install
+**STOMP 1.2** - Streaming Text Oriented Messaging Protocol
+- Frame encoding and decoding
+- Header processing
+- Binary message support
 
-To built without multi-threading:
+**MQTT 5.0** - Message Queuing Telemetry Transport with enhanced authentication
+- All packet types (CONNECT, PUBLISH, SUBSCRIBE, PUBACK, PUBREC, PUBREL, PUBCOMP, DISCONNECT, AUTH)
+- QoS levels 0, 1, and 2
+- Retained messages
+- Topic aliases for bandwidth optimization
+- SCRAM-SHA-256 enhanced authentication (RFC 5802/7677)
+- Subscription options
+- Keep-alive with automatic PINGREQ/PINGRESP
+- Session persistence
+- Flow control and packet ID management
+- Property system (38 property types)
 
-	./configure --enable-threads=no
 
-To build without SSL:
+## Building
 
-	./configure --enable-ssl=no
+Dependencies: autoconf, automake, libtool, libssl-dev, zlib1g-dev
 
-### Client
+```bash
+./autogen.sh
+./configure
+make
+sudo make install
+```
 
-The websocket client is able to connect and exchange data with any RFC 6455 compliant server.
+Build options:
 
-	./websocket-client wss://echo.websocket.org
+```bash
+./configure --enable-threads=no   # Disable multi-threading
+./configure --enable-ssl=no       # Disable SSL/TLS support
+```
 
-### Dockerized Tests
+## Usage
 
-All tests run inside a Docker container — nothing is installed on the host.
+### WebSocket Client
 
-- Build the test image:
+```bash
+./websocket-client wss://echo.websocket.org
+```
 
-	make docker-build
+### STOMP Client
 
-- Run unit tests inside the container:
+```bash
+./stomp-client ws://localhost:61614
+```
 
-	make test
+### MQTT Client
 
-- Run the Autobahn integration suite (reports in `test/autobahn/reports/clients` on the host):
+```bash
+./mqtt-client ws://localhost:8083/mqtt
+```
 
-	make integration-test
+## Testing
 
-- Open a shell in the container (optional):
+Run unit tests:
 
-	make docker-shell
+```bash
+make test
+```
 
-Note: Integration tests start the Autobahn fuzzing server inside the container and run `websocket-testsuite` against it. Reports are written to the mounted host directory `test/autobahn/reports/clients`.
+Run integration tests:
 
-### Docker-based QA Tools
+```bash
+make test-integration
+```
 
-All quality assurance tools (valgrind, cppcheck, flawfinder, clang-tools, lcov) are bundled in the Docker image — no installation on the host required.
+Component-specific tests:
 
-- Run the complete QA suite:
+```bash
+make test-websocket     # WebSocket unit and integration tests
+make test-stomp         # STOMP integration tests
+make test-mqtt          # MQTT unit and integration tests
+make test-mqtt-auth     # MQTT SCRAM-SHA-256 authentication tests
+```
 
-	make docker-qa
+Quality assurance:
 
-- Memory leak detection with Valgrind:
-
-	make docker-valgrind
-	make docker-memcheck
-
-- Static code analysis with cppcheck:
-
-	make docker-cppcheck
-
-- Security vulnerability scanning:
-
-	make docker-flawfinder
-	make docker-security
-
-- Deep static analysis with Clang analyzer:
-
-	make docker-clang-analyze
-
+```bash
+make qa                 # Run full QA suite (build, test, valgrind, static analysis, security scan)
+make valgrind           # Memory leak detection
+make static-analysis    # cppcheck analysis
+make security-scan      # flawfinder security scan
+```
 
 ## Support
 

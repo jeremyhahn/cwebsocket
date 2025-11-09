@@ -1,0 +1,41 @@
+# Codecov configuration for cwebsocket
+
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    after_n_builds: 2
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 2%
+        informational: false
+    patch:
+      default:
+        target: 70%
+        informational: false
+
+  ignore:
+    - "test/**/*"
+    - "tests-unit.c"
+    - "autobahn-reports/**/*"
+    - "analysis-reports/**/*"
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+flags:
+  unit-tests:
+    paths:
+      - src/
+    carryforward: true

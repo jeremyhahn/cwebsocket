@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://autobahn-testsuite.readthedocs.io/" title="Autobahn WebSocket Testsuite"><img src="https://autobahn-testsuite.readthedocs.io/en/latest/_static/img/ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://autobahn-testsuite.readthedocs.io/"           title="Autobahn WebSocket">          <img src="https://autobahn-testsuite.readthedocs.io/en/latest/_static/img/ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_ok">cwebsocket/1.0 - <span style="font-size: 1.3em;"><b>Case 9.3.6</b></span> : Pass - <span style="font-size: 0.9em;"><b>55</b> ms @ 2025-11-07T08:15:46.758Z</a></p>
+      <p class="case case_ok">cwebsocket/1.0 - <span style="font-size: 1.3em;"><b>Case 9.3.6</b></span> : Pass - <span style="font-size: 0.9em;"><b>52</b> ms @ 2025-11-08T00:12:48.303Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send fragmented text message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 64k.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Receive echo'ed text message (with payload as sent).</p>
 
@@ -218,7 +218,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
 Host: cwebsocket-autobahn:9001
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Key: Ce5iGwHXZCf6pIUc50xxhg==
+Sec-WebSocket-Key: hXnjnqJ6aKWdavwUIDtWMA==
 Sec-WebSocket-Version: 13
 Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
@@ -226,7 +226,7 @@ Server: AutobahnTestSuite/25.10.1-0.10.9
 X-Powered-By: AutobahnPython/0.10.9
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: YTAnvLvHkxV8K+WnH/TP2Tld/rM=</pre>
+Sec-WebSocket-Accept: PBb9P8bgIgpjCnX8kNE7CbHj8Kw=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -251,9 +251,10 @@ Sec-WebSocket-Accept: YTAnvLvHkxV8K+WnH/TP2Tld/rM=</pre>
          <tr class="stats_header"><td>Chop Size</td><td>Count</td><td>Octets</td></tr>
          <tr class="stats_row"><td>8</td><td>1</td><td>8</td></tr>
          <tr class="stats_row"><td>353</td><td>1</td><td>353</td></tr>
-         <tr class="stats_row"><td>7504</td><td>1</td><td>7504</td></tr>
+         <tr class="stats_row"><td>8684</td><td>1</td><td>8684</td></tr>
          <tr class="stats_row"><td>18312</td><td>1</td><td>18312</td></tr>
-         <tr class="stats_row"><td>65536</td><td>64</td><td>4194304</td></tr>
+         <tr class="stats_row"><td>64356</td><td>1</td><td>64356</td></tr>
+         <tr class="stats_row"><td>65536</td><td>63</td><td>4128768</td></tr>
          <tr class="stats_total"><td>Total</td><td>68</td><td>4220481</td></tr>
       </table>
       <h3>Octets Transmitted by Chop Size</h3>
@@ -292,8 +293,8 @@ Sec-WebSocket-Accept: YTAnvLvHkxV8K+WnH/TP2Tld/rM=</pre>
          <pre class="wirelog_tx_frame">003 TX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASK=None, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               0x03e8</pre>
          <pre class="wirelog_tx_octets">004 TX OCTETS: 880203e8</pre>
-         <pre class="wirelog_rx_octets">005 RX OCTETS: 888229f988742a11</pre>
-         <pre class="wirelog_rx_frame">006 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASKED=True, MASK=3239663938383734</pre>
+         <pre class="wirelog_rx_octets">005 RX OCTETS: 8882980cb5509be4</pre>
+         <pre class="wirelog_rx_frame">006 RX FRAME : OPCODE=8, FIN=True, RSV=0, PAYLOAD-LEN=2, MASKED=True, MASK=3938306362353530</pre>
          <pre class="wirelog_rx_frame">               0x03e8</pre>
          <pre class="wirelog_tcp_closed_by_me">007 TCP DROPPED BY ME</pre>
       </div>

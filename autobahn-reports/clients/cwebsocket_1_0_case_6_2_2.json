@@ -27,8 +27,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=69&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 4aL3b8iVu42/1Ug8xS1FCg==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: iSkIu/aSHhcbPAHQmVfO7SpemKE=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=69&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: vZ7r8BwMH/wYHiDu8FMDJw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 31t6ZZ2EB7++B3y37h4TKh5E7cU=\r\n\r\n",
    "id": "6.2.2",
    "isServer": true,
    "localCloseCode": 1000,
@@ -55,7 +55,7 @@
       "35": 1,
       "352": 1
    },
-   "started": "2025-11-07T08:15:39.130Z",
+   "started": "2025-11-08T00:12:40.644Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 1,
@@ -141,7 +141,7 @@
          "RO",
          [
             35,
-            "819d443028020c55446e2b1deab704f3b7c1f2f38cc1f8f388c1e51d7d56021d102365"
+            "819d8f128910c777e57ce03f4ba5cfd116d339d12dd333d129d32e3fdc44c93fb131ae"
          ]
       ],
       [
@@ -154,7 +154,7 @@
          true,
          0,
          true,
-         "44302802"
+         "8f128910"
       ],
       [
          "TF",
@@ -182,7 +182,7 @@
          "RO",
          [
             8,
-            "8882f57b0c7cf693"
+            "8882383566e43bdd"
          ]
       ],
       [
@@ -195,7 +195,7 @@
          true,
          0,
          true,
-         "f57b0c7c"
+         "383566e4"
       ]
    ]
 }

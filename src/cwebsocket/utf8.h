@@ -33,6 +33,7 @@ static const uint8_t utf8d[] = {
 
 int utf8_count_code_points(uint8_t* s, size_t* count);
 uint32_t utf8_decode(uint32_t* state, uint32_t* codep, uint32_t byte);
+int utf8_is_overlong(uint8_t first_byte, uint32_t codepoint);
 
 #ifdef __cplusplus
 }

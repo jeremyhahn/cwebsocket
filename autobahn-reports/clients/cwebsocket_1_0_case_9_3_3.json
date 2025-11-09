@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send fragmented text message message with message payload of length 4 * 2**20 (4M). Sent out in fragments of 1k.",
    "droppedByMe": true,
-   "duration": 47,
+   "duration": 59,
    "expectation": "Receive echo'ed text message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=261&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 2jUqMAhVteBtA0VTPzMq4Q==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: /OCDun6NRgbZfUBxh/QlhbyDkaE=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=261&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: IkbqxIxNEHp55G0fjVUx2g==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: AsPp7kfEl92OTaCShTYa+Bpu4a0=\r\n\r\n",
    "id": "9.3.3",
    "isServer": true,
    "localCloseCode": 1000,
@@ -40,13 +40,11 @@
    "rxOctetStats": {
       "8": 1,
       "353": 1,
-      "13080": 1,
-      "15916": 1,
+      "7504": 1,
       "18312": 1,
-      "44044": 1,
-      "65536": 63
+      "65536": 64
    },
-   "started": "2025-11-07T08:15:46.587Z",
+   "started": "2025-11-08T00:12:48.140Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 4096,
@@ -110,7 +108,7 @@
          "RO",
          [
             8,
-            "8882854944d786a1"
+            "88827ee8bed27d00"
          ]
       ],
       [
@@ -123,7 +121,7 @@
          true,
          0,
          true,
-         "854944d7"
+         "7ee8bed2"
       ]
    ]
 }

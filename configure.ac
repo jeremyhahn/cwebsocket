@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([cwebsocket], [0.01], [root@localhost])
+AC_INIT([cwebsocket], [2.0.0], [root@localhost])
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([cwebsocket], [0.01])
+AM_INIT_AUTOMAKE([cwebsocket], [2.0.0])
 AC_CONFIG_SRCDIR([src/websocket-client.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

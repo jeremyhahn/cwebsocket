@@ -1,0 +1,70 @@
+# Pre-commit hooks configuration
+# Install pre-commit: pip install pre-commit
+# Install hooks: pre-commit install
+
+repos:
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.patch$'
+      - id: end-of-file-fixer
+        exclude: '\.patch$'
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+
+  # C/C++ formatting with clang-format
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.6
+    hooks:
+      - id: clang-format
+        files: \.(c|h)$
+        exclude: '^(test/|autobahn-reports/)'
+
+  # Local hooks for project-specific checks
+  - repo: local
+    hooks:
+      # Build check
+      - id: build-check
+        name: Build Check
+        entry: bash -c 'make clean && ./autogen.sh && ./configure && make -j$(nproc 2>/dev/null || echo 1)'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      # Unit tests
+      - id: unit-tests
+        name: Unit Tests
+        entry: bash -c 'make tests-unit && ./tests-unit'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Static analysis with cppcheck
+      - id: cppcheck
+        name: Cppcheck Static Analysis
+        entry: bash -c 'cppcheck --enable=warning --std=c99 --suppress=missingIncludeSystem --error-exitcode=1 -I src/cwebsocket src/cwebsocket/*.c src/*.c 2>&1'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Security scan with flawfinder
+      - id: flawfinder
+        name: Flawfinder Security Scan
+        entry: bash -c 'flawfinder --quiet --minlevel=2 src/cwebsocket/*.c src/*.c'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Memory leak check (quick)
+      - id: valgrind-quick
+        name: Valgrind Memory Check (Quick)
+        entry: bash -c 'valgrind --leak-check=yes --error-exitcode=1 --errors-for-leak-kinds=definite ./tests-unit'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

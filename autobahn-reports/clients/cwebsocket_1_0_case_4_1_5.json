@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send small text message, then send frame with reserved non-control <b>Opcode = 7</b> and non-empty payload, then send Ping.",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 6,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since reserved opcode frame is used. A Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,8 +28,8 @@
       "requireClean": false
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=39&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: pJtmNuVkJbKoiVNLMov1pQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: DbZYZ1+q2sebDZNiO39CsTqdD5U=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=39&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 2QqPlZNzGZ2mdvu7LNKmhA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: YpNlCj8i6YjF6Knd5mA2HvjqcJ4=\r\n\r\n",
    "id": "4.1.5",
    "isServer": true,
    "localCloseCode": null,
@@ -54,7 +54,7 @@
       "19": 1,
       "352": 1
    },
-   "started": "2025-11-07T08:15:37.071Z",
+   "started": "2025-11-08T00:12:38.560Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -269,10 +269,18 @@
          true
       ],
       [
+         "TO",
+         [
+            1,
+            "48"
+         ],
+         true
+      ],
+      [
          "RO",
          [
             19,
-            "818dc30263b68b670fdaac2e43c1ac700fd2e2"
+            "818dc61b67658e7e0b09a9374712a9690b01e7"
          ]
       ],
       [
@@ -285,15 +293,7 @@
          true,
          0,
          true,
-         "c30263b6"
-      ],
-      [
-         "TO",
-         [
-            1,
-            "48"
-         ],
-         true
+         "c61b6765"
       ],
       [
          "TO",

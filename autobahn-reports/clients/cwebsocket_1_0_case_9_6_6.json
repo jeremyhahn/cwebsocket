@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=288&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: /g89YLIDqlxUticWVsmSeA==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 2YCrxvz9v+I2uN+N8VQaCUrEHJY=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=288&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: JR4EKprZj7/oU72TA4aEYg==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: NwU3y29Fn/vnM0KlpETcsFnSvw4=\r\n\r\n",
    "id": "9.6.6",
    "isServer": true,
    "localCloseCode": 1000,
@@ -40,14 +40,12 @@
    "rxOctetStats": {
       "8": 1,
       "353": 1,
-      "7848": 1,
-      "14864": 1,
+      "2616": 1,
       "15696": 1,
-      "41200": 1,
-      "57920": 1,
-      "65536": 14
+      "53680": 1,
+      "65536": 15
    },
-   "started": "2025-11-07T08:15:48.427Z",
+   "started": "2025-11-08T00:12:49.916Z",
    "trafficStats": null,
    "txFrameStats": {
       "2": 1,
@@ -110,7 +108,7 @@
          "RO",
          [
             8,
-            "8882cbdd5849c835"
+            "88821d2f5ce31ec7"
          ]
       ],
       [
@@ -123,7 +121,7 @@
          true,
          0,
          true,
-         "cbdd5849"
+         "1d2f5ce3"
       ]
    ]
 }

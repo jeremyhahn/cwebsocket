@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send text message message with payload of length 1 * 2**20 (1M).",
    "droppedByMe": true,
-   "duration": 59,
+   "duration": 34,
    "expectation": "Receive echo'ed text message (with payload as sent).",
    "expected": {},
    "expectedClose": {
@@ -19,8 +19,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET /runCase?case=249&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: 3pliJMX5dkx/LmvyTcL6Zw==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ucocefmN5vKjgHXhb2zJowidVqA=\r\n\r\n",
+   "httpRequest": "GET /runCase?case=249&agent=cwebsocket/1.0 HTTP/1.1\r\nHost: cwebsocket-autobahn:9001\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: B9AWZz/cFN7y6jEVlkmDhQ==\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Extensions: permessage-deflate; client_max_window_bits; server_max_window_bits=15; client_no_context_takeover; server_no_context_takeover\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnTestSuite/25.10.1-0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 701MScd+78lnnipLN5ezWAnBaQU=\r\n\r\n",
    "id": "9.1.3",
    "isServer": true,
    "localCloseCode": 1000,
@@ -40,12 +40,11 @@
    "rxOctetStats": {
       "8": 1,
       "353": 1,
-      "1308": 1,
-      "17004": 1,
+      "18312": 1,
       "53680": 1,
       "65536": 15
    },
-   "started": "2025-11-07T08:15:45.477Z",
+   "started": "2025-11-08T00:12:47.052Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -107,7 +106,7 @@
          "RO",
          [
             8,
-            "8882d177e870d29f"
+            "8882d24de339d1a5"
          ]
       ],
       [
@@ -120,7 +119,7 @@
          true,
          0,
          true,
-         "d177e870"
+         "d24de339"
       ]
    ]
 }
